@@ -40,6 +40,7 @@ function CreateServiceRequest() {
       <h2 className="text-xl font-bold mb-4">Create Service Request</h2>
 
       <form onSubmit={handleSubmit} className="space-y-3">
+        <lable className="w-full border p-2 rounded"> Room ID</lable>
         <input
           type="text"
           name="roomId"
