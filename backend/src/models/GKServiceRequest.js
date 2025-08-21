@@ -1,15 +1,20 @@
 import mongoose from "mongoose";
 
-const serviceSchema = new mongoose.Schema({
+const GKServiceRequestSchema = new mongoose.Schema({
   roomId: { type: String, required: true },
   contactNo: { type: String, required: true },
   serviceType: { type: String, required: true },
   description: { type: String },
   fileUrl: { type: String },
+   status: {
+      type: String,
+      enum: ["Pending", "In Processing", "Completed"],
+      default: "Pending",
+    },
 },
-    {timestamps: ture } //createdAt, updateAt
+    { timestamps: true } //createdAt, updateAt
 );
 
-const service = mongoose.model("service", serviceSchema)
+const GKServiceRequest  = mongoose.model("GKServiceRequest", GKServiceRequestSchema);
 
-export default service;
+export default GKServiceRequest ;

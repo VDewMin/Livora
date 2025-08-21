@@ -2,11 +2,15 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+//import path from "path";
+import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5001
+
+const PORT = process.env.PORT || 5001;
+//const __dirname = path.resolve();
 
 app.use(
     cors({
@@ -16,6 +20,7 @@ app.use(
 //middleware
 app.use(express.json());  //this middleware will parse JSON bodies: req.body
 
+app.use("/api/services", serviceRequestRouter);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
