@@ -13,15 +13,8 @@ const parcelSchema = new mongoose.Schema({
     },
 
     residentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to User (Resident)
-      required: true,
-    },
-
-    residentName: {
       type: String,
       required: true,
-      trim: true,
     },
 
     apartmentNo: {
@@ -42,7 +35,6 @@ const parcelSchema = new mongoose.Schema({
 
     courierService: {
       type: String,
-      default: "N/A",
     },
 
     status: {
