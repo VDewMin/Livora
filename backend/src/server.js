@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import usersRoutes from "./routes/vd_usersRoutes.js";
-
+import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
 
 dotenv.config();
@@ -21,6 +21,7 @@ app.use(
 app.use(express.json());  //this middleware will parse JSON bodies: req.body
 
 app.use("/api/users", usersRoutes);
+app.use("/api/services", serviceRequestRouter);
 
 connectDB().then(() => {
     app.listen(PORT, () => {

@@ -1,4 +1,4 @@
-import GKServiceRequest from "../models/GKServiceRequest";
+import GKServiceRequest from "../models/GKServiceRequest.js";
 
 export async function gerAllServices(req, res){
     try {
