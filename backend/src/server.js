@@ -5,6 +5,8 @@ import cors from "cors";
 import sn_paymentRoutes from "./routes/sn_paymentRoutes.js"
 import path from "path";
 import usersRoutes from "./routes/vd_usersRoutes.js";
+import parcelRoutes from "./routes/ks_parcelRoutes.js"
+
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
 
@@ -20,8 +22,10 @@ app.use(
 //middleware
 app.use(express.json());  
 
-app.use("/api/payments", sn_paymentRoutes)
+
 app.use("/api/users", usersRoutes);
+app.use("/api/parcels", parcelRoutes);
+app.use("/api/payments", sn_paymentRoutes)
 app.use("/api/services", serviceRequestRouter);
 
 connectDB().then(() => {
