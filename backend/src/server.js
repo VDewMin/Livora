@@ -16,7 +16,7 @@ app.use(
 }));
 
 //middleware
-app.use(express.json());  //this middleware will parse JSON bodies: req.body
+app.use(express.json());  
 
 app.use("/api/payments", sn_paymentRoutes)
     
