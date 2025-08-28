@@ -1,6 +1,6 @@
 import GKServiceRequest from "../models/GKServiceRequest.js";
 
-export async function gerAllServices(req, res){
+export async function getAllServices(req, res){
     try {
         const services = await GKServiceRequest.find().sort({createdAt: -1});//newest first
         res.status(200).json(services);
@@ -10,10 +10,21 @@ export async function gerAllServices(req, res){
     }
 }
 
+export async function getServicesById(req, res){
+    try {
+        const services = await GKServiceRequest.findById(req.params.id);//newest first
+        if(!services) return res.status(404).json({ message:"service not found "});
+        res.json(services);
+    } catch (error) {
+        console.error("error in gerServicesById controller", error);
+        res.status(500).json({message: "internal server error"});
+    }
+}
+
 export async function createServices(req, res){
     try {
-        const {roomId, contactNo, serviceType, description, fileUrl} = req.body
-        const service = new GKServiceRequest({roomId, contactNo, serviceType, description, fileUrl})
+        const {aptNo, roomId, contactNo, serviceType, description, fileUrl} = req.body
+        const service = new GKServiceRequest({aptNo, roomId, contactNo, serviceType, description, fileUrl})
 
         const saveService = await service.save()
         res.status(201).json(saveService)
@@ -25,9 +36,9 @@ export async function createServices(req, res){
 
 export async function updateServices(req, res){
     try {
-        const {roomId, contactNo, serviceType, description, fileUrl} = req.body
+        const {aptNo, roomId, contactNo, serviceType, description, fileUrl} = req.body
         const updateService = await GKServiceRequest.findByIdAndUpdate(req.params.id, 
-            {roomId, contactNo, serviceType, description, fileUrl},
+            {aptNo, roomId, contactNo, serviceType, description, fileUrl},
             {new: true,}
             );
         
