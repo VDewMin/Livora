@@ -1,9 +1,11 @@
 import React from 'react'
 import {useState} from "react"
 import {useEffect} from "react"
-import axios from "axios"
+import api from "../lib/axios.js"
 import { Plus, Edit, Trash } from "lucide-react"
 import {formatDate} from "../lib/utils.js"
+import {Link} from "react-router"
+import toast from "react-hot-toast"
 
 const KsViewParcels = () => {
   const [parcels, setParcels] = useState([])
@@ -12,7 +14,7 @@ const KsViewParcels = () => {
 useEffect(() => {
   const fetchParcels = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/parcels")
+      const res = await api.get("/parcels")
       console.log(res.data)
       setParcels(res.data)
     } catch (error) {
@@ -25,6 +27,20 @@ useEffect(() => {
   fetchParcels()
 },[])
 
+const handleDelete = async (id) => {
+  
+  if(!window.confirm("Are you sure you want to delete this parcel?")) return;
+  
+  try {
+    await api.delete(`/parcels/${id}`)
+    setParcels((prev) => prev.filter((p) => p._id !== id))
+    toast.success("Parcel deleted successfuly!")
+  } catch (error) {
+    console.log("error in handleDelete", error)
+    toast.error("Failed to delete Parcel")
+  }
+}
+
 if(loading){
   return <p className="p-6">Loading parcels...</p>
 }
@@ -36,9 +52,9 @@ return (
         <div>
           <h2 className="text-lg font-semibold">Parcel Logs</h2>
         </div>
-        <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700">
+        <Link to="/addParcel" className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700">
           <Plus size={18} /> Add Parcel
-        </button>
+        </Link>
       </div>
 
       {/* Table */}
@@ -90,10 +106,10 @@ return (
                 </td>
                 <td className="px-4 py-2">{parcel.collectedByName || "-"}</td>
                 <td className="px-4 py-2 flex gap-2">
-                  <button className="flex items-center gap-1 text-blue-600 hover:underline">
+                  <Link to={`/parcel/${parcel._id}`} className="flex items-center gap-1 text-blue-600 hover:underline">
                     <Edit size={16} /> Edit
-                  </button>
-                  <button className="flex items-center gap-1 text-red-600 hover:underline">
+                  </Link>
+                  <button onClick={() => handleDelete(parcel._id)} className="flex items-center gap-1 text-red-600 hover:underline">
                     <Trash size={16} /> Delete
                   </button>
                 </td>
