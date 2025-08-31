@@ -1,16 +1,20 @@
 import express from "express";
-import {getAllPayment, createOnlinePayment , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID} from "../controllers/sn_paymentController.js"
+import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment } from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
 
 router.get("/", getAllPayment);
 
+router.put("/", createOfflinePayment);
+
+router.post("/validate-otp", validateOTPAndCompletePayment);
+
+router.post("/checkout", createOnlinePaymentWithOTP);
+
+router.post("/resend-otp", resendOTP);
+
 router.get("/:id", getPaymentbyID);
 
-router.post("/", createOnlinePayment)
-
-router.put("/", createOfflinePayment)
-
-router.delete("/:id", vertifyOfflinePayment)
+router.delete("/:id", vertifyOfflinePayment);
 
 export default router;

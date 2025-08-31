@@ -2,8 +2,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import sn_paymentRoutes from "./routes/sn_paymentRoutes.js"
-import sn_stripeRoutes from "./routes/sn_stripeRoutes.js"
+import sn_paymentRoutes from "./routes/sn_paymentRoutes.js";
 import path from "path";
 import usersRoutes from "./routes/vd_usersRoutes.js";
 import parcelRoutes from "./routes/ks_parcelRoutes.js"
@@ -29,7 +28,9 @@ app.use("/api/users", usersRoutes);
 app.use("/api/parcels", parcelRoutes);
 app.use("/api/payments", sn_paymentRoutes)
 app.use("/api/services", serviceRequestRouter);
-app.use("/api/checkout", sn_stripeRoutes);
+
+
+
 
 
 

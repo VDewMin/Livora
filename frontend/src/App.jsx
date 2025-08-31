@@ -2,14 +2,20 @@ import toast from "react-hot-toast";
 import React from "react";
 import {Route, Routes } from "react-router";
 import GKServiceRequest from './pages/GKServiceRequest.jsx'
-import Checkout from "./components/Checkout.jsx";
+import Checkout from "./pages/SN_Checkout.jsx";
+import Success from "./pages/SN_Success.jsx";
+import Cancel from "./pages/SN_Cancel.jsx";
+import VerifyOTP from "./pages/SN_VerifyOTP.jsx";
 
 const App = () =>{
     return(
         <div className="p-4">
             <Routes>
                 <Route path="/" element={<GKServiceRequest />} />
-                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/chekout" element={<Checkout/>} />
+                <Route path="/verify-otp" element={<VerifyOTP />} />
+                <Route path="/success" element={<Success />} />
+                <Route path="/cancel" element={<Cancel />} />
             </Routes>
 
         </div>
