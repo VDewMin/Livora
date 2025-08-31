@@ -1,5 +1,5 @@
 import express from "express";
-import {getAllPayment, createPayment , deletePayment , updatePayment , getPaymentbyID} from "../controllers/sn_paymentController.js"
+import {getAllPayment, createOnlinePayment , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID} from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
 
@@ -7,10 +7,10 @@ router.get("/", getAllPayment);
 
 router.get("/:id", getPaymentbyID);
 
-router.post("/", createPayment)
+router.post("/", createOnlinePayment)
 
-router.put("/:id", updatePayment)
+router.put("/", createOfflinePayment)
 
-router.delete("/:id", deletePayment)
+router.delete("/:id", vertifyOfflinePayment)
 
 export default router;
