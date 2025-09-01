@@ -6,6 +6,8 @@ import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 
+
+
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -32,7 +34,7 @@ const sendEmail = async (email, otp) => {
 // ---------------- Online Payment with Stripe + OTP ----------------
 export const createOnlinePaymentWithOTP = async (req, res) => {
   try {
-    const { residentId, phoneNumber, amountRent = 0, amountLaundry = 0, email } = req.body;
+    const { residentId, phoneNumber, amountRent , amountLaundry , email } = req.body;
 
     if (!residentId || !phoneNumber || !email) return res.status(400).json({ message: "residentId, phoneNumber and email are required" });
 
@@ -176,6 +178,7 @@ export const resendOTP = async (req, res) => {
 
 
 //master + offline
+
 export const createOfflinePayment = async (req , res) => {
     try {
         //master

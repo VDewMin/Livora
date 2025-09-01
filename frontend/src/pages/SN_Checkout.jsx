@@ -13,15 +13,19 @@ const Checkout = () => {
       const res = await fetch("http://localhost:5001/api/payments/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ residentId, phoneNumber, amountRent, amountLaundry, email }),
+        body: JSON.stringify({
+          residentId,
+          phoneNumber,
+          amountRent,
+          amountLaundry,
+          email,
+        }),
       });
       const data = await res.json();
 
-      // Save paymentId and email for OTP
       localStorage.setItem("paymentId", data.parentPayment.paymentId);
       localStorage.setItem("email", email);
 
-      // Redirect to Stripe Checkout
       window.location.href = data.sessionUrl;
     } catch (err) {
       console.error(err);
@@ -30,16 +34,63 @@ const Checkout = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-2xl font-bold mb-4 text-center">Checkout</h2>
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input placeholder="Resident ID" value={residentId} onChange={e => setResidentId(e.target.value)} className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input placeholder="Phone Number" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input placeholder="Rent Amount" type="number" value={amountRent} onChange={e => setAmountRent(e.target.value)} className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input placeholder="Laundry Amount" type="number" value={amountLaundry} onChange={e => setAmountLaundry(e.target.value)} className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10 relative">
+      {/* Navigate to Payment History */}
+      <button
+        onClick={() => (window.location.href = "/payment-history")}
+        className="absolute top-3 right-3 bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-800 text-sm"
+      >
+        View Payment History
+      </button>
 
-      <button onClick={handleCheckout} className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors mb-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Checkout</h2>
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Resident ID"
+        value={residentId}
+        onChange={(e) => setResidentId(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Phone Number"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Rent Amount"
+        type="number"
+        value={amountRent}
+        onChange={(e) => setAmountRent(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Laundry Amount"
+        type="number"
+        value={amountLaundry}
+        onChange={(e) => setAmountLaundry(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <button
+        onClick={handleCheckout}
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors mb-4"
+      >
         Proceed to Stripe Checkout
+      </button>
+
+      <button
+        onClick={() => (window.location.href = "/offline-slip")}
+        className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
+      >
+        Pay Offline (Upload Slip)
       </button>
 
       {message && <p className="text-center text-gray-700">{message}</p>}

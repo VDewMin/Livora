@@ -5,8 +5,6 @@ const router = express.Router();
 
 router.get("/", getAllPayment);
 
-router.put("/", createOfflinePayment);
-
 router.post("/validate-otp", validateOTPAndCompletePayment);
 
 router.post("/checkout", createOnlinePaymentWithOTP);
@@ -15,6 +13,10 @@ router.post("/resend-otp", resendOTP);
 
 router.get("/:id", getPaymentbyID);
 
+
+
 router.delete("/:id", vertifyOfflinePayment);
+
+
 
 export default router;
