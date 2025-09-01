@@ -1,34 +1,33 @@
-import React from 'react'
-import {useState} from "react"
-import toast from "react-hot-toast"
-import {Link, useNavigate} from "react-router"
-import api from "../lib/axios.js"
-
+import React from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router";
+import api from "../lib/axios.js";
 
 const KsAddParcel = () => {
-  const [residentName, setResidentName] = useState("")
-  const [residentId, setResidentId] = useState("")
-  const [apartmentNo, setApartmentNo] = useState("")
-  const [parcelType, setParcelType] = useState("Normal")
-  const [parcelDescription, setParcelDescription] = useState("")
-  const [courierService, setCourierService] = useState("")
-  const [status, setStatus] = useState("Pending")
+  const [residentName, setResidentName] = useState("");
+  const [residentId, setResidentId] = useState("");
+  const [apartmentNo, setApartmentNo] = useState("");
+  const [parcelType, setParcelType] = useState("Normal");
+  const [parcelDescription, setParcelDescription] = useState("");
+  const [courierService, setCourierService] = useState("");
+  const [status, setStatus] = useState("Pending");
   const [arrivalDateTime, setArrivalDateTime] = useState(() => {
-  const now = new Date();
-  // Format for datetime-local: "YYYY-MM-DDTHH:MM"
-  return now.toISOString().slice(0,16);
-});
+    const now = new Date();
+    // Format for datetime-local: "YYYY-MM-DDTHH:MM"
+    return now.toISOString().slice(0, 16);
+  });
 
-  const [receivedByStaff, setReceivedByStaff] = useState("")
-  const [collectedDateTime, setCollectedDateTime] = useState("")
-  const [collectedByName, setCollectedByName] = useState("")
-  const [loading, setLoading] = useState(false)
-  
-  const navigate = useNavigate()
+  const [receivedByStaff, setReceivedByStaff] = useState("");
+  const [collectedDateTime, setCollectedDateTime] = useState("");
+  const [collectedByName, setCollectedByName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit  = async (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     try {
       await api.post("/parcels", {
         residentName,
@@ -38,26 +37,24 @@ const KsAddParcel = () => {
         parcelDescription,
         courierService,
         status,
-        
         receivedByStaff,
         collectedDateTime,
-        collectedByName
-
-      })
-      toast.success("Parcel added successfully!")
-      navigate("/viewParcels")
+        collectedByName,
+      });
+      toast.success("Parcel added successfully!");
+      navigate("/viewParcels");
     } catch (error) {
-      console.log("error adding parcel", error)
-      toast.error("Failed to add Parcel")
-    } finally{
-      setLoading(false)
+      console.log("error adding parcel", error);
+      toast.error("Failed to add Parcel");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-return (
+  return (
     <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8 mt-6">
       {/* Back button */}
-       <div className="mb-6">
+      <div className="mb-6">
         <Link
           to="/viewParcels"
           className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
@@ -66,10 +63,7 @@ return (
         </Link>
       </div>
 
-
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Add New Parcel
-      </h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Add New Parcel</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,20 +105,20 @@ return (
             />
           </div>
           <div>
-          <label className="block text-gray-700 font-medium mb-1">
-            Parcel Type
-          </label>
-          <select
-            value={parcelType}
-            onChange={(e) => setParcelType(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            required
-          >
-            <option value="Normal">Normal</option>
-            <option value="Documents">Documents</option>
-            <option value="Electronics">Electronics</option>
-          </select>
-        </div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Parcel Type
+            </label>
+            <select
+              value={parcelType}
+              onChange={(e) => setParcelType(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+              required
+            >
+              <option value="Normal">Normal</option>
+              <option value="Documents">Documents</option>
+              <option value="Electronics">Electronics</option>
+            </select>
+          </div>
         </div>
 
         <div>
@@ -229,7 +223,6 @@ return (
       </form>
     </div>
   );
+};
 
-}
-
-export default KsAddParcel
+export default KsAddParcel;
