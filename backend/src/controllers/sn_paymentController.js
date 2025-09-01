@@ -182,17 +182,19 @@ export const resendOTP = async (req, res) => {
 export const createOfflinePayment = async (req , res) => {
     try {
         //master
-        const {residentId, amountRent, amountLaundry } = req.body;
+        const {residentId, amountRent, phoneNumber, amountLaundry } = req.body;
         const slipFile = req.file;
 
         const paymentId = generatePaymentId();
+        const total = Number(amountRent) + Number(amountLaundry);
+
 
         const newPayment = new Payment({
             paymentId,
             residentId,
             phoneNumber,
             paymentType: "Offline",
-            totalAmount: amountRent + amountLaundry,
+            totalAmount: total,
             status: "Pending"
         });
         await newPayment.save();
@@ -204,6 +206,8 @@ export const createOfflinePayment = async (req , res) => {
         phoneNumber,
         amountRent,
         amountLaundry,
+        totalAmount: total,   
+        paymentDate: new Date(),
         slipFile: slipFile ? {data: slipFile.buffer , contentType: slipFile.mimetype} : null,
         status: "Pending"
     });

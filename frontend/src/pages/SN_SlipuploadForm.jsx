@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 
 const OfflineSlipForm = () => {
+  const [residentId, setResidentId] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [amountRent, setAmountRent] = useState(0);
+  const [amountLaundry, setAmountLaundry] = useState(0);
   const [slip, setSlip] = useState(null);
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
-
-  const residentId = localStorage.getItem("residentId") || "";
-  const phoneNumber = localStorage.getItem("phoneNumber") || "";
-  const amountRent = localStorage.getItem("amountRent") || 0;
-  const amountLaundry = localStorage.getItem("amountLaundry") || 0;
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -46,6 +45,10 @@ const OfflineSlipForm = () => {
         setMessage("Offline payment submitted successfully! Awaiting admin verification.");
         setSlip(null);
         setPreview(null);
+        setResidentId("");
+        setPhoneNumber("");
+        setAmountRent(0);
+        setAmountLaundry(0);
       } else {
         const err = await res.json();
         setMessage("Error: " + err.message);
@@ -60,25 +63,67 @@ const OfflineSlipForm = () => {
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
       <h2 className="text-2xl font-bold mb-4 text-center">Upload Payment Slip</h2>
 
-      <p><strong>Resident ID:</strong> {residentId}</p>
-      <p><strong>Phone:</strong> {phoneNumber}</p>
-      <p><strong>Total:</strong> Rs.{Number(amountRent) + Number(amountLaundry)}</p>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={residentId}
+          onChange={(e) => setResidentId(e.target.value)}
+          placeholder="Resident ID"
+          className="w-full mb-3 p-2 border rounded"
+          required
+        />
 
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
-        onChange={handleFileChange}
-        className="w-full mb-3 p-2 border rounded"
-      />
+        <input
+          type="text"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          placeholder="Phone Number"
+          className="w-full mb-3 p-2 border rounded"
+          required
+        />
 
-      {preview && <img src={preview} alt="preview" className="w-40 h-40 object-cover rounded mb-3" />}
+        <input
+          type="number"
+          value={amountRent}
+          onChange={(e) => setAmountRent(e.target.value)}
+          placeholder="Rent Amount"
+          className="w-full mb-3 p-2 border rounded"
+        />
 
-      <button
-        onClick={handleSubmit}
-        className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
-      >
-        Submit Offline Payment
-      </button>
+        <input
+          type="number"
+          value={amountLaundry}
+          onChange={(e) => setAmountLaundry(e.target.value)}
+          placeholder="Laundry Amount"
+          className="w-full mb-3 p-2 border rounded"
+        />
+
+        <p className="mb-3">
+          <strong>Total:</strong> Rs.{Number(amountRent) + Number(amountLaundry)}
+        </p>
+
+        <input
+          type="file"
+          accept="image/png, image/jpeg"
+          onChange={handleFileChange}
+          className="w-full mb-3 p-2 border rounded"
+        />
+
+        {preview && (
+          <img
+            src={preview}
+            alt="preview"
+            className="w-40 h-40 object-cover rounded mb-3"
+          />
+        )}
+
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
+        >
+          Submit Offline Payment
+        </button>
+      </form>
 
       {message && <p className="mt-3 text-center text-gray-700">{message}</p>}
     </div>
