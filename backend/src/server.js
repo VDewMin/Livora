@@ -2,7 +2,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-//import path from "path";
+import path from "path";
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
 
@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 const PORT = process.env.PORT || 5001;
-//const __dirname = path.resolve();
+const __dirname = path.resolve();
 
 app.use(
     cors({
