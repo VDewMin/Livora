@@ -9,11 +9,16 @@ const KsAddParcel = () => {
   const [residentName, setResidentName] = useState("")
   const [residentId, setResidentId] = useState("")
   const [apartmentNo, setApartmentNo] = useState("")
-  const [parcelType, setParcelType] = useState("")
+  const [parcelType, setParcelType] = useState("Normal")
   const [parcelDescription, setParcelDescription] = useState("")
   const [courierService, setCourierService] = useState("")
-  const [status, setStatus] = useState("")
-  const [arrivalDateTime, setArrivalDateTime] = useState("")
+  const [status, setStatus] = useState("Pending")
+  const [arrivalDateTime, setArrivalDateTime] = useState(() => {
+  const now = new Date();
+  // Format for datetime-local: "YYYY-MM-DDTHH:MM"
+  return now.toISOString().slice(0,16);
+});
+
   const [receivedByStaff, setReceivedByStaff] = useState("")
   const [collectedDateTime, setCollectedDateTime] = useState("")
   const [collectedByName, setCollectedByName] = useState("")
@@ -33,7 +38,7 @@ const KsAddParcel = () => {
         parcelDescription,
         courierService,
         status,
-        arrivalDateTime,
+        
         receivedByStaff,
         collectedDateTime,
         collectedByName
@@ -106,16 +111,20 @@ return (
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Parcel Type
-            </label>
-            <input
-              type="text"
-              value={parcelType}
-              onChange={(e) => setParcelType(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
+          <label className="block text-gray-700 font-medium mb-1">
+            Parcel Type
+          </label>
+          <select
+            value={parcelType}
+            onChange={(e) => setParcelType(e.target.value)}
+            className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+            required
+          >
+            <option value="Normal">Normal</option>
+            <option value="Documents">Documents</option>
+            <option value="Electronics">Electronics</option>
+          </select>
+        </div>
         </div>
 
         <div>
@@ -151,10 +160,9 @@ return (
               onChange={(e) => setStatus(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
             >
-              <option value="">Select status</option>
-              <option value="Arrived">Pending</option>
+              <option value="Pending">Pending</option>
               <option value="Collected">Collected</option>
-              <option value="Pending">Removed</option>
+              <option value="Removed">Removed</option>
             </select>
           </div>
         </div>

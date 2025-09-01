@@ -31,8 +31,11 @@ export const getParcelById = async(req,res) => {
 
 export const createParcels = async(req, res) => {
     try {
-        const {parcelId, residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName} = req.body
-        const newParcel = new Parcel({parcelId, residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName})
+        const {residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName} = req.body
+        if (status === "Collected" && !collectedDateTime) {
+            collectedDateTime = new Date();
+        }
+        const newParcel = new Parcel({residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName})
 
         const savedParcel = await newParcel.save();
         res.status(201).json({savedParcel})
@@ -45,7 +48,7 @@ export const createParcels = async(req, res) => {
 export const updateParcel = async(req, res) => {
     try {
         const {parcelId, residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName} = req.body
-        const updatedParcel = await Parcel.findByIdAndUpdate(req.params.id, {parcelDescription, status, collectedByName}, {new: true,})
+        const updatedParcel = await Parcel.findByIdAndUpdate(req.params.id, {parcelDescription, status, collectedByName, collectedDateTime}, {new: true,})
         
         if(!updatedParcel) return res.status(404).json({message: "Parcel not found"})
         res.status(200).json({updatedParcel});

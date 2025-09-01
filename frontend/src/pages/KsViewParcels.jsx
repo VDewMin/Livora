@@ -85,7 +85,7 @@ return (
                 <td className="px-4 py-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      parcel.status === "Picked Up"
+                      parcel.status === "Collected"
                         ? "bg-green-100 text-green-700"
                         : parcel.status === "Removed"
                         ? "bg-red-100 text-red-700"
@@ -101,17 +101,26 @@ return (
                 </td>
                 <td className="px-4 py-2">
                   {parcel.collectedDateTime
-                    ? new Date(parcel.collectedDateTime).toLocaleString()
+                    ? formatDate(new Date(parcel.collectedDateTime))
                     : "-"}
                 </td>
+
                 <td className="px-4 py-2">{parcel.collectedByName || "-"}</td>
-                <td className="px-4 py-2 flex gap-2">
-                  <Link to={`/parcel/${parcel._id}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                <td className="px-4 py-2">
+                <div className="flex gap-2">
+                  <Link
+                    to={`/parcel/${parcel._id}`}
+                    className="flex items-center gap-1 text-blue-600 hover:underline px-2 py-1"
+                  >
                     <Edit size={16} /> Edit
                   </Link>
-                  <button onClick={() => handleDelete(parcel._id)} className="flex items-center gap-1 text-red-600 hover:underline">
+                  <button
+                    onClick={() => handleDelete(parcel._id)}
+                    className="flex items-center gap-1 text-red-600 hover:underline px-2 py-1"
+                  >
                     <Trash size={16} /> Delete
                   </button>
+                  </div>
                 </td>
               </tr>
             ))}

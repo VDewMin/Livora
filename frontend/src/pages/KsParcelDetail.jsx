@@ -8,6 +8,10 @@ import React from 'react';
 
 const KsParcelDetail = () => {
   const [parcel, setParcel] = useState(null);
+  const [collectedDateTime, setCollectedDateTime] = useState(() => {
+    const now = new Date();
+    return now.toISOString().slice(0,16); // format for datetime-local
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -15,11 +19,19 @@ const KsParcelDetail = () => {
   const { id } = useParams();
   console.log({ id });
 
+  const formatDateTimeLocal = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toISOString().slice(0,16); // "YYYY-MM-DDTHH:mm"
+  };
+
+
   useEffect(() => {
     const fetchParcel = async () => {
       try {
         const res = await api.get(`/parcels/${id}`);
         setParcel(res.data);
+
       } catch (error) {
         console.log('Error in fetching parcel', error);
         toast.error('Failed to fetch the parcel');
@@ -97,6 +109,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.residentName || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, residentName: e.target.value })
               }
@@ -111,6 +124,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.residentId || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, residentId: e.target.value })
               }
@@ -128,6 +142,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.apartmentNo || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, apartmentNo: e.target.value })
               }
@@ -141,6 +156,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.parcelType || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, parcelType: e.target.value })
               }
@@ -173,6 +189,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.courierService || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, courierService: e.target.value })
               }
@@ -185,17 +202,22 @@ const KsParcelDetail = () => {
             </label>
             <select
               value={parcel.status || ''}
-              onChange={(e) =>
-                setParcel({ ...parcel, status: e.target.value })
-              }
+              onChange={(e) => {
+                const newStatus = e.target.value;
+                setParcel({
+                  ...parcel,
+                  status: newStatus,
+                  collectedDateTime: newStatus === "Collected" ? new Date().toISOString() : parcel.collectedDateTime
+                });
+              }}
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
             >
               <option value="">Select status</option>
               <option value="Pending">Pending</option>
-              <option value="Arrived">Arrived</option>
               <option value="Collected">Collected</option>
               <option value="Removed">Removed</option>
             </select>
+
           </div>
         </div>
 
@@ -207,7 +229,8 @@ const KsParcelDetail = () => {
             </label>
             <input
               type="datetime-local"
-              value={parcel.arrivalDateTime || ''}
+              value={formatDateTimeLocal(parcel.arrivalDateTime)}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, arrivalDateTime: e.target.value })
               }
@@ -220,12 +243,17 @@ const KsParcelDetail = () => {
             </label>
             <input
               type="datetime-local"
-              value={parcel.collectedDateTime || ''}
+              value={formatDateTimeLocal(parcel.collectedDateTime)}
               onChange={(e) =>
-                setParcel({ ...parcel, collectedDateTime: e.target.value })
+                setParcel({
+                  ...parcel,
+                  // save as full ISO string (UTC safe)
+                  collectedDateTime: new Date(e.target.value).toISOString(),
+                })
               }
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
             />
+
           </div>
         </div>
 
@@ -238,6 +266,7 @@ const KsParcelDetail = () => {
             <input
               type="text"
               value={parcel.receivedByStaff || ''}
+              readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, receivedByStaff: e.target.value })
               }

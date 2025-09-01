@@ -1,10 +1,11 @@
 import mongoose from "mongoose"
+import Counter from "./counter.js";
+
 
 const parcelSchema = new mongoose.Schema({
      parcelId: {
       type: String,
-      required: true,
-      unique: true, // System-generated unique parcel ID
+      unique: true, 
     },
 
      residentName: {
@@ -24,7 +25,7 @@ const parcelSchema = new mongoose.Schema({
 
     parcelType: {
       type: String,
-      enum: ["Normal", "Food", "Documents"],
+      enum: ["Normal", "Documents", "Electronics"],
       required: true,
     },
 
@@ -39,7 +40,7 @@ const parcelSchema = new mongoose.Schema({
 
     status: {
       type: String,
-      enum: ["Pending", "Picked Up", "Removed"],
+      enum: ["Pending", "Collected", "Removed"],
       default: "Pending",
     },
 
@@ -66,6 +67,37 @@ const parcelSchema = new mongoose.Schema({
 },
 {timestamps:true} //createdAt, updatedAt
 )
+
+
+parcelSchema.pre("save", async function (next) {
+  try {
+    // Only generate parcelId if it is not already set
+    if (!this.parcelId) {
+      let counter = await Counter.findOne({ name: "parcel" });
+      
+      // Initialize counter if missing
+      if (!counter) {
+        counter = await Counter.create({ name: "parcel", seq: 0 });
+      }
+
+      // Increment counter
+      counter.seq += 1;
+      await counter.save();
+
+      // Set parcelId
+      this.parcelId = "P" + counter.seq.toString().padStart(3, "0");
+    }
+
+    next();
+  } catch (err) {
+    console.error("Error in pre-save hook:", err);
+    next(err);
+  }
+});
+
+
+
+
 
 const Parcel = mongoose.model("Parcel", parcelSchema)
 
