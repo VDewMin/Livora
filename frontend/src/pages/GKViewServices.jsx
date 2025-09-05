@@ -102,7 +102,7 @@ function GKViewServices() {
                       <FaEdit size={18} />
                     </button>
                     <button
-                      onClick={() => handleDelete(s._id)}
+                     onClick={() => navigate(`/delete-service/${s._id}`)}
                       className="text-red-600 hover:text-red-800 p-2"
                     >
                       <FaTrash size={18} />

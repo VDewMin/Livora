@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 function GKServiceRequest() {
   const [formData, setFormData] = useState({
@@ -51,7 +52,10 @@ function GKServiceRequest() {
 
     try {
       await axios.post("http://localhost:5001/api/services", formData);
-      setMessage("Service request submitted successfully ✅");
+      toast.success("Service request submitted successfully", {
+        position: "top-center",
+        autoClose: 3000, });
+
       setFormData({
         aptNo: "",
         contactNo: "",
@@ -61,7 +65,11 @@ function GKServiceRequest() {
       });
     } catch (err) {
       console.log("Error submitting service request:", err);
-      setMessage("Failed to submit service request ❌");
+      toast.error("Failed to submit service request", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+
     } finally {
       setLoading(false);
     }

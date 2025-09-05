@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router";
 
 function GKUpdateService() {
@@ -26,6 +27,7 @@ function GKUpdateService() {
     try {
       const res = await axios.get(`http://localhost:5001/api/services/${id}`);
       setFormData(res.data);
+
     } catch (err) {
       console.error("Error fetching service", err);
     }
@@ -63,7 +65,11 @@ function GKUpdateService() {
 
     try {
       await axios.put(`http://localhost:5001/api/services/${id}`, formData);
+      toast.success("Update request submitted successfully", {
+        position: "top-center",
+        autoClose: 3000, });
       navigate("/");
+      
     } catch (err) {
       console.error("Error updating service", err);
     }
