@@ -64,6 +64,11 @@ const parcelSchema = new mongoose.Schema({
       default: null, 
     },
 
+    qr: {
+      verifyUrl: String,
+      imgDataUrl: String
+    }
+
 },
 {timestamps:true} //createdAt, updatedAt
 )

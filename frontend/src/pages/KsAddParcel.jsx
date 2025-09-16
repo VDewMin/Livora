@@ -175,37 +175,12 @@ const KsAddParcel = () => {
           </div>
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              Collected Date & Time
-            </label>
-            <input
-              type="datetime-local"
-              value={collectedDateTime}
-              onChange={(e) => setCollectedDateTime(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
               Received By Staff
             </label>
             <input
               type="text"
               value={receivedByStaff}
               onChange={(e) => setReceivedByStaff(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Collected By (Name)
-            </label>
-            <input
-              type="text"
-              value={collectedByName}
-              onChange={(e) => setCollectedByName(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
             />
           </div>

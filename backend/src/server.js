@@ -1,4 +1,10 @@
 import dotenv from "dotenv";
+dotenv.config();
+
+console.log("PARCEL_VERIFY_SECRET =", process.env.PARCEL_VERIFY_SECRET);
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASS length:", process.env.EMAIL_PASS?.length);
+
 import express from "express";
 import cors from "cors";
 
@@ -10,7 +16,7 @@ import parcelRoutes from "./routes/ks_parcelRoutes.js";
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
 
-dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
