@@ -19,8 +19,7 @@ router.get("/:id", getPaymentbyID);
 
 router.post("/offline", upload.single("slipFile"), createOfflinePayment);
 
-router.delete("/:id", vertifyOfflinePayment);
-
+router.post("/verify-offline", vertifyOfflinePayment);
 
 
 export default router;

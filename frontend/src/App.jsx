@@ -10,6 +10,7 @@ import Cancel from "./pages/SN_Cancel.jsx";
 import VerifyOTP from "./pages/SN_VerifyOTP.jsx";
 import OfflineSlipForm from "./pages/SN_SlipuploadForm.jsx";
 import PaymentHistory from "./pages/SN_PaymentHistory.jsx";
+import PaymentDetail from "./pages/SN_PaymentDetail.jsx";
 
 const App = () =>{
     return(
@@ -25,6 +26,7 @@ const App = () =>{
                 <Route path="/cancel" element={<Cancel />} />
                 <Route path="/offline-slip" element={<OfflineSlipForm />} />
                 <Route path="/payment-history" element={<PaymentHistory />} />
+                <Route path="/payment-detail/:id" element={<PaymentDetail />} />
             </Routes>
 
         </div>

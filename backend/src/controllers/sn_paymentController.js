@@ -22,7 +22,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
-const sendEmail = async (email, otp) => {
+//OTP email
+const sendOTPEmail = async (email, otp) => {
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
@@ -30,6 +31,16 @@ const sendEmail = async (email, otp) => {
     text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
   });
 };
+
+/*//offline vertify email
+const sendOfflineVertifyEmail = async (email,res) => {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Your Offline Payment is vertified",
+    text: "Payment is vertified by admin.Check your payment history",
+  });
+};*/
 
 // ---------------- Online Payment with Stripe + OTP ----------------
 export const createOnlinePaymentWithOTP = async (req, res) => {
@@ -95,7 +106,7 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
       { otpCode: otp, createdAt, expiresAt },
       { upsert: true, new: true }
     );
-    await sendEmail(email, otp);
+    await sendOTPEmail(email, otp);
 
     res.status(201).json({
       message: "Payment created. Stripe session ready. OTP sent to email.",
@@ -167,7 +178,7 @@ export const resendOTP = async (req, res) => {
     await record.save();
 
     // Send new OTP email
-    await sendEmail(email, newOtp);
+    await sendOTPEmail(email, newOtp);
 
     res.status(200).json({ message: "New OTP sent successfully" });
   } catch (error) {
@@ -236,7 +247,10 @@ export const vertifyOfflinePayment = async (req , res) => {
         payment.status = "Completed";
         await payment.save();
 
+        /*await sendOfflineVertifyEmail(email, res);*/
+
         res.json({payment, offlinePayment});
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -254,13 +268,41 @@ export const getAllPayment = async(req,res) => {
 };
 
 //get one 
-export const getPaymentbyID = async(req,res) => {
-    try {
-        const payment = await Payment.findById(req.params.id);
-        if (!payment) return res.status(404).json({message:"payment not found"});
-        res.json(payment)
-    } catch (error) {
-        console.error("Error in getPaymentbyID controller", error);
-        res.status(500).json({message: "Internel Server Error"});
+export const getPaymentbyID = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const payment = await Payment.findOne({ paymentId: id });
+    if (!payment) return res.status(404).json({ message: "Payment not found" });
+
+    let detailedPayment = null;
+
+    if (payment.paymentType === "Offline") {
+      const offline = await OfflinePayment.findOne({ paymentId: id });
+      if (!offline) return res.status(404).json({ message: "Offline payment not found" });
+
+      // Flatten slipFile for frontend
+      const slipFile = offline.slipFile && offline.slipFile.data
+        ? {
+            data: typeof offline.slipFile.data === "string"
+                  ? offline.slipFile.data             // already base64 string
+                  : offline.slipFile.data.toString("base64"), // fallback if buffer
+            contentType: offline.slipFile.contentType
+          }
+        : null;
+
+      detailedPayment = { ...offline.toObject(), slipFile };
+
+    } else if (payment.paymentType === "Online") {
+      const online = await OnlinePayment.findOne({ paymentId: id });
+      if (!online) return res.status(404).json({ message: "Online payment not found" });
+
+      detailedPayment = online.toObject();
     }
-}
+
+    res.json({ type: payment.paymentType, payment: detailedPayment });
+  } catch (error) {
+    console.error("Error fetching payment detail:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
