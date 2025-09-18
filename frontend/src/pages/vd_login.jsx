@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/vd_AuthContext";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,12 +29,12 @@ export default function Login() {
       const { token, user } = res.data;
 
       // Save token for authenticated requests
-      localStorage.setItem("authToken", token);
+      login(user, token);
 
       toast.success("Login successfull");
 
       //Redirect to profile page
-      navigate(`/users/${user._id}`);
+      navigate(`/profile/${user._id}`);
       
     } catch (err) {
         console.error("Login failed:", err.response?.data || err);
