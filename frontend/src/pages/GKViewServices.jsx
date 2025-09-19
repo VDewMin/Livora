@@ -35,13 +35,13 @@ function GKViewServices() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto font-poppins">
       {/* Header with button */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">All Service Requests</h1>
         <button
           onClick={() => navigate("/add-service")}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           + New Service
         </button>

@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -19,7 +18,8 @@ const PORT = process.env.PORT || 5001
 app.use(
     cors({
         origin: "http://localhost:5173",
-}));
+    })
+);
 
 //middleware
 app.use(express.json());  
