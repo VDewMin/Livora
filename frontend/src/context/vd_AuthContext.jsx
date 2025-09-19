@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
+export let golbalLogout;
+
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(() =>{
 
@@ -10,6 +12,7 @@ export const AuthProvider = ({children}) => {
     });
 
     const [token, setToken] = useState(() => localStorage.getItem("authToken") || null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
@@ -25,6 +28,8 @@ export const AuthProvider = ({children}) => {
             localStorage.removeItem("authToken");
         }
 
+        setLoading(false);
+
     }, [user, token]);
 
     const login = (userData, authToken) => {
@@ -37,7 +42,10 @@ export const AuthProvider = ({children}) => {
         setToken(null);
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
+        window.location.href = "/login";
     };
+
+    golbalLogout = logout;
 
     return (
         <AuthContext.Provider value={{user, token, login, logout}}>

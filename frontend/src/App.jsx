@@ -9,6 +9,9 @@ import UserProfile from "./pages/vd_userProfile.jsx";
 import ResidentList from "./pages/vd_residentList.jsx";
 import StaffList from "./pages/vd_staffList.jsx";
 import ProfileSettings from "./pages/vd_profileSettings.jsx";
+import ProtectedRoute from "./components/vd_protectedRoute.jsx";
+import GuestRoute from "./components/vd_guestRoute.jsx";
+import { AuthProvider } from "./context/vd_AuthContext.jsx";
 
 const App = () =>{
 
@@ -20,13 +23,13 @@ const App = () =>{
                 <Route path="/" element={<GKServiceRequest />} />
                 <Route path="/checkout" element={<Checkout />} />
 
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/profile/:userId" element={<ProfileSettings />}/>
+                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
                 <Route path="/residentlist" element={<ResidentList/>}/>
                 <Route path="/stafflist" element={<StaffList/>}/>
-                <Route path="/users/:userId" element={<ProfileSettings />} />
-                <Route path="/profile-settings" element={<ProfileSettings />} />
+                <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
             </Routes>
 
         </div>
