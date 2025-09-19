@@ -11,6 +11,7 @@ import VerifyOTP from "./pages/SN_VerifyOTP.jsx";
 import OfflineSlipForm from "./pages/SN_SlipuploadForm.jsx";
 import PaymentHistory from "./pages/SN_PaymentHistory.jsx";
 import PaymentDetail from "./pages/SN_PaymentDetail.jsx";
+import ExpensePage from "./pages/SN_ExpensePage.jsx";
 
 const App = () =>{
     return(
@@ -27,6 +28,7 @@ const App = () =>{
                 <Route path="/offline-slip" element={<OfflineSlipForm />} />
                 <Route path="/payment-history" element={<PaymentHistory />} />
                 <Route path="/payment-detail/:id" element={<PaymentDetail />} />
+                <Route path="/expense" element={<ExpensePage />} />
             </Routes>
 
         </div>
