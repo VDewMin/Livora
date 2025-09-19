@@ -1,4 +1,3 @@
-import React from "react";
 import {Route, Routes } from "react-router";
 import toast from "react-hot-toast";
 import React, {useState} from "react";
