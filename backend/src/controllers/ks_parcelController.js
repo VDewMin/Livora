@@ -1,6 +1,7 @@
 import Parcel from "../models/ks_Parcel.js"
 import QRCode from "qrcode"
 import {makeVerifyUrl} from "../utils/parcelVerify.js"
+import { decodeVerifyToken } from "../utils/parcelVerify.js";
 import { transporter  } from "../config/mail.js"
 import mongoose from "mongoose"
 import User from "../models/vd_user.js"
@@ -36,16 +37,16 @@ export const getParcelById = async(req,res) => {
 
 export const createParcels = async (req, res) => {
   try {
-    const { residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, receivedByStaff, collectedDateTime, collectedByName } = req.body;
+    const { residentName, apartmentNo, parcelType, parcelDescription, courierService, locId, status, receivedByStaff, collectedDateTime, collectedByName } = req.body;
 
    
     const newParcel = new Parcel({
       residentName,
-      residentId,
       apartmentNo,
       parcelType,
       parcelDescription,
       courierService,
+      locId,
       status,
       receivedByStaff,
       collectedDateTime,
@@ -54,7 +55,7 @@ export const createParcels = async (req, res) => {
 
     const savedParcel = await newParcel.save();
 
-    const { url: verifyUrl } = makeVerifyUrl(savedParcel.parcelId);
+    const { url: verifyUrl } = makeVerifyUrl(savedParcel.parcelId , savedParcel.locId);
     let qr = null;
     try {
       const imgDataUrl = await QRCode.toDataURL(verifyUrl, {
@@ -134,11 +135,25 @@ export const createParcels = async (req, res) => {
   }
 };
 
+export const verifyParcelQr = (req, res) => {
+  const { token } = req.query;
+  const decoded = decodeVerifyToken(token);
+
+  if (!decoded) {
+    return res.status(400).json({ valid: false, message: "Invalid QR code" });
+  }
+
+  res.json({
+    success: true,
+    parcelId: decoded.parcelId,
+    locId: decoded.locId,
+  });
+};
 
 export const updateParcel = async(req, res) => {
     try {
-        const {parcelId, residentName, residentId, apartmentNo, parcelType, parcelDescription, courierService, status, arrivalDateTime, receivedByStaff, collectedDateTime, collectedByName} = req.body
-        const updatedParcel = await Parcel.findByIdAndUpdate(req.params.id, {parcelDescription, status, collectedByName, collectedDateTime}, {new: true,})
+        const { parcelDescription, locId, status, collectedDateTime, collectedByName} = req.body
+        const updatedParcel = await Parcel.findByIdAndUpdate(req.params.id, {parcelDescription, locId, status, collectedByName, collectedDateTime}, {new: true,})
         
         if(!updatedParcel) return res.status(404).json({message: "Parcel not found"})
         res.status(200).json({updatedParcel});

@@ -6,11 +6,12 @@ import api from "../lib/axios.js";
 
 const KsAddParcel = () => {
   const [residentName, setResidentName] = useState("");
-  const [residentId, setResidentId] = useState("");
+  //  const [residentId, setResidentId] = useState("");
   const [apartmentNo, setApartmentNo] = useState("");
   const [parcelType, setParcelType] = useState("Normal");
   const [parcelDescription, setParcelDescription] = useState("");
   const [courierService, setCourierService] = useState("");
+  const [locId, setLocId] = useState("");
   const [status, setStatus] = useState("Pending");
   const [arrivalDateTime, setArrivalDateTime] = useState(() => {
     const now = new Date();
@@ -31,11 +32,12 @@ const KsAddParcel = () => {
     try {
       await api.post("/parcels", {
         residentName,
-        residentId,
+        //residentId,
         apartmentNo,
         parcelType,
         parcelDescription,
         courierService,
+        locId,
         status,
         receivedByStaff,
         collectedDateTime,
@@ -69,6 +71,17 @@ const KsAddParcel = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">
+              Apartment No
+            </label>
+            <input
+              type="text"
+              value={apartmentNo}
+              onChange={(e) => setApartmentNo(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
               Resident Name
             </label>
             <input
@@ -79,31 +92,9 @@ const KsAddParcel = () => {
               required
             />
           </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Resident ID
-            </label>
-            <input
-              type="text"
-              value={residentId}
-              onChange={(e) => setResidentId(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Apartment No
-            </label>
-            <input
-              type="text"
-              value={apartmentNo}
-              onChange={(e) => setApartmentNo(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
           <div>
             <label className="block text-gray-700 font-medium mb-1">
               Parcel Type
@@ -118,6 +109,18 @@ const KsAddParcel = () => {
               <option value="Documents">Documents</option>
               <option value="Electronics">Electronics</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Courier Service
+            </label>
+            <input
+              type="text"
+              value={courierService}
+              onChange={(e) => setCourierService(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+            />
           </div>
         </div>
 
@@ -136,13 +139,14 @@ const KsAddParcel = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              Courier Service
+              Location ID
             </label>
             <input
               type="text"
-              value={courierService}
-              onChange={(e) => setCourierService(e.target.value)}
+              value={locId}
+              onChange={(e) => setLocId(e.target.value)}
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+              required
             />
           </div>
           <div>

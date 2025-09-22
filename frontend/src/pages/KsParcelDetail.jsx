@@ -104,39 +104,6 @@ const KsParcelDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              Resident Name
-            </label>
-            <input
-              type="text"
-              value={parcel.residentName || ''}
-              readOnly
-              onChange={(e) =>
-                setParcel({ ...parcel, residentName: e.target.value })
-              }
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Resident ID
-            </label>
-            <input
-              type="text"
-              value={parcel.residentId || ''}
-              readOnly
-              onChange={(e) =>
-                setParcel({ ...parcel, residentId: e.target.value })
-              }
-              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
-            />
-          </div>
-        </div>
-
-        {/* Apartment No & Parcel Type */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
               Apartment No
             </label>
             <input
@@ -151,6 +118,27 @@ const KsParcelDetail = () => {
           </div>
           <div>
             <label className="block text-gray-700 font-medium mb-1">
+              Resident Name
+            </label>
+            <input
+              type="text"
+              value={parcel.residentName || ''}
+              readOnly
+              onChange={(e) =>
+                setParcel({ ...parcel, residentName: e.target.value })
+              }
+              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+              required
+            />
+          </div>
+          
+        </div>
+
+        {/* Apartment No & Parcel Type */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
               Parcel Type
             </label>
             <input
@@ -159,6 +147,19 @@ const KsParcelDetail = () => {
               readOnly
               onChange={(e) =>
                 setParcel({ ...parcel, parcelType: e.target.value })
+              }
+              className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Location ID
+            </label>
+            <input
+              type="text"
+              value={parcel.locId || ''}
+              onChange={(e) =>
+                setParcel({ ...parcel, locId: e.target.value })
               }
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
             />

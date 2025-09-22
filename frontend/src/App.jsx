@@ -5,7 +5,8 @@ import GKServiceRequest from './pages/GKServiceRequest.jsx'
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
-import Scanner from './pages/KsScanner.jsx'
+import SecurityDashboard from "./pages/SecurityDashboard.jsx";
+
 
 const App = () =>{
     return(
@@ -16,7 +17,7 @@ const App = () =>{
                 <Route path="/viewParcels" element={<KsViewParcels />} />  
                 <Route path="/addParcel" element={<KsAddParcel />} />       
                 <Route path="/parcel/:id" element={<KsParcelDetail />} />
-                <Route path="/scan" element={<Scanner />} />
+                <Route path="/security-dashboard" element={<SecurityDashboard />} />
             </Routes>
 
         </div>

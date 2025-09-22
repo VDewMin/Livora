@@ -13,10 +13,10 @@ const parcelSchema = new mongoose.Schema({
       required: true,
     },
 
-    residentId: {
+   /* residentId: {
       type: String,
       required: true,
-    },
+    }, */
 
     apartmentNo: {
       type: String,
@@ -36,6 +36,11 @@ const parcelSchema = new mongoose.Schema({
 
     courierService: {
       type: String,
+    },
+
+    locId:{
+      type: String,
+      required: true,
     },
 
     status: {

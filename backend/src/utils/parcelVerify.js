@@ -1,24 +1,23 @@
-import crypto from "crypto";
+// src/utils/parcelVerify.js
+import jwt from "jsonwebtoken";
 
+const SECRET = process.env.PARCEL_SECRET || "supersecret"; // keep this hidden!
 
-const BASE  = process.env.APP_BASE_URL; 
-
-
-
-// Result example: https://your-api.com/api/parcels/verify?parcelNo=123&sig=abcd1234...
-export function makeVerifyUrl(parcelId) {
-
-    const SECRET = process.env.PARCEL_VERIFY_SECRET;
-
-    if (!SECRET) {
-  throw new Error("PARCEL_VERIFY_SECRET environment variable is required");
+// 🔹 Generate a signed URL containing parcelId + locId
+export function makeVerifyUrl(parcelId, locId) {
+  const token = jwt.sign(
+    { parcelId, locId },
+    SECRET,
+    { expiresIn: "7d" } // token valid for 7 days
+  );
+  return { url: `${process.env.BASE_URL}/api/parcels/verify?token=${token}` };
 }
-  const sig = crypto
-    .createHmac("sha256", SECRET)
-    .update(String(parcelId))
-    .digest("hex"); // you can .slice(0, 32) if you want shorter
-  return {
-    url: `${BASE}/api/parcels/verify?parcelId=${parcelId}&sig=${sig}`,
-    sig
-  };
+
+// 🔹 Decode token (used in /verify API)
+export function decodeVerifyToken(token) {
+  try {
+    return jwt.verify(token, SECRET);
+  } catch (err) {
+    return null;
+  }
 }
