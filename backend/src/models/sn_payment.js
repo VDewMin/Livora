@@ -1,38 +1,38 @@
 import mongoose from "mongoose";
+import User from "./vd_user.js";
 
-const paymentShema = new mongoose.Schema( {
-    RoomID: {
-        type:String,
-        required:true
+const paymentShema = new mongoose.Schema({
+    paymentId: { 
+        type: String,
+        required: true,
+        unique: true 
+     },
+    residentId: {
+        type: String,
+        ref: User,
+        required: true 
     },
-    ResidentName: {
-        type:String,
-        required:true
+    phoneNumber: {
+        type: String,
+        required: true,
     },
-    MonthlyRent: {
-        type:Number,
-        required:true
+    paymentType: {
+        type: String,
+        enum: ["Online", "Offline"],
+        required: true 
     },
-    MonthlyEbill: {
-        type:Number,
-        required:true
+    totalAmount: {
+        type: Number,
+        required: true
     },
-    MonthlyWbill: {
-        type:Number,
-        required:true
+    status: {
+        type: String,
+        enum: ["Pending", "Completed", "Rejected"],
+        default: "Pending" 
     },
-    MonthlyOther: {
-        type:Number,
-        required:true
-    },
-    MonthlyPayment: {
-        type:Number,
-        required:true
-    },
-    Status: {
-        type:Boolean,
-        required:true
-    },
+    paymentDate: {
+        type: Date,
+        default: Date.now }
 },
 {timestamps:true}
 );

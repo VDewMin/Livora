@@ -1,12 +1,15 @@
 import express from "express";
-import { createUser, deleteUser, getAllUsers, updateUser } from "../controllers/vd_usersController.js";
+import { createUser, deleteUser, getAllUsers, getUserById, updateUser, loginUser } from "../controllers/vd_usersController.js";
+import { authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getAllUsers);
-router.get("/:id")
+router.get("/", authMiddleware, getAllUsers);
+router.get("/:id", authMiddleware, getUserById)
 router.post("/", createUser);
-router.put("/:id", updateUser);
+router.put("/:id", authMiddleware ,updateUser);
 router.delete("/:id", deleteUser);
+
+router.post("/login", loginUser);
 
 export default router;
