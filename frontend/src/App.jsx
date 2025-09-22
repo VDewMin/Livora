@@ -16,6 +16,7 @@ import StaffList from "./pages/vd_staffList.jsx";
 import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import GuestRoute from "./components/vd_guestRoute.jsx";
+import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 
 const App = () =>{
 
@@ -32,6 +33,7 @@ const App = () =>{
                 <Route path="/checkout" element={<Checkout />} />
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+                <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
                 <Route path="/residentlist" element={<ResidentList/>}/>

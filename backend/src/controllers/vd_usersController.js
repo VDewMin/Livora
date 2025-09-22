@@ -1,9 +1,13 @@
 import User from "../models/vd_user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
+const OTP_EXPIRY = 5 * 60 * 1000;
+
+let otpStore = {};
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -127,29 +131,83 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({message: "Invalid email or password"});
         }
 
-        //Generate jwt token
-        const token = jwt.sign(
-            { id: user._id, role: user.role},
-            JWT_SECRET,
-            {expiresIn: "1h"}
-        );
+        //Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY};
 
-        // return user and token
-        res.json({
-            message: "Login successfull",
-            token,
-            user: {
-                _id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                role: user.role,
+        //send otp via email
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
             },
         });
+
+        await transporter.sendMail({
+            from: `"Smart System" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: "Your OTP code",
+            text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+        });
+        
+        res.json({ message: "OTP sent to email", userId: user._id });
 
     } catch (err) {
         console.error("Login error:", err);
         res.status(500).json({message: "Server error"});
     }
 };
+
+export const verifyOtp = async(req, res) => {
+        try{
+            const { userId, otp } = req.body;
+
+            const record = otpStore[userId];
+            if(!record) return res.status(400).json({message: "No OTP found"});
+
+            if (Date.now() > record.expiresAt) {
+                delete otpStore[userId];
+                return res.status(400).json({message: "OTP expired" });
+            }
+
+            if (record.otp != otp) {
+                return res.status(400).json({ message: "Invalid OTP" });
+            }
+
+            //OTP valid then issue JWT
+
+            delete otpStore[userId];
+            const user = await User.findById(userId);
+
+            //Generate jwt token
+            const token = jwt.sign(
+                { id: user._id, role: user.role},
+                JWT_SECRET,
+                {expiresIn: "1d"}
+            );
+
+
+            // return user and token
+            res.json({
+                message: "Login successful",
+                token,
+                user: {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    staffType: user.staffType || null,        //  include staffType
+                    apartmentNo: user.apartmentNo || null,    //  include if Resident
+                    residentType: user.residentType || null,  //  include if Resident
+                },
+            });
+
+
+        }catch(err){
+            console.error("OTP verify error:", err);
+            res.status(500).json({ message: "Server error" });
+        }
+}; 
 
