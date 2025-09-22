@@ -23,8 +23,8 @@ export async function getServicesById(req, res){
 
 export async function createServices(req, res){
     try {
-        const {aptNo, roomId, contactNo, serviceType, description, fileUrl} = req.body
-        const service = new GKServiceRequest({aptNo, roomId, contactNo, serviceType, description, fileUrl})
+        const {aptNo, contactNo, serviceType, description, fileUrl} = req.body
+        const service = new GKServiceRequest({aptNo, contactNo, serviceType, description, fileUrl})
 
         const saveService = await service.save()
         res.status(201).json(saveService)
@@ -36,9 +36,9 @@ export async function createServices(req, res){
 
 export async function updateServices(req, res){
     try {
-        const {aptNo, roomId, contactNo, serviceType, description, fileUrl} = req.body
+        const {aptNo, serviceId, contactNo, serviceType, description, fileUrl} = req.body
         const updateService = await GKServiceRequest.findByIdAndUpdate(req.params.id, 
-            {aptNo, roomId, contactNo, serviceType, description, fileUrl},
+            {aptNo, serviceId, contactNo, serviceType, description, fileUrl},
             {new: true,}
             );
         

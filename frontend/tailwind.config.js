@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",  // ✅ scans all React files
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"], // 👈 add Poppins
+      },
+    },
   },
   plugins: [],
 };
