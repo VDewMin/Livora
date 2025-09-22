@@ -20,8 +20,6 @@ import ResidentList from "./pages/vd_residentList.jsx";
 import StaffList from "./pages/vd_staffList.jsx";
 import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
-
-import GuestRoute from "./components/vd_guestRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 
 const App = () =>{
