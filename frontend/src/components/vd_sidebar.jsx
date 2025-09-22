@@ -1,23 +1,24 @@
-import React from 'react';
 import {
   LayoutDashboard,
-  ShoppingCart,
+  BrushCleaning,
+  Album,
   Package,
-  Users,
-  UserCog,
   CreditCard,
+  MessagesSquare,
+  UserCog,
   BarChart3,
   Settings,
   HelpCircle,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  PackageCheck
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import{ useNavigate} from "react-router-dom";
 
 const Sidebar = ({ activeItem, onItemClick }) => {
 
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -25,15 +26,26 @@ const Sidebar = ({ activeItem, onItemClick }) => {
     navigate('/login');
   };
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'order', label: 'Order', icon: ShoppingCart },
-    { id: 'product', label: 'Product', icon: Package },
-    { id: 'customer', label: 'Customer', icon: Users },
-    { id: 'employee', label: 'Employee', icon: UserCog },
-    { id: 'billing', label: 'Billing', icon: CreditCard },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  ];
+
+ const menuItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
+  { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
+  { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
+  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
+  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
+  { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
+  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+  { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
+  { id: "parcel-logs", label: "Parcel Logs", icon: Package, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Parcel Pickup Verification", icon: PackageCheck, roles:["Security"]},
+];
+
+ const effectiveRole = user?.role === "Staff" && user?.staffType
+ ?user.staffType
+ :user?.role;
+
+  const allowedMenuItems = menuItems.filter(item => item.roles.includes(effectiveRole));
+
 
   const settingsSubmenu = [
     { id: 'account-information', label: 'Account Information' },
@@ -57,7 +69,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
+        {allowedMenuItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
@@ -114,7 +126,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           Help
         </button>
         <button
-          onClick={() => onItemClick(handleLogout)}
+          onClick={handleLogout}
           className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
         >
           <LogOut className="mr-3 h-5 w-5" />
