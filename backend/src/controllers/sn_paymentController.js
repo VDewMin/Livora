@@ -231,43 +231,64 @@ export const createOfflinePayment = async (req , res) => {
     
 };
 
-//admin vertify
-export const vertifyOfflinePayment = async (req , res) => {
-    try {
-        const {paymentId} = req.body;
+// ---------------- Offline Payment Handlers ----------------
 
-        const offlinePayment = await OfflinePayment.findOne({paymentId});
-        if (!offlinePayment) return res.status(404).json({message:"Offline payment not found"});
+// admin verify
+export const vertifyOfflinePayment = async (req, res) => {
+  try {
+    const { paymentId } = req.body;
 
-        offlinePayment.verified = true;
-        offlinePayment.status = "Completed";
-        await offlinePayment.save();
+    const offlinePayment = await OfflinePayment.findOne({ paymentId });
+    if (!offlinePayment)
+      return res.status(404).json({ message: "Offline payment not found" });
 
-        const payment = await Payment.findOne({paymentId});
-        payment.status = "Completed";
-        await payment.save();
+    offlinePayment.verified = true;
+    offlinePayment.status = "Completed";
+    await offlinePayment.save();
 
-        /*await sendOfflineVertifyEmail(email, res);*/
-
-        res.json({payment, offlinePayment});
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    const payment = await Payment.findOne({ paymentId });
+    if (payment) {
+      payment.status = "Completed";
+      await payment.save();
     }
+
+    // Return updated list for frontend to remove it from pending
+    res.json({ paymentId, status: "Completed" });
+  } catch (error) {
+    console.error("Error in verifyOfflinePayment:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
-//get all payment
-export const getAllPayment = async(req,res) => {
-    try {
-        const payments = await Payment.find().sort({createdAt: -1});
-        res.status(200).json(payments)
-    } catch (error) {
-        console.error("Error in getAllPayments controller", error);
-        res.status(500).json({message: "Internel Server Error"});
+// admin reject
+export const rejectOfflinePayment = async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+
+    const offlinePayment = await OfflinePayment.findOne({ paymentId });
+    if (!offlinePayment)
+      return res.status(404).json({ message: "Offline payment not found" });
+
+    offlinePayment.verified = false;
+    offlinePayment.status = "Rejected";
+    await offlinePayment.save();
+
+    const payment = await Payment.findOne({ paymentId });
+    if (payment) {
+      payment.status = "Rejected";
+      await payment.save();
     }
+
+    // Return updated list for frontend to remove it from pending
+    res.json({ paymentId, status: "Rejected" });
+  } catch (error) {
+    console.error("Error in rejectOfflinePayment:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
-//get one 
+
+// Get single payment details
 export const getPaymentbyID = async (req, res) => {
   const { id } = req.params;
 
@@ -281,18 +302,16 @@ export const getPaymentbyID = async (req, res) => {
       const offline = await OfflinePayment.findOne({ paymentId: id });
       if (!offline) return res.status(404).json({ message: "Offline payment not found" });
 
-      // Flatten slipFile for frontend
       const slipFile = offline.slipFile && offline.slipFile.data
         ? {
-            data: typeof offline.slipFile.data === "string"
-                  ? offline.slipFile.data             // already base64 string
-                  : offline.slipFile.data.toString("base64"), // fallback if buffer
-            contentType: offline.slipFile.contentType
+            data: Buffer.isBuffer(offline.slipFile.data)
+              ? offline.slipFile.data.toString("base64")
+              : offline.slipFile.data,
+            contentType: offline.slipFile.contentType,
           }
         : null;
 
       detailedPayment = { ...offline.toObject(), slipFile };
-
     } else if (payment.paymentType === "Online") {
       const online = await OnlinePayment.findOne({ paymentId: id });
       if (!online) return res.status(404).json({ message: "Online payment not found" });
@@ -306,3 +325,40 @@ export const getPaymentbyID = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+// get all payment (WITH month filter)
+export const getAllPayment = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+
+    let query = {};
+    if (month && year) {
+      // Build date range for that month
+      const start = new Date(`${year}-${month}-01T00:00:00.000Z`);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1); // next month start
+
+      query.paymentDate = { $gte: start, $lt: end };
+    }
+
+    const payments = await Payment.find(query).sort({ createdAt: -1 });
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Error in getAllPayments controller", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+/*//get all payment
+export const getAllPayment = async(req,res) => {
+    try {
+        const payments = await Payment.find().sort({createdAt: -1});
+        res.status(200).json(payments)
+    } catch (error) {
+        console.error("Error in getAllPayments controller", error);
+        res.status(500).json({message: "Internel Server Error"});
+    }
+};*/
+
+

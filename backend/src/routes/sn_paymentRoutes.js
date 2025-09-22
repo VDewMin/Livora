@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 
-import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment } from "../controllers/sn_paymentController.js"
+import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment } from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -21,5 +21,6 @@ router.post("/offline", upload.single("slipFile"), createOfflinePayment);
 
 router.post("/verify-offline", vertifyOfflinePayment);
 
+router.post("/reject-offline", rejectOfflinePayment);
 
 export default router;

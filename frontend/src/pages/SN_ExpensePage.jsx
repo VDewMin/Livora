@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:5001/api/expenses"; // Change if needed
+const API_URL = "http://localhost:5001/api/expenses";
 
 export default function ExpensePage() {
   const [expenses, setExpenses] = useState([]);

@@ -28,8 +28,8 @@ app.use(express.json());
 app.use("/api/users", usersRoutes);
 app.use("/api/parcels", parcelRoutes);
 app.use("/api/payments", sn_paymentRoutes)
-app.use("/api/services", serviceRequestRouter);
 app.use("/api/expenses", sn_expenseRoutes)
+app.use("/api/services", serviceRequestRouter);
 
 
 connectDB().then(() => {

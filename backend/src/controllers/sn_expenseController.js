@@ -3,13 +3,34 @@ import Payment from "../models/sn_payment.js";
 
 export const getAllExpenses = async(req, res) => {
     try {
+        const { month, year } = req.query;
+
+        let filter = {};
+        if (month && year) {
+            const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + 1);
+            filter.date = { $gte: startDate, $lt: endDate };
+        }
+
+        const expenses = await Expense.find(filter).sort({ date: -1 });
+        res.status(200).json(expenses);
+    } catch (error) {
+        console.error("Error in getAllExpense Controller", error);
+        res.status(500).json({message : "Internal server error"});
+    }
+};
+
+
+/*export const getAllExpenses = async(req, res) => {
+    try {
         const expenses = await Expense.find();
         res.status(200).json(expenses);
     } catch (error) {
         console.error("Error in getAllExpense Controller", error);
         res.status(500).json({message : "Internal server error"});
     }
-}
+}*/
 
 export const getExpenseById = async(req, res) => {
     try {
@@ -59,24 +80,40 @@ export const deleteExpense = async(req, res) => {
     }
 }
 
-export const calculateIncome = async(req, res) => {
-    try {
-        const paymentResult = await Payment.aggregate([
-            {$group: {_id: null, total: {$sum: "$totalAmount"}}}
-        ]);
 
-        const expenseResult = await Expense.aggregate([
-            {$group: {_id: null, total: {$sum: "$amount"}}}
-        ]);
+export const calculateIncome = async (req, res) => {
+  try {
+    const { month, year } = req.query; // e.g. /calculateIncome?month=09&year=2025
 
-        const totalPayments = paymentResult[0]?.total || 0;
-        const totalExpenses = expenseResult[0]?.total || 0;
-
-        const income = totalPayments - totalExpenses;
-
-        res.status(200).json({income});
-    } catch (error) {
-        console.error("Error in calculateIncome Controller", error) 
-        res.status(500).json({message : "Internal server error"})
+    let startDate, endDate;
+    if (month && year) {
+      // Build start & end date range for selected month
+      startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+      endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
     }
+
+    // Build filter if month/year provided
+    const paymentFilter = startDate ? { paymentDate: { $gte: startDate, $lt: endDate } } : {};
+    const expenseFilter = startDate ? { date: { $gte: startDate, $lt: endDate } } : {};
+
+    const payments = await Payment.find(paymentFilter);
+    const expenses = await Expense.find(expenseFilter);
+
+    const totalIncome = payments.reduce((sum, p) => sum + Number(p.totalAmount || 0), 0);
+    const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+
+    res.status(200).json({
+      totalIncome,
+      totalExpenses,
+      month: month || null,
+      year: year || null
+    });
+  } catch (error) {
+    console.error("Error in calculateIncome Controller", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
+
+
+

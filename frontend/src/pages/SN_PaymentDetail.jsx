@@ -1,187 +1,196 @@
+// src/pages/SN_AdminBillingDashboard.jsx
 import React, { useEffect, useState } from "react";
+import SN_IncomeTab from "../components/SN_IncomeTab";// your existing component
+import SN_ExpenseTab from "../components/SN_ExpenseManager";// create similar to PaymentDetail
+import {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  BarChart3,
+  Package,
+  ShoppingCart
+} from "lucide-react";
 
-const PaymentDetail = ({ paymentId, goBack, onUpdatePayment }) => {
-  const [paymentData, setPaymentData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [modalImage, setModalImage] = useState(null); // Fullscreen image
-  const [verifying, setVerifying] = useState(false);
+const SN_AdminBillingDashboard = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [expenses, setExpenses] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [incomeData, setIncomeData] = useState({ totalPayments: 0, totalExpenses: 0 });
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
 
-  useEffect(() => {
-    if (!paymentId) return;
-
-    const fetchPayment = async () => {
-      try {
-        const res = await fetch(`http://localhost:5001/api/payments/${paymentId}`);
-        if (!res.ok) throw new Error("Payment not found");
-        const data = await res.json();
-        setPaymentData(data);
-      } catch (err) {
-        console.error("Error fetching payment:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPayment();
-  }, [paymentId]);
-
-  const handleVerify = async () => {
-    if (!paymentId) return;
-    setVerifying(true);
+  // Fetch all expenses
+  const fetchExpenses = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/payments/verify-offline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId }),
-      });
-
-      if (!res.ok) throw new Error("Verification failed");
+      const res = await fetch("http://localhost:5001/api/expenses");
       const data = await res.json();
-
-      // Update local state
-      setPaymentData(prev => ({
-        ...prev,
-        payment: data.offlinePayment,
-      }));
-
-      // Notify parent list to update PaymentHistory
-      if (onUpdatePayment) onUpdatePayment(data.offlinePayment);
-
-      alert("Payment verified successfully!");
+      setExpenses(data);
     } catch (err) {
-      console.error(err);
-      alert("Failed to verify payment");
-    } finally {
-      setVerifying(false);
+      console.error("Error fetching expenses:", err);
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (!paymentData) return <p className="text-center mt-10">Payment not found</p>;
+  // Fetch all payments
+  const fetchPayments = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/payments");
+      const data = await res.json();
+      setPayments(data);
+    } catch (err) {
+      console.error("Error fetching payments:", err);
+    }
+  };
 
-  const { type, payment } = paymentData;
+  // Fetch Income (calculateIncome)
+  const fetchIncome = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/calculateIncome");
+      if (!res.ok) throw new Error("Income API not found");
+      const data = await res.json();
+      setIncomeData(data);
+    } catch (err) {
+      console.error("Error fetching income:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+    fetchPayments();
+    fetchIncome();
+  }, []);
+
+  if (selectedExpenseId) {
+    return (
+      <ExpenseDetail
+        expenseId={selectedExpenseId}
+        goBack={() => setSelectedExpenseId(null)}
+      />
+    );
+  }
+
+  if (selectedPaymentId) {
+    return (
+      <PaymentDetail
+        paymentId={selectedPaymentId}
+        goBack={() => setSelectedPaymentId(null)}
+        onUpdatePayment={(updatedPayment) => {
+          setPayments((prev) =>
+            prev.map((p) => (p.paymentId === updatedPayment.paymentId ? updatedPayment : p))
+          );
+        }}
+      />
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10 relative">
-      <h2 className="text-2xl font-bold mb-4">{type} Payment Details</h2>
-
-      <button
-        onClick={goBack}
-        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 mb-6"
-      >
-        ⬅ Back to Payment History
-      </button>
-
-      <table className="w-full border-collapse">
-        <tbody>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Payment ID</td>
-            <td className="border px-3 py-2">{payment.paymentId}</td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Resident ID</td>
-            <td className="border px-3 py-2">{payment.residentId}</td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Phone Number</td>
-            <td className="border px-3 py-2">{payment.phoneNumber}</td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Total Amount</td>
-            <td className="border px-3 py-2">Rs. {payment.totalAmount}</td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Status</td>
-            <td className={`border px-3 py-2 ${payment.status === "Completed" ? "text-green-600" : "text-yellow-600"}`}>
-              {payment.status}
-            </td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-2 font-semibold">Payment Date</td>
-            <td className="border px-3 py-2">{new Date(payment.paymentDate).toLocaleString()}</td>
-          </tr>
-
-          {/* Online Payment Details */}
-          {type === "Online" && (
-            <>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Amount Rent</td>
-                <td className="border px-3 py-2">{payment.amountRent}</td>
-              </tr>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Amount Laundry</td>
-                <td className="border px-3 py-2">{payment.amountLaundry}</td>
-              </tr>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Transaction ID</td>
-                <td className="border px-3 py-2">{payment.transactionId}</td>
-              </tr>
-            </>
-          )}
-
-          {/* Offline Payment Details */}
-          {type === "Offline" && (
-            <>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Amount Rent</td>
-                <td className="border px-3 py-2">{payment.amountRent}</td>
-              </tr>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Amount Laundry</td>
-                <td className="border px-3 py-2">{payment.amountLaundry}</td>
-              </tr>
-              <tr>
-                <td className="border px-3 py-2 font-semibold">Verified</td>
-                <td className="border px-3 py-2">{payment.verified ? "Yes" : "No"}</td>
-              </tr>
-
-              {payment.slipFile && payment.slipFile.data && (
-                <tr>
-                  <td className="border px-3 py-2 font-semibold">Slip File</td>
-                  <td className="border px-3 py-2">
-                    <img
-                      src={`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`}
-                      alt="Payment Slip"
-                      className="max-w-xs border cursor-pointer hover:opacity-80"
-                      onClick={() => setModalImage(`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`)}
-                    />
-                  </td>
-                </tr>
-              )}
-
-              {!payment.verified && (
-                <tr>
-                  <td colSpan={2} className="text-center mt-4">
-                    <button
-                      onClick={handleVerify}
-                      disabled={verifying}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                    >
-                      {verifying ? "Verifying..." : "Verify Payment"}
-                    </button>
-                  </td>
-                </tr>
-              )}
-            </>
-          )}
-        </tbody>
-      </table>
-
-      {/* Fullscreen Modal */}
-      {modalImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setModalImage(null)}
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-800 text-white p-6 flex flex-col">
+        <h1 className="text-xl font-bold mb-8">Admin Dashboard</h1>
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`mb-3 text-left ${activeTab === "overview" ? "font-bold text-blue-400" : ""}`}
         >
-          <img
-            src={modalImage}
-            alt="Full Slip"
-            className="max-h-full max-w-full shadow-lg"
-          />
-        </div>
-      )}
+          <BarChart3 className="inline mr-2" /> Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("expenses")}
+          className={`mb-3 text-left ${activeTab === "expenses" ? "font-bold text-blue-400" : ""}`}
+        >
+          <ShoppingCart className="inline mr-2" /> Expenses
+        </button>
+        <button
+          onClick={() => setActiveTab("payments")}
+          className={`mb-3 text-left ${activeTab === "payments" ? "font-bold text-blue-400" : ""}`}
+        >
+          <CreditCard className="inline mr-2" /> Payments
+        </button>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 p-6 bg-gray-100">
+        {activeTab === "overview" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Overview</h2>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-white p-6 shadow rounded">
+                <h3 className="font-semibold mb-2">Total Payments</h3>
+                <p className="text-2xl">Rs. {incomeData.totalPayments}</p>
+              </div>
+              <div className="bg-white p-6 shadow rounded">
+                <h3 className="font-semibold mb-2">Total Expenses</h3>
+                <p className="text-2xl">Rs. {incomeData.totalExpenses}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "expenses" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Expenses</h2>
+            <table className="min-w-full bg-white shadow rounded">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">ID</th>
+                  <th className="border px-4 py-2">Description</th>
+                  <th className="border px-4 py-2">Amount</th>
+                  <th className="border px-4 py-2">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.map((expense) => (
+                  <tr
+                    key={expense._id}
+                    className="cursor-pointer hover:bg-gray-200"
+                    onClick={() => setSelectedExpenseId(expense._id)}
+                  >
+                    <td className="border px-4 py-2">{expense.expenseId}</td>
+                    <td className="border px-4 py-2">{expense.description}</td>
+                    <td className="border px-4 py-2">Rs. {expense.amount}</td>
+                    <td className="border px-4 py-2">{new Date(expense.date).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "payments" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Payments</h2>
+            <table className="min-w-full bg-white shadow rounded">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">ID</th>
+                  <th className="border px-4 py-2">Resident</th>
+                  <th className="border px-4 py-2">Amount</th>
+                  <th className="border px-4 py-2">Type</th>
+                  <th className="border px-4 py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((p) => (
+                  <tr
+                    key={p.paymentId}
+                    className="cursor-pointer hover:bg-gray-200"
+                    onClick={() => setSelectedPaymentId(p.paymentId)}
+                  >
+                    <td className="border px-4 py-2">{p.paymentId}</td>
+                    <td className="border px-4 py-2">{p.residentId}</td>
+                    <td className="border px-4 py-2">Rs. {p.totalAmount}</td>
+                    <td className="border px-4 py-2">{p.paymentType}</td>
+                    <td className={`border px-4 py-2 ${p.status === "Completed" ? "text-green-600" : "text-yellow-600"}`}>
+                      {p.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default PaymentDetail;
+export default SN_AdminBillingDashboard;

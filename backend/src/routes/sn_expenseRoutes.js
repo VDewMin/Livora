@@ -6,14 +6,16 @@ const router = express.Router();
 
 router.get("/", getAllExpenses);
 
-router.get("/:id", getExpenseById);
-
 router.post("/", createExpense);
+
+router.get("/calculateIncome", calculateIncome)
+
+router.get("/:id", getExpenseById);
 
 router.put("/:id", updateExpense);
 
 router.delete("/:id", deleteExpense);
 
-router.put("/income", calculateIncome)
+
 
 export default router;

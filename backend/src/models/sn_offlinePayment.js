@@ -42,7 +42,7 @@ const offlinePaymentShema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Pending", "Completed", "Failed"],
+        enum: ["Pending", "Completed", "Rejected"],
         default: "Pending"
     }
 });
