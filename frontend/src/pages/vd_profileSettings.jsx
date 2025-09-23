@@ -2,24 +2,30 @@ import React, { useState } from 'react';
 import Sidebar from '../components/vd_sidebar';
 import ProfileHeader from '../components/vd_profileHeader';
 import UserProfile from '../pages/vd_userProfile';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom'; // use react-router-dom
 
 const ProfileSettings = () => {
+  const { userId } = useParams(); // call useParams()
+  const navigate = useNavigate(); // move inside component
 
-  const { userId } = useParams;
   const [activeItem, setActiveItem] = useState('account-information');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleItemClick = (item) => {
     setActiveItem(item);
-    // In a real app, you would handle navigation here
+
+    // Only navigate if needed
+    if (item === 'billing') {
+      navigate("/admin/billing");
+    }
+
     console.log('Navigating to:', item);
   };
 
   const renderContent = () => {
     switch (activeItem) {
       case 'account-information':
-        return <UserProfile userId={userId}/>;
+        return <UserProfile userId={userId} />;
       case 'change-password':
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
@@ -51,7 +57,7 @@ const ProfileSettings = () => {
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibent text-gray-900 mb-2">Security & Privacy</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Security & Privacy</h2>
               <p className="text-gray-600">Security and privacy settings coming soon.</p>
             </div>
           </div>

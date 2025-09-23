@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 function GKServiceRequest() {
   const [formData, setFormData] = useState({
     aptNo: "",
     contactNo: "",
+    contactEmail: "",
     serviceType: "",
     description: "",
     fileUrl: "",
@@ -18,6 +20,7 @@ function GKServiceRequest() {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
+    //contact number validation
     if (name === "contactNo") {
       if (!/^\d*$/.test(value)) {
         setErrors({ ...errors, contactNo: "Only numbers are allowed" });
@@ -51,17 +54,25 @@ function GKServiceRequest() {
 
     try {
       await axios.post("http://localhost:5001/api/services", formData);
-      setMessage("Service request submitted successfully ✅");
+      toast.success("Service request submitted successfully", {
+        position: "top-center",
+        autoClose: 3000, });
+
       setFormData({
         aptNo: "",
         contactNo: "",
+        contactEmail: "",
         serviceType: "",
         description: "",
         fileUrl: "",
       });
     } catch (err) {
       console.log("Error submitting service request:", err);
-      setMessage("Failed to submit service request ❌");
+      toast.error("Failed to submit service request", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+
     } finally {
       setLoading(false);
     }
@@ -109,6 +120,19 @@ function GKServiceRequest() {
           {errors.contactNo && (
             <p className="text-red-600 text-sm">{errors.contactNo}</p>
           )}
+        </div>
+
+        {/* Contact Email */}
+        <div>
+          <label className="block font-semibold mb-1">Contact Email</label>
+          <input
+            type="text"
+            name="contactEmail"
+            value={formData.contactEmail}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border border-black-200 rounded-lg"
+          />
         </div>
 
         {/* Service Type */}
