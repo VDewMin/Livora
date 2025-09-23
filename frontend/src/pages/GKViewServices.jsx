@@ -23,19 +23,8 @@ function GKViewServices() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this service?")) {
-      try {
-        await axios.delete(`http://localhost:5001/api/services/${id}`);
-        setServices(services.filter((s) => s._id !== id));
-      } catch (err) {
-        console.error("Error deleting service", err);
-      }
-    }
-  };
-
   return (
-    <div className="p-6 max-w-6xl mx-auto font-poppins">
+    <div className="p-6 max-w-10xl mx-auto font-poppins">
       {/* Header with button */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">All Service Requests</h1>
@@ -59,7 +48,8 @@ function GKViewServices() {
               <tr>
                 <th className="p-3 border text-left">Apartment</th>
                 <th className="p-3 border text-left">Service ID</th>
-                <th className="p-3 border text-left">Contact</th>
+                <th className="p-3 border text-left">Contact No</th>
+                 <th className="p-3 border text-left">Contact Email</th> 
                 <th className="p-3 border text-left">Service Type</th>
                 <th className="p-3 border text-left">Description</th>
                 <th className="p-3 border text-left">Attachment</th>
@@ -74,18 +64,35 @@ function GKViewServices() {
                   <td className="p-3 border">{s.aptNo}</td>
                   <td className="p-3 border">{s.serviceId}</td>
                   <td className="p-3 border">{s.contactNo}</td>
+                  <td className="p-3 border">{s.contactEmail}</td>
                   <td className="p-3 border">{s.serviceType}</td>
                   <td className="p-3 border max-w-xs">{s.description}</td>
                   <td className="p-3 border">
                     {s.fileUrl ? (
-                      <a
-                        href={s.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 underline"
-                      >
-                        View Attachment
-                      </a>
+                      s.fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                        <img
+                          src={s.fileUrl}
+                          alt="Uploaded"
+                          className="w-32 h-20 object-cover rounded-md"
+                        />
+                      ) : s.fileUrl.match(/\.(mp4|mov|avi)$/i) ? (
+                        <video
+                          controls
+                          className="w-40 h-24 object-cover rounded-md"
+                        >
+                          <source src={s.fileUrl} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <a
+                          href={s.fileUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 underline"
+                        >
+                          View File
+                        </a>
+                      )
                     ) : (
                       "No file"
                     )}
@@ -93,7 +100,7 @@ function GKViewServices() {
                   <td className="p-3 border text-sm text-gray-600">
                     {new Date(s.createdAt).toLocaleString()}
                   </td>
-                  <td className="p-3 border">{s.status}</td>
+                  <td className="p-3 border text-green-600">{s.status}</td>
                   <td className="p-3 border gap-3 flex">
                     <button
                       onClick={() => navigate(`/update-service/${s._id}`)}
@@ -102,7 +109,7 @@ function GKViewServices() {
                       <FaEdit size={18} />
                     </button>
                     <button
-                      onClick={() => handleDelete(s._id)}
+                      onClick={() => navigate(`/delete-service/${s._id}`)}
                       className="text-red-600 hover:text-red-800 p-2"
                     >
                       <FaTrash size={18} />

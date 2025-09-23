@@ -1,6 +1,4 @@
 import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -10,6 +8,8 @@ import usersRoutes from "./routes/vd_usersRoutes.js";
 import parcelRoutes from "./routes/ks_parcelRoutes.js"
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001
