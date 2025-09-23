@@ -11,6 +11,7 @@ function GKUpdateService() {
     aptNo: "",
     serviceId: "",
     contactNo: "",
+    contactEmail: "",
     serviceType: "",
     description: "",
     fileUrl: "",
@@ -94,6 +95,7 @@ function GKUpdateService() {
               className="w-full border border-black-200 px-3 py-2 rounded"
             />
           </div>
+
           <div className="w-1/2">
             <label className="block font-semibold mb-1">Service ID</label>
             <input
@@ -120,6 +122,16 @@ function GKUpdateService() {
         {errors.contactNo && (
           <p className="text-red-600 text-sm">{errors.contactNo}</p>
         )}
+
+        <label className="block font-semibold mb-1">Contact Email</label>
+        <input
+          type="text"
+          name="contactEmail"
+          placeholder="Contact Email"
+          value={formData.contactEmail}
+          onChange={handleChange}
+          className="w-full border border-black-200 px-3 py-2 rounded"
+        />
 
         <label className="block font-semibold mb-1">Service Type</label>
         <select

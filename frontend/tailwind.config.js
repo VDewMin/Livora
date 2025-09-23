@@ -4,7 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",  // ✅ scans all React files
   ],
-  theme: {
+  theme:{
     extend: {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"], // 👈 add Poppins

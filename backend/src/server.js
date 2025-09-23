@@ -1,7 +1,5 @@
 
 import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
 import sn_paymentRoutes from "./routes/sn_paymentRoutes.js"
@@ -12,6 +10,8 @@ import parcelRoutes from "./routes/ks_parcelRoutes.js"
 import Stripe from "stripe"
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001

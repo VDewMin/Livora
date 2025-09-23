@@ -5,18 +5,23 @@ const GKServiceRequestSchema = new mongoose.Schema({
   aptNo: { type: String, required: true },
   serviceId: { type: String, unique: true },
   contactNo: { type: String, required: true },
+  contactEmail: { type: String, required: true },
   serviceType: { type: String, required: true },
   description: { type: String },
   fileUrl: { type: String },
+  assignedAt: { type: Date },
   assignedTechnician: { type: String, default: "" },
+  assignedDate: { type: Date },
   status: {
       type: String,
-      enum: ["Pending", "In Processing", "Completed"],
+      enum: ["Pending", "In Processing",],
       default: "Pending",
     },
 },
     { timestamps: true } //createdAt, updateAt
 );
+
+//generate auto service id 
 GKServiceRequestSchema.pre("save", async function (next) {
   try {
     // Only generate parcelId if it is not already set
