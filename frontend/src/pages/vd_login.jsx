@@ -25,16 +25,10 @@ export default function Login() {
       const res = await axiosInstance.post("/users/login", formData, {
         headers: {"Content-Type": "application/json"},
       });
-      //Example response: { token, user: { _id, email, role, ... } }
-      const { token, user } = res.data;
+      
+      navigate(`/verify-otp/${res.data.userId}`);
 
-      // Save token for authenticated requests
-      login(user, token);
-
-      toast.success("Login successfull");
-
-      //Redirect to profile page
-      navigate(`/profile/${user._id}`);
+      toast.success("OTP sent to your email");
       
     } catch (err) {
         console.error("Login failed:", err.response?.data || err);

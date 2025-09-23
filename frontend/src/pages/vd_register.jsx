@@ -119,6 +119,7 @@ const Register = () => {
         >
           <option value="Resident">Resident</option>
           <option value="Staff">Staff</option>
+          <option value="Admin">Admin</option>
         </select>
 
         {/* Conditional Fields */}
