@@ -23,8 +23,8 @@
     "mongoose": "^8.14.3",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
-    "qrcode": "^1.5.4",
     "nodemailer": "^7.0.6",
+    "qrcode": "^1.5.4",
     "stripe": "^18.5.0"
   },
   "devDependencies": {
