@@ -21,6 +21,7 @@ import StaffList from "./pages/vd_staffList.jsx";
 import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
+import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 
 const App = () =>{
     return(
@@ -52,7 +53,11 @@ const App = () =>{
 
                 
                 
+
+               
+                <Route path="/admin-view" element={<GKAdminViewServices />} />
             </Routes>
+
 
         </div>
         
