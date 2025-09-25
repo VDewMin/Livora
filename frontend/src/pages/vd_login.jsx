@@ -36,6 +36,10 @@ export default function Login() {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <form
@@ -69,6 +73,16 @@ export default function Login() {
         >
           Login
         </button>
+
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className="text-sm text-gray-600 hover:text-green-600 transition-colors underline"
+          >
+            Forgot password?
+          </button>
+        </div>
       </form>
     </div>
   );
