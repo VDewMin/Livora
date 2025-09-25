@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const Checkout = () => {
   const [email, setEmail] = useState("");
@@ -6,7 +7,7 @@ const Checkout = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amountRent, setAmountRent] = useState(0);
   const [amountLaundry, setAmountLaundry] = useState(0);
-  const [message, setMessage] = useState("");
+  //const [message, setMessage] = useState("");
 
   const handleCheckout = async () => {
     try {
@@ -29,7 +30,7 @@ const Checkout = () => {
       window.location.href = data.sessionUrl;
     } catch (err) {
       console.error(err);
-      setMessage("Checkout failed");
+      toast.error("Checkout failed");
     }
   };
 
@@ -93,7 +94,6 @@ const Checkout = () => {
         Pay Offline (Upload Slip)
       </button>
 
-      {message && <p className="text-center text-gray-700">{message}</p>}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const OfflineSlipForm = () => {
   const [residentId, setResidentId] = useState("");
@@ -7,7 +8,7 @@ const OfflineSlipForm = () => {
   const [amountLaundry, setAmountLaundry] = useState(0);
   const [slip, setSlip] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [message, setMessage] = useState("");
+  //const [message, setMessage] = useState("");
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -17,14 +18,14 @@ const OfflineSlipForm = () => {
     } else {
       setSlip(null);
       setPreview(null);
-      setMessage("Please select a PNG or JPG image.");
+      toast.error("Please select a PNG or JPG image.");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!slip) {
-      setMessage("Please upload a slip file (PNG/JPG)");
+      toast.error("Please upload a slip file (PNG/JPG)");
       return;
     }
 
@@ -42,7 +43,7 @@ const OfflineSlipForm = () => {
       });
 
       if (res.ok) {
-        setMessage("Offline payment submitted successfully! Awaiting admin verification.");
+        toast.success("Offline payment submitted successfully! Awaiting admin verification.");
         setSlip(null);
         setPreview(null);
         setResidentId("");
@@ -51,11 +52,11 @@ const OfflineSlipForm = () => {
         setAmountLaundry(0);
       } else {
         const err = await res.json();
-        setMessage("Error: " + err.message);
+        toast.error("Error: " + err.message);
       }
     } catch (error) {
       console.error(error);
-      setMessage("Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 
@@ -125,7 +126,6 @@ const OfflineSlipForm = () => {
         </button>
       </form>
 
-      {message && <p className="mt-3 text-center text-gray-700">{message}</p>}
     </div>
   );
 };

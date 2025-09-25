@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   const [payment, setPayment] = useState(null);
@@ -37,7 +38,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       if (!res.ok) throw new Error(`Failed to ${action} payment`);
       const data = await res.json();
 
-      alert(
+      toast.success(
         `Payment ${action === "verify" ? "verified" : "rejected"} successfully!`
       );
 
@@ -45,7 +46,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       goBack();
     } catch (err) {
       console.error(err);
-      alert(`Failed to ${action} payment`);
+      toast.error(`Failed to ${action} payment`);
     } finally {
       setActionLoading(false);
     }
