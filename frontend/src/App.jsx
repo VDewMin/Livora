@@ -32,6 +32,7 @@ import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
 
 
 const App = () =>{
@@ -70,6 +71,7 @@ const App = () =>{
                 <Route path="/addParcel" element={<KsAddParcel />} />       
                 <Route path="/parcel/:id" element={<KsParcelDetail />} />
                 <Route path="/security-dashboard" element={<SecurityDashboard />} />
+                <Route path="/secDashboard" element={<KsSecurityDashboard />} />
                 
 
                

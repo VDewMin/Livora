@@ -36,8 +36,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
   { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
-  { id: "parcel-logs", label: "Parcel Logs", icon: Package, roles: ["Security"]},
-  { id: "parcel-pickup-verification", label: "Parcel Pickup Verification", icon: PackageCheck, roles:["Security"]},
+  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"]},
+  { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
 ];
 
  const effectiveRole = user?.role === "Staff" && user?.staffType

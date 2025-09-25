@@ -175,3 +175,18 @@ export const deleteParcel = async(req, res) => {
     }
   
 }
+
+export const getParcelCounts = async (req, res) => {
+  try {
+    const total = await Parcel.countDocuments();
+    const pending = await Parcel.countDocuments({ status: "Pending" });
+    const collected = await Parcel.countDocuments({ status: "Collected" });
+    const removed = await Parcel.countDocuments({ status: "Removed" });
+
+    console.log("Counts:", { total, pending, collected, removed });
+    res.status(200).json({ total, pending, collected, removed });
+  } catch (error) {
+    console.error("Error in getParcelCounts Controller", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

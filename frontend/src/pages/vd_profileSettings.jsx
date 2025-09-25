@@ -18,6 +18,13 @@ const ProfileSettings = () => {
     if (item === 'billing') {
       navigate("/admin/billing");
     }
+    else if(item === 'parcel-logs'){
+      navigate("/viewParcels");
+    }
+    else if(item === 'dashboard'){
+      navigate("/secDashboard");
+    }
+    
 
     console.log('Navigating to:', item);
   };
