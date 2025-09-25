@@ -3,12 +3,13 @@ import toast from "react-hot-toast";
 
 const OfflineSlipForm = () => {
   const [residentId, setResidentId] = useState("");
+  const [apartmentNo, setApartmentNo] = useState("");
+  const [residentName, setResidentName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amountRent, setAmountRent] = useState(0);
   const [amountLaundry, setAmountLaundry] = useState(0);
   const [slip, setSlip] = useState(null);
   const [preview, setPreview] = useState(null);
-  //const [message, setMessage] = useState("");
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -24,6 +25,11 @@ const OfflineSlipForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!residentId || !apartmentNo || !residentName || !phoneNumber) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
     if (!slip) {
       toast.error("Please upload a slip file (PNG/JPG)");
       return;
@@ -31,6 +37,8 @@ const OfflineSlipForm = () => {
 
     const formData = new FormData();
     formData.append("residentId", residentId);
+    formData.append("apartmentNo", apartmentNo);
+    formData.append("residentName", residentName);
     formData.append("phoneNumber", phoneNumber);
     formData.append("amountRent", amountRent);
     formData.append("amountLaundry", amountLaundry);
@@ -47,6 +55,8 @@ const OfflineSlipForm = () => {
         setSlip(null);
         setPreview(null);
         setResidentId("");
+        setApartmentNo("");
+        setResidentName("");
         setPhoneNumber("");
         setAmountRent(0);
         setAmountLaundry(0);
@@ -70,6 +80,24 @@ const OfflineSlipForm = () => {
           value={residentId}
           onChange={(e) => setResidentId(e.target.value)}
           placeholder="Resident ID"
+          className="w-full mb-3 p-2 border rounded"
+          required
+        />
+
+        <input
+          type="text"
+          value={apartmentNo}
+          onChange={(e) => setApartmentNo(e.target.value)}
+          placeholder="Apartment No"
+          className="w-full mb-3 p-2 border rounded"
+          required
+        />
+
+        <input
+          type="text"
+          value={residentName}
+          onChange={(e) => setResidentName(e.target.value)}
+          placeholder="Resident Name"
           className="w-full mb-3 p-2 border rounded"
           required
         />
@@ -125,7 +153,6 @@ const OfflineSlipForm = () => {
           Submit Offline Payment
         </button>
       </form>
-
     </div>
   );
 };

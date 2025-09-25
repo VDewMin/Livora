@@ -45,9 +45,9 @@ const sendOfflineVertifyEmail = async (email,res) => {
 // ---------------- Online Payment with Stripe + OTP ----------------
 export const createOnlinePaymentWithOTP = async (req, res) => {
   try {
-    const { residentId, phoneNumber, amountRent , amountLaundry , email } = req.body;
+    const { residentId, apartmentNo , residentName, phoneNumber, amountRent , amountLaundry , email } = req.body;
 
-    if (!residentId || !phoneNumber || !email) return res.status(400).json({ message: "residentId, phoneNumber and email are required" });
+    if (!residentId || !phoneNumber || !email || !apartmentNo || !residentName) return res.status(400).json({ message: "residentId, phoneNumber and email are required" });
 
     const paymentId = generatePaymentId();
     const totalAmount = Number(amountRent) + Number(amountLaundry);
@@ -57,6 +57,8 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
     const parentPayment = await Payment.create({
       paymentId,
       residentId,
+      apartmentNo,
+      residentName,
       phoneNumber,
       paymentType: "Online",
       totalAmount,
@@ -87,6 +89,8 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
     const childOnlinePayment = await OnlinePayment.create({
       paymentId,
       residentId,
+      apartmentNo,
+      residentName,
       phoneNumber,
       amountRent,
       amountLaundry,
@@ -123,7 +127,28 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
 // ---------------- Validate OTP and Complete ----------------
 export const validateOTPAndCompletePayment = async (req, res) => {
   try {
-    const { email, otp, paymentId } = req.body;
+    const { email, otp, paymentId, forceFail } = req.body;
+
+    if (!email || !paymentId) return res.status(400).json({ message: "email, and paymentId are required" });
+    if (forceFail) {
+      const parentPayment = await Payment.findOneAndUpdate(
+        { paymentId },
+        { status: "Failed" },
+        { new: true }
+      );
+
+      const childOnlinePayment = await OnlinePayment.findOneAndUpdate(
+        { paymentId },
+        { status: "Failed" },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        message: "Payment marked as Failed",
+        parentPayment,
+        childOnlinePayment,
+      });
+    }
 
     if (!email || !otp || !paymentId) return res.status(400).json({ message: "email, otp, and paymentId are required" });
 
@@ -193,7 +218,7 @@ export const resendOTP = async (req, res) => {
 export const createOfflinePayment = async (req , res) => {
     try {
         //master
-        const {residentId, amountRent, phoneNumber, amountLaundry } = req.body;
+        const {residentId, amountRent, phoneNumber, amountLaundry, apartmentNo, residentName,} = req.body;
         const slipFile = req.file;
 
         const paymentId = generatePaymentId();
@@ -203,6 +228,8 @@ export const createOfflinePayment = async (req , res) => {
         const newPayment = new Payment({
             paymentId,
             residentId,
+            apartmentNo,
+            residentName,
             phoneNumber,
             paymentType: "Offline",
             totalAmount: total,
@@ -214,6 +241,8 @@ export const createOfflinePayment = async (req , res) => {
         const newOfflinePayment = new OfflinePayment({
         paymentId,
         residentId,
+        apartmentNo,
+        residentName,
         phoneNumber,
         amountRent,
         amountLaundry,

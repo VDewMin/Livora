@@ -3,21 +3,19 @@ import Sidebar from '../components/vd_sidebar';
 import ProfileHeader from '../components/vd_profileHeader';
 import UserProfile from '../pages/vd_userProfile';
 import { useParams, useNavigate } from 'react-router-dom'; // use react-router-dom
+import { useAuth } from "../context/vd_AuthContext"; 
 
 const ProfileSettings = () => {
   const { userId } = useParams(); // call useParams()
   const navigate = useNavigate(); // move inside component
+  const { user } = useAuth();//get current logged-in user
 
   const [activeItem, setActiveItem] = useState('account-information');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleItemClick = (item) => {
     setActiveItem(item);
-
     // Only navigate if needed
-    if (item === 'billing') {
-      navigate("/admin/billing");
-    }
 
     console.log('Navigating to:', item);
   };

@@ -18,7 +18,7 @@ const VerifyOTP = () => {
       const res = await axios.post("http://localhost:5001/api/payments/validate-otp", { email, otp, paymentId });
 
       if (res.data.parentPayment?.status === "Completed") {
-        toast.success("✅ Payment verified successfully!");
+        toast.success("Payment verified successfully!");
         localStorage.setItem("payment", JSON.stringify(res.data.parentPayment));
 
         // Small delay so user sees toast before redirect
@@ -30,7 +30,7 @@ const VerifyOTP = () => {
         setAttempts(newAttempts);
 
         if (newAttempts >= 3) {
-          toast.error("❌ Too many failed attempts. Payment cancelled.");
+          toast.error("Too many failed attempts. Payment cancelled.");
           localStorage.setItem("reason", "Exceeded OTP attempts");
           setTimeout(() => (window.location.href = "/cancel"), 1500);
         } else {
@@ -43,7 +43,16 @@ const VerifyOTP = () => {
       setAttempts(newAttempts);
 
       if (newAttempts >= 3) {
-        toast.error("❌ Too many failed attempts. Payment cancelled.");
+        toast.error("Too many failed attempts. Payment cancelled.");
+         try {
+          await axios.post("http://localhost:5001/api/payments/validate-otp", {
+            email,
+            paymentId,
+            forceFail: true // 👈 Tells backend to mark as Failed
+          });
+        } catch (err) {
+          console.error("Failed to mark payment as Failed:", err.response?.data || err.message);
+        }
         localStorage.setItem("reason", "Exceeded OTP attempts");
         setTimeout(() => (window.location.href = "/cancel"), 1500);
       } else {
@@ -64,7 +73,7 @@ const VerifyOTP = () => {
       toast.success("📧 New OTP sent to your email! Attempts reset.");
     } catch (err) {
       console.error(err.response?.data || err.message);
-      toast.error("❌ Failed to resend OTP.");
+      toast.error("Failed to resend OTP.");
     }
   };
 
