@@ -9,20 +9,19 @@ function GKServiceRequest() {
     contactEmail: "",
     serviceType: "",
     description: "",
-    fileUrl: "",
   });
 
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
 
   // Handle input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    //contact number validation
     if (name === "contactNo") {
-      if (!/^\d*$/.test(value)) {
+      const contact = /^\d*$/;
+      if (!contact.test(value)) {
         setErrors({ ...errors, contactNo: "Only numbers are allowed" });
         return;
       } else if (value.length > 10) {
@@ -33,8 +32,19 @@ function GKServiceRequest() {
       }
     }
 
+    if (name === "contactEmail") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        setErrors({ ...errors, contactEmail: "Please enter a valid email address" });
+      } else {
+        setErrors({ ...errors, contactEmail: "" });
+      }
+      setFormData({ ...formData, [name]: value });
+      return;
+    }
+
     if (name === "fileUrl") {
-      setFormData({ ...formData, fileUrl: files[0] });
+      setFile(files[0]); // ✅ store selected file
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -50,29 +60,39 @@ function GKServiceRequest() {
     }
 
     setLoading(true);
-    setMessage("");
 
     try {
-      await axios.post("http://localhost:5001/api/services", formData);
+      // Build FormData object
+      const requestData = new FormData();
+      Object.keys(formData).forEach((key) => {
+        requestData.append(key, formData[key]);
+      });
+      if (file) requestData.append("file", file);
+
+      await axios.post("http://localhost:5001/api/services", requestData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       toast.success("Service request submitted successfully", {
         position: "top-center",
-        autoClose: 3000, });
+        autoClose: 3000,
+      });
 
+      // Reset form
       setFormData({
         aptNo: "",
         contactNo: "",
         contactEmail: "",
         serviceType: "",
         description: "",
-        fileUrl: "",
       });
+      setFile(null);
     } catch (err) {
-      console.log("Error submitting service request:", err);
+      console.error(" Error submitting service request:", err);
       toast.error("Failed to submit service request", {
         position: "top-center",
         autoClose: 3000,
       });
-
     } finally {
       setLoading(false);
     }
@@ -81,16 +101,6 @@ function GKServiceRequest() {
   return (
     <div className="max-w-md mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
       <h2 className="text-xl font-bold mb-6 text-center">Service Request</h2>
-
-      {message && (
-        <p
-          className={`text-center mb-4 ${
-            message.includes("successfully") ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Apartment No */}
@@ -133,6 +143,9 @@ function GKServiceRequest() {
             required
             className="w-full p-2 border border-black-200 rounded-lg"
           />
+          {errors.contactEmail && (
+            <p className="text-red-600 text-sm">{errors.contactEmail}</p>
+          )}
         </div>
 
         {/* Service Type */}
@@ -171,6 +184,7 @@ function GKServiceRequest() {
           <input
             type="file"
             name="fileUrl"
+            accept="image/*,video/*"
             onChange={handleChange}
             className="w-full p-2 border border-black-200 rounded-lg"
           />

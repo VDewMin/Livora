@@ -27,7 +27,7 @@ const App = () =>{
     return(
         <div className="p-4">
             <Routes>
-                <Route path="/" element={<GKViewServices />} />
+                <Route path="/user-view" element={<GKViewServices />} />
                 <Route path="/update-service/:id" element={<GKUpdateService />} />
                 <Route path="/delete-service/:id" element={<GKDeleteService />} />
                 <Route path="/add-service" element={<GKRequestService />} />

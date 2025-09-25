@@ -24,7 +24,6 @@ app.use(
 //middleware
 app.use(express.json());  
 
-
 app.use("/api/users", usersRoutes);
 app.use("/api/parcels", parcelRoutes);
 app.use("/api/payments", sn_paymentRoutes)
