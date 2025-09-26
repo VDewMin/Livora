@@ -16,6 +16,30 @@ import {
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate } from "react-router-dom";
 
+const roleRoutes = {
+  Admin: {
+    dashboard: "/admin/dashboard",
+    deliveries: "/admin/deliveries",
+    services: "/admin/services",
+    booking: "/admin/booking",
+    billing: "/admin/billing",
+    "staff-management": "/admin/stafflist",
+  },
+  Resident: {
+    dashboard: "/resident/dashboard",
+    deliveries: "/resident/deliveries",
+    services: "/resident/services",
+    booking: "/resident/booking",
+    billing: "/resident/billing",
+  },
+  Security: {
+    dashboard: "/security/dashboard",
+    deliveries: "/security/deliveries",
+    "parcel-logs": "/security/parcel-logs",
+    "parcel-pickup-verification": "/security/parcel-pickup-verification",
+  },
+};
+
 const Sidebar = ({ activeItem, onItemClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -26,48 +50,31 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   };
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"], route: true },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
     { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
-    { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
-    { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"], route: true },
-    { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"], route: true },
+    { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
+    { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin", "Staff", "Security"] },
+    { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
     { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
-    { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"], route: true },
-    { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"], route: true },
-    { id: "parcel-logs", label: "Parcel Logs", icon: Package, roles: ["Security"], route: true },
-    { id: "parcel-pickup-verification", label: "Parcel Pickup Verification", icon: PackageCheck, roles:["Security"], route: true },
+    { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+    { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
+    { id: "parcel-logs", label: "Parcel Logs", icon: Package, roles: ["Security"] },
+    { id: "parcel-pickup-verification", label: "Parcel Pickup Verification", icon: PackageCheck, roles:["Security"] },
   ];
 
-  const effectiveRole =
-    user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
+  const effectiveRole = user?.role === "Staff" && user?.staffType === "Security" ? "Security" : user?.role;
+
 
   const allowedMenuItems = menuItems.filter((item) =>
     item.roles.includes(effectiveRole)
   );
 
   const handleMenuClick = (item) => {
-    if (item.route) {
-      // ✅ Navigate to correct pages for roles
-      if (item.id === "dashboard") {
-        if (user?.role === "Admin") return navigate("/admin/dashboard");
-        if (user?.role === "Resident") return navigate("/resident/dashboard");
-        if (user?.role === "Security") return navigate("/security/dashboard");
-      }
-      if (item.id === "billing") {
-        if (user?.role === "Admin") return navigate("/admin/billing");
-        if (user?.role === "Resident") return navigate("/resident/billing");
-      }
-      if (item.id === "analytics" && user?.role === "Admin") {
-        return navigate("/admin/analytics");
-      }
-      if (item.id === "deliveries") {
-        if (user?.role === "Admin") return navigate("/admin/deliveries");
-        if (user?.role === "Resident") return navigate("/resident/deliveries");
-      }
-      // Fallback generic route if needed:
-      return navigate(`/${user?.role?.toLowerCase()}/${item.id}`);
+    // Navigate using roleRoutes mapping
+    const route = roleRoutes[effectiveRole]?.[item.id] || null;
+    if (route) {
+      navigate(route);
     } else {
-      // ✅ Only update the active item (for settings)
       onItemClick(item.id);
     }
   };

@@ -19,6 +19,7 @@ const ResidentList = () => {
         <table className="table-auto border-collapse border border-gray-300 w-full text-left">
           <thead>
             <tr className="bg-gray-200">
+              <th className="border px-4 py-2">Resident Id</th>
               <th className="border px-4 py-2">Name</th>
               <th className="border px-4 py-2">Email</th>
               <th className="border px-4 py-2">Phone</th>
@@ -31,6 +32,7 @@ const ResidentList = () => {
             {residents.length > 0 ? (
               residents.map((res) => (
                 <tr key={res._id} className="hover:bg-gray-100">
+                  <td className="border px-4 py-2">{res.userId}</td>
                   <td className="border px-4 py-2">
                     {res.firstName} {res.lastName}
                   </td>
