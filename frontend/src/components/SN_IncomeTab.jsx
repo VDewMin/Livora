@@ -21,7 +21,7 @@ export default function SN_IncomeTab({ selectedMonth }) {
 
   useEffect(() => {
     fetchPayments();
-  }, [selectedMonth]); // <-- ✅ refetch when month changes
+  }, [selectedMonth]);
 
   if (selectedPaymentId) {
     return (
@@ -37,14 +37,15 @@ export default function SN_IncomeTab({ selectedMonth }) {
       <h2 className="text-xl font-semibold mb-4">
         Income (Completed Payments)
       </h2>
-      <table className="border w-full text-sm">
+      <table className="border w-full text-sm table-fixed">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2">Payment ID</th>
-            <th className="border p-2">Resident</th>
-            <th className="border p-2">Amount</th>
-            <th className="border p-2">Type</th>
-            <th className="border p-2">Date</th>
+            <th className="border p-2 w-[12%]">Payment ID</th>
+            <th className="border p-2 w-[10%]">Apartment No</th>
+            <th className="border p-2 w-[20%]">Resident Name</th>
+            <th className="border p-2 w-[15%]">Amount</th>
+            <th className="border p-2 w-[13%]">Type</th>
+            <th className="border p-2 w-[15%]">Date</th>
           </tr>
         </thead>
         <tbody>
@@ -55,7 +56,8 @@ export default function SN_IncomeTab({ selectedMonth }) {
               onClick={() => setSelectedPaymentId(pay.paymentId)}
             >
               <td className="border p-2">{pay.paymentId}</td>
-              <td className="border p-2">{pay.residentId}</td>
+              <td className="border p-2">{pay.apartmentNo}</td>
+              <td className="border p-2 truncate">{pay.residentName}</td>
               <td className="border p-2">Rs. {pay.totalAmount}</td>
               <td className="border p-2">{pay.paymentType}</td>
               <td className="border p-2">

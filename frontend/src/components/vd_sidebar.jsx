@@ -14,10 +14,9 @@ import {
   PackageCheck
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
-import{ useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ activeItem, onItemClick }) => {
-
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -25,7 +24,6 @@ const Sidebar = ({ activeItem, onItemClick }) => {
     logout();
     navigate('/login');
   };
-
 
  const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
@@ -40,20 +38,46 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
 ];
+  const effectiveRole =
+    user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
- const effectiveRole = user?.role === "Staff" && user?.staffType
- ?user.staffType
- :user?.role;
+  const allowedMenuItems = menuItems.filter((item) =>
+    item.roles.includes(effectiveRole)
+  );
 
-  const allowedMenuItems = menuItems.filter(item => item.roles.includes(effectiveRole));
-
+  const handleMenuClick = (item) => {
+    if (item.route) {
+      // ✅ Navigate to correct pages for roles
+      if (item.id === "dashboard") {
+        if (user?.role === "Admin") return navigate("/admin/dashboard");
+        if (user?.role === "Resident") return navigate("/resident/dashboard");
+        if (user?.role === "Security") return navigate("/security/dashboard");
+      }
+      if (item.id === "billing") {
+        if (user?.role === "Admin") return navigate("/admin/billing");
+        if (user?.role === "Resident") return navigate("/resident/billing");
+      }
+      if (item.id === "analytics" && user?.role === "Admin") {
+        return navigate("/admin/analytics");
+      }
+      if (item.id === "deliveries") {
+        if (user?.role === "Admin") return navigate("/admin/deliveries");
+        if (user?.role === "Resident") return navigate("/resident/deliveries");
+      }
+      // Fallback generic route if needed:
+      return navigate(`/${user?.role?.toLowerCase()}/${item.id}`);
+    } else {
+      // ✅ Only update the active item (for settings)
+      onItemClick(item.id);
+    }
+  };
 
   const settingsSubmenu = [
-    { id: 'account-information', label: 'Account Information' },
-    { id: 'change-password', label: 'Change Password' },
-    { id: 'notification', label: 'Notification' },
-    { id: 'personalization', label: 'Personalization' },
-    { id: 'security-privacy', label: 'Security & Privacy' },
+    { id: "account-information", label: "Account Information" },
+    { id: "change-password", label: "Change Password" },
+    { id: "notification", label: "Notification" },
+    { id: "personalization", label: "Personalization" },
+    { id: "security-privacy", label: "Security & Privacy" },
   ];
 
   return (
@@ -75,11 +99,11 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           return (
             <button
               key={item.id}
-              onClick={() => onItemClick(item.id)}
+              onClick={() => handleMenuClick(item)}
               className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeItem === item.id
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
               <Icon className="mr-3 h-5 w-5" />
@@ -102,8 +126,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
                 onClick={() => onItemClick(item.id)}
                 className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
                   activeItem === item.id
-                    ? 'bg-blue-50 text-blue-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? "bg-blue-50 text-blue-600 font-medium"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 {item.label}
@@ -116,11 +140,11 @@ const Sidebar = ({ activeItem, onItemClick }) => {
       {/* Bottom Section */}
       <div className="p-4 border-t border-gray-200 space-y-1">
         <button
-          onClick={() => onItemClick('help')}
+          onClick={() => onItemClick("help")}
           className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-            activeItem === 'help'
-              ? 'bg-gray-100 text-gray-900'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            activeItem === "help"
+              ? "bg-gray-100 text-gray-900"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
           }`}
         >
           <HelpCircle className="mr-3 h-5 w-5" />
