@@ -1,13 +1,15 @@
 import express from "express";
 import multer from "multer";
 
-import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment } from "../controllers/sn_paymentController.js"
+import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment, getPaymentsByResident } from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 router.get("/", getAllPayment);
+
+router.get("/:id", getPaymentsByResident);
 
 router.post("/validate-otp", validateOTPAndCompletePayment);
 

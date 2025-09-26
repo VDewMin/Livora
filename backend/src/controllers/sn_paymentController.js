@@ -378,16 +378,19 @@ export const getAllPayment = async (req, res) => {
   }
 };
 
+//get payment by resident
+export const getPaymentsByResident = async (req, res) => {
+  try {
+    const { id } = req.params; // residentId
+    if (!id) return res.status(400).json({ message: "Resident ID required" });
 
-/*//get all payment
-export const getAllPayment = async(req,res) => {
-    try {
-        const payments = await Payment.find().sort({createdAt: -1});
-        res.status(200).json(payments)
-    } catch (error) {
-        console.error("Error in getAllPayments controller", error);
-        res.status(500).json({message: "Internel Server Error"});
-    }
-};*/
+    const payments = await Payment.find({ residentId: id }).sort({ createdAt: -1 });
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Error in getPaymentsByResident controller", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 

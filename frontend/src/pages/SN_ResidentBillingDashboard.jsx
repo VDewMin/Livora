@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/vd_sidebar";
+import toast from "react-hot-toast";
+import axiosInstance from "../lib/axios"; // Optional: for API calls
 
 const SN_ResidentBillingDashboard = () => {
   const [activeItem, setActiveItem] = useState("billing");
@@ -13,18 +15,27 @@ const SN_ResidentBillingDashboard = () => {
     total: 0,
   });
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [loadingPayment, setLoadingPayment] = useState(false);
+
   const navigate = useNavigate();
 
-  // Fetch resident charges (replace with your API)
+  // ✅ Get logged-in user from session
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const residentId = user?._id;
+  const email = user?.email;
+  const apartmentNo = user?.apartmentNo;
+  const residentName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+  const phoneNo = user?.phoneNo;
+
+  // Fetch resident charges (currently dummy values)
   const fetchCharges = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/resident/charges");
-      const data = await res.json();
+      // 🔧 Replace with API call if needed
       setCharges({
-        rent: Number(data.rent || 0),
-        laundry: Number(data.laundry || 0),
-        others: Number(data.others || 0),
-        total: Number(data.rent || 0) + Number(data.laundry || 0) + Number(data.others || 0),
+        rent: 25000,
+        laundry: 1500,
+        others: 0,
+        total: 25000 + 1500 + 0,
       });
     } catch (err) {
       console.error("Error fetching charges:", err);
@@ -33,8 +44,9 @@ const SN_ResidentBillingDashboard = () => {
 
   // Fetch resident payment history
   const fetchPaymentHistory = async () => {
+    if (!residentId) return;
     try {
-      const res = await fetch("http://localhost:5001/api/resident/payments");
+      const res = await fetch(`http://localhost:5001/api/payments/${residentId}`);
       const data = await res.json();
       setPaymentHistory(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -45,7 +57,52 @@ const SN_ResidentBillingDashboard = () => {
   useEffect(() => {
     fetchCharges();
     fetchPaymentHistory();
-  }, []);
+  }, [residentId]);
+
+  // ✅ Stripe Checkout
+  const handleStripeCheckout = async () => {
+    if (!residentId || !email) {
+      toast.error("Resident information missing!");
+      return;
+    }
+
+    try {
+      setLoadingPayment(true);
+      const res = await fetch("http://localhost:5001/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          residentId,
+          apartmentNo,
+          residentName,
+          phoneNumber: phoneNo,
+          amountRent: Number(charges.rent),
+          amountLaundry: Number(charges.laundry),
+          email,
+        }),
+      });
+
+      const data = await res.json();
+      setLoadingPayment(false);
+
+      if (!res.ok) return toast.error(data.message || "Checkout failed");
+
+      // Store Stripe session data if needed
+      localStorage.setItem("paymentId", data.parentPayment.paymentId);
+      localStorage.setItem("email", email);
+
+      toast.success("Redirecting to payment...");
+      window.location.href = data.sessionUrl; // Redirect to Stripe checkout
+    } catch (err) {
+      setLoadingPayment(false);
+      console.error(err);
+      toast.error("Checkout failed");
+    }
+  };
+
+  const handleOfflinePayment = () => {
+    navigate("/offline-slip");
+  };
 
   const handleItemClick = (itemId) => {
     setActiveItem(itemId);
@@ -85,41 +142,27 @@ const SN_ResidentBillingDashboard = () => {
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-8">
-            {/* Charges Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow text-center">
-                <h2 className="text-lg font-semibold text-gray-700">Monthly Rent</h2>
-                <p className="text-2xl font-bold text-gray-900">Rs. {charges.rent.toLocaleString()}</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow text-center">
-                <h2 className="text-lg font-semibold text-gray-700">Laundry Fee</h2>
-                <p className="text-2xl font-bold text-gray-900">Rs. {charges.laundry.toLocaleString()}</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow text-center">
-                <h2 className="text-lg font-semibold text-gray-700">Others</h2>
-                <p className="text-2xl font-bold text-gray-900">Rs. {charges.others.toLocaleString()}</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow text-center">
-                <h2 className="text-lg font-semibold text-gray-700">Total</h2>
-                <p className="text-3xl font-bold text-green-600">Rs. {charges.total.toLocaleString()}</p>
-              </div>
+              <InfoCard title="Monthly Rent" value={charges.rent} />
+              <InfoCard title="Laundry Fee" value={charges.laundry} />
+              <InfoCard title="Others" value={charges.others} />
+              <InfoCard title="Total" value={charges.total} highlight />
             </div>
 
-            {/* Payment Buttons */}
             <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
               <button
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow"
-                onClick={() => navigate("/resident/payment/online")}
+                disabled={loadingPayment}
+                onClick={handleStripeCheckout}
+                className={`${
+                  loadingPayment ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+                } text-white font-semibold px-6 py-3 rounded-lg shadow`}
               >
-                Pay Online
+                {loadingPayment ? "Processing..." : "Pay Online (Stripe)"}
               </button>
 
               <button
+                onClick={handleOfflinePayment}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow"
-                onClick={() => navigate("/resident/payment/offline")}
               >
                 Upload Payment Slip
               </button>
@@ -127,7 +170,7 @@ const SN_ResidentBillingDashboard = () => {
           </div>
         )}
 
-        {/* Payment History Tab */}
+        {/* Payment History */}
         {activeTab === "history" && (
           <div className="bg-white p-6 rounded-2xl shadow">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">My Payment History</h2>
@@ -143,22 +186,14 @@ const SN_ResidentBillingDashboard = () => {
                 </thead>
                 <tbody>
                   {paymentHistory.map((p) => (
-                    <tr key={p.paymentId || p._id}>
-                      <td className="border px-4 py-2">{p.paymentId || p._id}</td>
+                    <tr key={p._id}>
+                      <td className="border px-4 py-2">{p.paymentId}</td>
                       <td className="border px-4 py-2">
                         {p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : "—"}
                       </td>
                       <td className="border px-4 py-2 font-semibold">Rs. {Number(p.totalAmount || 0).toLocaleString()}</td>
                       <td className="border px-4 py-2">
-                        <span
-                          className={`font-medium ${
-                            p.status === "Completed"
-                              ? "text-green-600"
-                              : p.status === "Pending"
-                              ? "text-yellow-600"
-                              : "text-gray-600"
-                          }`}
-                        >
+                        <span className={p.status === "Completed" ? "text-green-600" : "text-yellow-600"}>
                           {p.status}
                         </span>
                       </td>
@@ -172,7 +207,7 @@ const SN_ResidentBillingDashboard = () => {
           </div>
         )}
 
-        {/* Receipts Tab */}
+        {/* Receipts */}
         {activeTab === "receipts" && (
           <div className="bg-white p-6 rounded-2xl shadow text-center">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">Receipts</h2>
@@ -183,5 +218,15 @@ const SN_ResidentBillingDashboard = () => {
     </div>
   );
 };
+
+// Small Card Component
+const InfoCard = ({ title, value, highlight }) => (
+  <div className="bg-white p-6 rounded-2xl shadow text-center">
+    <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
+    <p className={`text-2xl font-bold ${highlight ? "text-green-600" : "text-gray-900"}`}>
+      Rs. {value.toLocaleString()}
+    </p>
+  </div>
+);
 
 export default SN_ResidentBillingDashboard;
