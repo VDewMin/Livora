@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+
+  userId: { type: String, unique: true, required: true },
+
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -29,6 +32,33 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: { type: Date, default: null},
 
 }, { timestamps: true });
+
+userSchema.pre("save", async function (next) {
+  try {
+    if (!this.userId) {
+      let prefix;
+      if (this.role === "Resident") prefix = "R";
+      else if (this.role === "Staff") prefix = "ST";
+      else if (this.role === "Admin") prefix = "A";
+      else prefix = "U"; // fallback
+
+      // find or create counter for this role
+      let counter = await Counter.findOne({ name: prefix });
+      if (!counter) {
+        counter = await Counter.create({ name: prefix, seq: 0 });
+      }
+
+      counter.seq += 1;
+      await counter.save();
+
+      this.userId = prefix + counter.seq.toString().padStart(3, "0");
+    }
+    next();
+  } catch (err) {
+    console.error("Error generating userId:", err);
+    next(err);
+  }
+});
 
 
 const User = mongoose.model("User", userSchema);
