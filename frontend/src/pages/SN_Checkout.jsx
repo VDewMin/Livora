@@ -1,35 +1,51 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const Checkout = () => {
   const [email, setEmail] = useState("");
   const [residentId, setResidentId] = useState("");
+  const [apartmentNo, setApartmentNo] = useState("");
+  const [residentName, setResidentName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amountRent, setAmountRent] = useState(0);
   const [amountLaundry, setAmountLaundry] = useState(0);
-  const [message, setMessage] = useState("");
 
   const handleCheckout = async () => {
+    if (!email || !residentId || !apartmentNo || !residentName || !phoneNumber) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5001/api/payments/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           residentId,
+          apartmentNo,
+          residentName,
           phoneNumber,
-          amountRent,
-          amountLaundry,
+          amountRent: Number(amountRent),
+          amountLaundry: Number(amountLaundry),
           email,
         }),
       });
+
       const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Checkout failed");
+        return;
+      }
 
       localStorage.setItem("paymentId", data.parentPayment.paymentId);
       localStorage.setItem("email", email);
 
+      toast.success("Redirecting to payment...");
       window.location.href = data.sessionUrl;
     } catch (err) {
       console.error(err);
-      setMessage("Checkout failed");
+      toast.error("Checkout failed");
     }
   };
 
@@ -56,6 +72,18 @@ const Checkout = () => {
         placeholder="Resident ID"
         value={residentId}
         onChange={(e) => setResidentId(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Apartment No"
+        value={apartmentNo}
+        onChange={(e) => setApartmentNo(e.target.value)}
+        className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        placeholder="Resident Name"
+        value={residentName}
+        onChange={(e) => setResidentName(e.target.value)}
         className="w-full mb-3 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <input
@@ -92,8 +120,6 @@ const Checkout = () => {
       >
         Pay Offline (Upload Slip)
       </button>
-
-      {message && <p className="text-center text-gray-700">{message}</p>}
     </div>
   );
 };

@@ -1,5 +1,5 @@
-// src/components/SN_ExpenseTab.jsx
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const API_URL = "http://localhost:5001/api/expenses";
 
@@ -18,6 +18,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
       onUpdateFinancials && onUpdateFinancials(data);
     } catch (err) {
       console.error("Error fetching expenses:", err);
+      toast.error("Error fetching expenses")
     }
   };
 
@@ -31,8 +32,10 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
       setShowModal(false);
       setNewExpense({ expenseId: "", description: "", amount: "", date: "" });
       fetchExpenses();
+      toast.success("Expense added Sucessfully")
     } catch (err) {
       console.error("Error creating expense:", err);
+      toast.error("Error creating expense")
     }
   };
 
@@ -45,8 +48,10 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
       });
       setEditId(null);
       fetchExpenses();
+      toast.success("Expense Updated Succesfully")
     } catch (err) {
       console.error("Error updating expense:", err);
+      toast.error("Error updating expense");
     }
   };
 
@@ -55,8 +60,10 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     try {
       await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       fetchExpenses();
+      toast.success("Expense deleted Succesfully")
     } catch (err) {
       console.error("Error deleting expense:", err);
+      toast.error("Error deleting expense");
     }
   };
 
