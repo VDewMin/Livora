@@ -3,7 +3,6 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
-import path from "path";
 import sn_paymentRoutes from "./routes/sn_paymentRoutes.js";
 import sn_expenseRoutes from "./routes/sn_expenseRoutes.js"
 import usersRoutes from "./routes/vd_usersRoutes.js";
