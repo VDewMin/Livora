@@ -12,6 +12,7 @@ import PaymentHistory from "./pages/SN_PaymentHistory.jsx";
 import PaymentDetail from "./pages/SN_PaymentDetail.jsx";
 import ExpensePage from "./pages/SN_ExpensePage.jsx";
 import AdminBillingDashboard from "./pages/SN_AdminBillingDashboard.jsx";
+import ResidentBillingPage from "./pages/SN_ResidentBillingDashboard.jsx";
 
 import Login from "./pages/vd_login.jsx";
 import GuestRoute from "./components/vd_guestRoute.jsx";
@@ -24,6 +25,8 @@ import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
 
+import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+
 const App = () =>{
     return(
         <div className="p-4">
@@ -32,6 +35,7 @@ const App = () =>{
                 <Route path="/update-service/:id" element={<GKUpdateService />} />
                 <Route path="/delete-service/:id" element={<GKDeleteService />} />
                 <Route path="/add-service" element={<GKRequestService />} />
+                <Route path="/admin-view" element={<GKAdminViewServices />} />
                 
                 <Route path="/chekout" element={<Checkout/>} />
                 <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -42,6 +46,7 @@ const App = () =>{
                 <Route path="/payment-detail/:id" element={<PaymentDetail />} />
                 <Route path="/expense" element={<ExpensePage />} />
                 <Route path="/admin/billing" element={<ProtectedRoute><AdminBillingDashboard /></ProtectedRoute>} />
+                <Route path="/resident/billing" element={<ProtectedRoute><ResidentBillingPage /></ProtectedRoute>} />
                 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
@@ -55,7 +60,11 @@ const App = () =>{
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
                 
                 
+
+               
+                
             </Routes>
+
 
         </div>
         

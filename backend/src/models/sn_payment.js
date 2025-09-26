@@ -12,6 +12,16 @@ const paymentShema = new mongoose.Schema({
         ref: User,
         required: true 
     },
+    apartmentNo: { 
+        type: String, 
+        ref: User,
+        required: true 
+    },
+    residentName: {
+        type: String,
+        ref: User,
+        required: true
+    },
     phoneNumber: {
         type: String,
         required: true,
