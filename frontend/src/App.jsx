@@ -33,6 +33,7 @@ import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
+import KsScanner from "./pages/KsScanner.jsx";
 
 
 const App = () =>{
@@ -70,7 +71,7 @@ const App = () =>{
                 <Route path="/viewParcels" element={<KsViewParcels />} />  
                 <Route path="/addParcel" element={<KsAddParcel />} />       
                 <Route path="/parcel/:id" element={<KsParcelDetail />} />
-                <Route path="/security-dashboard" element={<SecurityDashboard />} />
+                <Route path="/scanner" element={<KsScanner />} />
                 <Route path="/secDashboard" element={<KsSecurityDashboard />} />
                 
 

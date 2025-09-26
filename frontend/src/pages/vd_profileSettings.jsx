@@ -24,7 +24,12 @@ const ProfileSettings = () => {
     else if(item === 'dashboard'){
       navigate("/secDashboard");
     }
-    
+    else if(item === 'add-parcel'){
+      navigate("/addParcel");
+    }
+    else if(item === 'parcel-pickup-verification'){
+      navigate("/scanner");
+    }
 
     console.log('Navigating to:', item);
   };
