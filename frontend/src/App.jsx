@@ -53,7 +53,7 @@ const App = () =>{
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
                 <Route path="/residentlist" element={<ResidentList/>}/>
-                <Route path="/stafflist" element={<StaffList/>}/>
+                <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
                 <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
