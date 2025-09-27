@@ -95,7 +95,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">P</span>
           </div>
-          <span className="font-semibold text-gray-900">Puzzler</span>
+          <span className="font-semibold text-gray-900">Livora</span>
         </div>
       </div>
 

@@ -24,38 +24,49 @@ import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
+import DashboardLayout from "./components/vd_dashboardLayout.jsx";
+import UserProfile from "./pages/vd_userProfile.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+
 
 const App = () =>{
     return(
         <div className="p-4">
             <Routes>
-                <Route path="/" element={<GKViewServices />} />
-                <Route path="/update-service/:id" element={<GKUpdateService />} />
-                <Route path="/delete-service/:id" element={<GKDeleteService />} />
-                <Route path="/add-service" element={<GKRequestService />} />
-                <Route path="/admin-view" element={<GKAdminViewServices />} />
+
+                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+
+                    <Route path="/" element={<GKViewServices />} />
+                    <Route path="/update-service/:id" element={<GKUpdateService />} />
+                    <Route path="/delete-service/:id" element={<GKDeleteService />} />
+                    <Route path="/add-service" element={<GKRequestService />} />
+                    <Route path="/admin-view" element={<GKAdminViewServices />} />
+                    
+                    <Route path="/chekout" element={<Checkout/>} />
+                    <Route path="/verify-otp" element={<VerifyOTP />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/cancel" element={<Cancel />} />
+                    <Route path="/offline-slip" element={<OfflineSlipForm />} />
+                    <Route path="/payment-history" element={<PaymentHistory />} />
+                    <Route path="/payment-detail/:id" element={<PaymentDetail />} />
+                    <Route path="/expense" element={<ExpensePage />} />
+                    <Route path="/admin/billing" element={<ProtectedRoute><AdminBillingDashboard /></ProtectedRoute>} />
+                    <Route path="/resident/billing" element={<ProtectedRoute><ResidentBillingPage /></ProtectedRoute>} />
+                    
+                    
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
+                    <Route path="/residentlist" element={<ResidentList/>}/>
+                    <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
+                    <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                    <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+
+                </Route>
                 
-                <Route path="/chekout" element={<Checkout/>} />
-                <Route path="/verify-otp" element={<VerifyOTP />} />
-                <Route path="/success" element={<Success />} />
-                <Route path="/cancel" element={<Cancel />} />
-                <Route path="/offline-slip" element={<OfflineSlipForm />} />
-                <Route path="/payment-history" element={<PaymentHistory />} />
-                <Route path="/payment-detail/:id" element={<PaymentDetail />} />
-                <Route path="/expense" element={<ExpensePage />} />
-                <Route path="/admin/billing" element={<ProtectedRoute><AdminBillingDashboard /></ProtectedRoute>} />
-                <Route path="/resident/billing" element={<ProtectedRoute><ResidentBillingPage /></ProtectedRoute>} />
-                
+
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
-                <Route path="/residentlist" element={<ResidentList/>}/>
-                <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
-                <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-                <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
                 

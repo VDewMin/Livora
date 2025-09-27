@@ -1,23 +1,14 @@
+// vd_profileSettings.jsx
 import React, { useState } from 'react';
-import Sidebar from '../components/vd_sidebar';
-import ProfileHeader from '../components/vd_profileHeader';
 import UserProfile from '../pages/vd_userProfile';
-import { useParams, useNavigate } from 'react-router-dom'; // use react-router-dom
-import { useAuth } from "../context/vd_AuthContext"; 
+import { useParams } from 'react-router-dom';
 
 const ProfileSettings = () => {
-  const { userId } = useParams(); // call useParams()
-  const navigate = useNavigate(); // move inside component
-  const { user } = useAuth();//get current logged-in user
-
+  const { userId } = useParams(); // get userId from route
   const [activeItem, setActiveItem] = useState('account-information');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleItemClick = (item) => {
     setActiveItem(item);
-    // Only navigate if needed
-
-    console.log('Navigating to:', item);
   };
 
   const renderContent = () => {
@@ -75,25 +66,8 @@ const ProfileSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex -m-4">
-      {/* Sidebar */}
-      <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0`}>
-        <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        <ProfileHeader />
-        {renderContent()}
-      </div>
-
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+    <div className="flex-1">
+      {renderContent()}
     </div>
   );
 };
