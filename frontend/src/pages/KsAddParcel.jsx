@@ -61,9 +61,9 @@ const KsAddParcel = () => {
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      
       <div className="w-64 bg-white shadow-lg">
-        <Sidebar />
+        
       </div>
 
       {/* Main content area */}

@@ -88,8 +88,7 @@ const KsViewParcels = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Sidebar */}
-      <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
+      
 
       {/* Main Content */}
       <main className="flex-1 p-8 flex flex-col overflow-hidden">

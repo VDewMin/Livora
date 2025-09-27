@@ -56,6 +56,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
     setShowLogoutConfirm(false);
   };
 
+  const cancelLogout = () => setShowLogoutConfirm(false);
+
  const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
