@@ -1,4 +1,14 @@
+import toast from "react-hot-toast";
+import React from "react";
 import {Route, Routes } from "react-router";
+import GKServiceRequest from './pages/GKServiceRequest.jsx'
+import KsViewParcels from "./pages/KsViewParcels.jsx"
+import KsAddParcel from "./pages/KsAddParcel.jsx";
+import KsParcelDetail from "./pages/KsParcelDetail.jsx"
+import SecurityDashboard from "./pages/SecurityDashboard.jsx";
+
+
+
 import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
 import GKDeleteService from './pages/GKDeleteService.jsx'
@@ -29,6 +39,8 @@ import UserProfile from "./pages/vd_userProfile.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
+import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
+import KsScanner from "./pages/KsScanner.jsx";
 
 
 const App = () =>{
@@ -64,6 +76,12 @@ const App = () =>{
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
 
+                    <Route path="/viewParcels" element={<KsViewParcels />} />  
+                    <Route path="/addParcel" element={<KsAddParcel />} />       
+                    <Route path="/parcel/:id" element={<KsParcelDetail />} />
+                    <Route path="/scanner" element={<KsScanner />} />
+                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
+
                 </Route>
                 
 
@@ -71,15 +89,15 @@ const App = () =>{
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
-                
-                
-
                
                 
             </Routes>
 
 
         </div>
+
+
+       
         
     );
 };

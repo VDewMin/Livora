@@ -13,41 +13,57 @@ const ProfileSettings = () => {
 
   const renderContent = () => {
     switch (activeItem) {
-      case 'account-information':
+      case "account-information":
         return <UserProfile userId={userId} />;
-      case 'change-password':
+      case "change-password":
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Change Password</h2>
-              <p className="text-gray-600">Password change functionality coming soon.</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Change Password
+              </h2>
+              <p className="text-gray-600">
+                Password change functionality coming soon.
+              </p>
             </div>
           </div>
         );
-      case 'notification':
+      case "notification":
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Notification Settings</h2>
-              <p className="text-gray-600">Notification preferences coming soon.</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Notification Settings
+              </h2>
+              <p className="text-gray-600">
+                Notification preferences coming soon.
+              </p>
             </div>
           </div>
         );
-      case 'personalization':
+      case "personalization":
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Personalization</h2>
-              <p className="text-gray-600">Personalization options coming soon.</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Personalization
+              </h2>
+              <p className="text-gray-600">
+                Personalization options coming soon.
+              </p>
             </div>
           </div>
         );
-      case 'security-privacy':
+      case "security-privacy":
         return (
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Security & Privacy</h2>
-              <p className="text-gray-600">Security and privacy settings coming soon.</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Security & Privacy
+              </h2>
+              <p className="text-gray-600">
+                Security and privacy settings coming soon.
+              </p>
             </div>
           </div>
         );
@@ -56,7 +72,9 @@ const ProfileSettings = () => {
           <div className="flex-1 p-6 bg-gray-50 flex items-center justify-center">
             <div className="text-center">
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                {activeItem.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {activeItem
+                  .replace("-", " ")
+                  .replace(/\b\w/g, (l) => l.toUpperCase())}
               </h2>
               <p className="text-gray-600">This section is coming soon.</p>
             </div>

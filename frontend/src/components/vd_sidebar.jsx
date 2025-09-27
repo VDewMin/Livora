@@ -34,10 +34,11 @@ const roleRoutes = {
     billing: "/resident/billing",
   },
   Security: {
-    dashboard: "/security/dashboard",
+    dashboard: "/securityDashboard",
     deliveries: "/security/deliveries",
-    "parcel-logs": "/security/parcel-logs",
-    "parcel-pickup-verification": "/security/parcel-pickup-verification",
+    "parcel-logs": "/viewParcels",
+    "parcel-pickup-verification": "/scanner",
+    "add-parcel": "/addParcel"
   },
 };
 
@@ -55,33 +56,29 @@ const Sidebar = ({ activeItem, onItemClick }) => {
     setShowLogoutConfirm(false);
   };
 
-  const cancelLogout = () => setShowLogoutConfirm(false);
-
-  
-
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
-    { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
-    { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
-    { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin", "Staff", "Security"] },
-    { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
-    { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
-    { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
-    { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
-    { id: "parcel-logs", label: "Parcel Logs", icon: Package, roles: ["Security"] },
-    { id: "parcel-pickup-verification", label: "Parcel Pickup Verification", icon: PackageCheck, roles:["Security"] },
-  ];
-
-  const effectiveRole = user?.role === "Staff" && user?.staffType === "Security" ? "Security" : user?.role;
-
+ const menuItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
+  { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
+  { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
+  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
+  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
+  { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
+  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+  { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
+  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
+  { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
+];
+  const effectiveRole =
+    user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
   const allowedMenuItems = menuItems.filter((item) =>
     item.roles.includes(effectiveRole)
   );
 
   const handleMenuClick = (item) => {
-    // Navigate using roleRoutes mapping
-    const route = roleRoutes[effectiveRole]?.[item.id] || null;
+    
+     const route = roleRoutes[effectiveRole]?.[item.id] || null;
     if (route) {
       navigate(route);
     } else {
