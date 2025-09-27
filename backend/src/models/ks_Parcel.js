@@ -10,7 +10,7 @@ const parcelSchema = new mongoose.Schema({
 
      residentName: {
       type: String,
-      required: true,
+      
     },
 
    /* residentId: {

@@ -8,6 +8,9 @@ import {
   Calendar,
   CheckCircle,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import api from "../lib/axios.js";
 import Sidebar from "../components/vd_sidebar.jsx"; // import your sidebar
 
 const KsAddParcel = () => {
@@ -22,34 +25,39 @@ const KsAddParcel = () => {
     const now = new Date();
     return now.toISOString().slice(0, 16);
   });
-
   const [receivedByStaff, setReceivedByStaff] = useState("");
   const [collectedDateTime, setCollectedDateTime] = useState("");
   const [collectedByName, setCollectedByName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const navigate = useNavigate();
 
-    setTimeout(() => {
-      console.log("Parcel data:", {
-        residentName,
-        apartmentNo,
-        parcelType,
-        parcelDescription,
-        courierService,
-        locId,
-        status,
-        arrivalDateTime,
-        receivedByStaff,
-        collectedDateTime,
-        collectedByName,
-      });
-      setLoading(false);
-      alert("Parcel added successfully!");
-    }, 2000);
-  };
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        await api.post("/parcels", {
+          residentName,
+          //residentId,
+          apartmentNo,
+          parcelType,
+          parcelDescription,
+          courierService,
+          locId,
+          status,
+          receivedByStaff,
+          collectedDateTime,
+          collectedByName,
+        });
+        toast.success("Parcel added successfully!");
+        navigate("/viewParcels");
+      } catch (error) {
+        console.log("error adding parcel", error);
+        toast.error("Failed to add Parcel");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div className="flex h-screen">
@@ -74,10 +82,12 @@ const KsAddParcel = () => {
               </div>
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
-              Add New Parcel
+              {" "}
+              Add New Parcel{" "}
             </h1>
             <p className="text-lg text-slate-600 mb-2">
-              Fill in the details to register a new parcel delivery
+              {" "}
+              Fill in the details to register a new parcel delivery{" "}
             </p>
           </div>
 
@@ -93,35 +103,55 @@ const KsAddParcel = () => {
                   <User className="w-4 h-4 text-blue-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Recipient Details
+                  {" "}
+                  Recipient Details{" "}
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Home className="w-4 h-4 text-gray-400" />
-                    Apartment No
+                    <Home className="w-4 h-4 text-gray-400" /> Apartment No
                   </label>
                   <input
                     type="text"
                     value={apartmentNo}
-                    onChange={(e) => setApartmentNo(e.target.value)}
+                     onChange={async (e) => {
+                      const aptNo = e.target.value;
+                      setApartmentNo(aptNo);
+
+                      if (aptNo.trim() !== "") {
+                        try {
+                          const response = await fetch(`http://localhost:5001/api/users/resident/${aptNo}`);
+                          if (response.ok) {
+                            const data = await response.json();
+                            setResidentName(data.firstName || ""); // ✅ Only set firstName
+                          } else {
+                            setResidentName("");
+                          }
+                        } catch (err) {
+                          console.error("Error fetching resident:", err);
+                          setResidentName("");
+                        }
+                      } else {
+                        setResidentName("");
+                      }
+                    }}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., A-101"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <User className="w-4 h-4 text-gray-400" />
-                    Resident Name
+                    <User className="w-4 h-4 text-gray-400" /> Resident Name
                   </label>
                   <input
                     type="text"
                     value={residentName}
-                    onChange={(e) => setResidentName(e.target.value)}
+                    readOnly
+                 //   onChange={(e) => setResidentName(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter full name"
-                    required
+                 //   placeholder="Enter full name"
+                  //  required
                   />
                 </div>
               </div>
@@ -134,14 +164,14 @@ const KsAddParcel = () => {
                   <Package className="w-4 h-4 text-green-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Parcel Information
+                  {" "}
+                  Parcel Information{" "}
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Package className="w-4 h-4 text-gray-400" />
-                    Parcel Type
+                    <Package className="w-4 h-4 text-gray-400" /> Parcel Type
                   </label>
                   <select
                     value={parcelType}
@@ -155,8 +185,7 @@ const KsAddParcel = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-gray-400" />
-                    Courier Service
+                    <Truck className="w-4 h-4 text-gray-400" /> Courier Service
                   </label>
                   <input
                     type="text"
@@ -171,8 +200,8 @@ const KsAddParcel = () => {
               {/* Parcel Description */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-gray-400" />
-                  Parcel Description
+                  <Package className="w-4 h-4 text-gray-400" /> Parcel
+                  Description
                 </label>
                 <textarea
                   value={parcelDescription}
@@ -191,14 +220,14 @@ const KsAddParcel = () => {
                   <MapPin className="w-4 h-4 text-purple-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Location & Tracking
+                  {" "}
+                  Location & Tracking{" "}
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    Location ID
+                    <MapPin className="w-4 h-4 text-gray-400" /> Location ID
                   </label>
                   <input
                     type="text"
@@ -211,8 +240,7 @@ const KsAddParcel = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-gray-400" />
-                    Status
+                    <CheckCircle className="w-4 h-4 text-gray-400" /> Status
                   </label>
                   <select
                     value={status}
@@ -228,8 +256,8 @@ const KsAddParcel = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-400" />
-                    Arrival Date & Time
+                    <Calendar className="w-4 h-4 text-gray-400" /> Arrival Date &
+                    Time
                   </label>
                   <input
                     type="datetime-local"
@@ -240,8 +268,7 @@ const KsAddParcel = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <User className="w-4 h-4 text-gray-400" />
-                    Received By Staff
+                    <User className="w-4 h-4 text-gray-400" /> Received By Staff
                   </label>
                   <input
                     type="text"

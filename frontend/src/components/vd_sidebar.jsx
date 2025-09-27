@@ -16,6 +16,31 @@ import {
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate } from "react-router-dom";
 
+const roleRoutes = {
+  Admin: {
+    dashboard: "/admin/dashboard",
+    deliveries: "/admin/deliveries",
+    services: "/admin/services",
+    booking: "/admin/booking",
+    billing: "/admin/billing",
+    "staff-management": "/admin/stafflist",
+  },
+  Resident: {
+    dashboard: "/resident/dashboard",
+    deliveries: "/resident/deliveries",
+    services: "/resident/services",
+    booking: "/resident/booking",
+    billing: "/resident/billing",
+  },
+  Security: {
+    dashboard: "/securityDashboard",
+    deliveries: "/security/deliveries",
+    "parcel-logs": "/viewParcels",
+    "parcel-pickup-verification": "/scanner",
+    "add-parcel": "/addParcel"
+  },
+};
+
 const Sidebar = ({ activeItem, onItemClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -34,7 +59,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
   { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
-  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"]},
+  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
   { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
 ];
@@ -46,28 +71,11 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   );
 
   const handleMenuClick = (item) => {
-    if (item.route) {
-      // ✅ Navigate to correct pages for roles
-      if (item.id === "dashboard") {
-        if (user?.role === "Admin") return navigate("/admin/dashboard");
-        if (user?.role === "Resident") return navigate("/resident/dashboard");
-        if (user?.role === "Security") return navigate("/security/dashboard");
-      }
-      if (item.id === "billing") {
-        if (user?.role === "Admin") return navigate("/admin/billing");
-        if (user?.role === "Resident") return navigate("/resident/billing");
-      }
-      if (item.id === "analytics" && user?.role === "Admin") {
-        return navigate("/admin/analytics");
-      }
-      if (item.id === "deliveries") {
-        if (user?.role === "Admin") return navigate("/admin/deliveries");
-        if (user?.role === "Resident") return navigate("/resident/deliveries");
-      }
-      // Fallback generic route if needed:
-      return navigate(`/${user?.role?.toLowerCase()}/${item.id}`);
+    
+     const route = roleRoutes[effectiveRole]?.[item.id] || null;
+    if (route) {
+      navigate(route);
     } else {
-      // ✅ Only update the active item (for settings)
       onItemClick(item.id);
     }
   };

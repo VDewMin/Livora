@@ -209,5 +209,30 @@ export const verifyOtp = async(req, res) => {
             console.error("OTP verify error:", err);
             res.status(500).json({ message: "Server error" });
         }
+};
+
+
+export const getResidentByApartment = async (req, res) => {
+  try {
+    const { apartmentNo } = req.params;
+
+    if (!apartmentNo) {
+      return res.status(400).json({ message: "Apartment number is required" });
+    }
+
+    // Only select the fields you need
+    const resident = await User.findOne({ apartmentNo })
+      .select("firstName")
+      .lean();
+
+    if (!resident) {
+      return res.status(404).json({ message: "Resident not found" });
+    }
+
+    res.status(200).json(resident);
+  } catch (error) {
+    console.error("Error in getResidentByApartment:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }; 
 

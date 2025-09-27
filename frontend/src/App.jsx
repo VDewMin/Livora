@@ -75,7 +75,7 @@ const App = () =>{
                 <Route path="/addParcel" element={<KsAddParcel />} />       
                 <Route path="/parcel/:id" element={<KsParcelDetail />} />
                 <Route path="/scanner" element={<KsScanner />} />
-                <Route path="/secDashboard" element={<KsSecurityDashboard />} />
+                <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                 
 
                
