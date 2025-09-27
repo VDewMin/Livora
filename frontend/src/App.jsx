@@ -22,6 +22,9 @@ import StaffList from "./pages/vd_staffList.jsx";
 import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
+import ForgotPassword from "./pages/vd_forgotPassword.jsx";
+import ResetPassword from "./pages/vd_resetPassword.jsx";
+
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 
 const App = () =>{
@@ -53,7 +56,8 @@ const App = () =>{
                 <Route path="/stafflist" element={<StaffList/>}/>
                 <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-
+                <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+                <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
                 
                 
 
