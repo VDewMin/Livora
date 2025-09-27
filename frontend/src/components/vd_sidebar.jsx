@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
 
 const roleRoutes = {
   Admin: {
@@ -44,10 +45,19 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleLogoutClick = () => setShowLogoutConfirm(true);
+
+  const confirmLogout = () => {
     logout();
     navigate('/login');
+    setShowLogoutConfirm(false);
   };
+
+  const cancelLogout = () => setShowLogoutConfirm(false);
+
+  
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
@@ -80,12 +90,13 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   };
 
   const settingsSubmenu = [
-    { id: "account-information", label: "Account Information" },
-    { id: "change-password", label: "Change Password" },
-    { id: "notification", label: "Notification" },
-    { id: "personalization", label: "Personalization" },
-    { id: "security-privacy", label: "Security & Privacy" },
+    { id: "account-information", label: "Account Information", route: (user) => `/profile/${user._id}` },
+    { id: "change-password", label: "Change Password", route: (user) => `/change-password/${user._id}` },
+    { id: "notification", label: "Notification", route: (user) => `/notifications/${user._id}` },
+    { id: "personalization", label: "Personalization", route: (user) => `/personalization/${user._id}` },
+    { id: "security-privacy", label: "Security & Privacy", route: (user) => `/security-privacy/${user._id}` },
   ];
+
 
   return (
     <div className="w-64 bg-white h-screen shadow-sm border-r border-gray-200 flex flex-col">
@@ -93,7 +104,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">P</span>
+            <span className="text-white font-bold text-sm">L</span>
           </div>
           <span className="font-semibold text-gray-900">Livora</span>
         </div>
@@ -121,16 +132,22 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
         {/* Settings Section */}
         <div className="pt-4">
-          <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-900">
-            <Settings className="mr-3 h-5 w-5" />
-            Settings
-            <ChevronRight className="ml-auto h-4 w-4" />
-          </div>
-          <div className="ml-6 space-y-1">
-            {settingsSubmenu.map((item) => (
+            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-900">
+                    <Settings className="mr-3 h-5 w-5" />
+                    Settings
+                    <ChevronRight className="ml-auto h-4 w-4" />
+            </div>
+            <div className="ml-6 space-y-1">
+              {settingsSubmenu.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onItemClick(item.id)}
+                onClick={() => {
+                  if (item.route) {
+                    navigate(item.route(user)); // navigate using the logged-in user's id
+                  } else {
+                    onItemClick(item.id); // fallback
+                  }
+                }}
                 className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
                   activeItem === item.id
                     ? "bg-blue-50 text-blue-600 font-medium"
@@ -139,8 +156,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
               >
                 {item.label}
               </button>
-            ))}
-          </div>
+              ))}
+            </div>
+
         </div>
       </nav>
 
@@ -157,13 +175,26 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           <HelpCircle className="mr-3 h-5 w-5" />
           Help
         </button>
+        <>
         <button
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
         >
           <LogOut className="mr-3 h-5 w-5" />
           Log out
         </button>
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+            <div className="bg-white p-6 rounded shadow-lg">
+              <p className="mb-4">Are you sure you want to log out?</p>
+              <div className="flex justify-end space-x-3">
+                <button onClick={cancelLogout} className="px-4 py-2 bg-gray-200 rounded">No</button>
+                <button onClick={confirmLogout} className="px-4 py-2 bg-blue-600 text-white rounded">Yes</button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       </div>
     </div>
   );

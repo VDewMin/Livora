@@ -28,6 +28,7 @@ import DashboardLayout from "./components/vd_dashboardLayout.jsx";
 import UserProfile from "./pages/vd_userProfile.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+import ChangePassword from "./pages/vd_changePassword.jsx";
 
 
 const App = () =>{
@@ -61,6 +62,7 @@ const App = () =>{
                     <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                    <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
 
                 </Route>
                 
