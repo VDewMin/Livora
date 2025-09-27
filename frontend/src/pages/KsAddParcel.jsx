@@ -124,7 +124,7 @@ const KsAddParcel = () => {
                           const response = await fetch(`http://localhost:5001/api/users/resident/${aptNo}`);
                           if (response.ok) {
                             const data = await response.json();
-                            setResidentName(data.firstName || ""); // ✅ Only set firstName
+                            setResidentName(data.firstName || ""); 
                           } else {
                             setResidentName("");
                           }
@@ -148,10 +148,9 @@ const KsAddParcel = () => {
                     type="text"
                     value={residentName}
                     readOnly
-                 //   onChange={(e) => setResidentName(e.target.value)}
+                 
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                 //   placeholder="Enter full name"
-                  //  required
+                    required
                   />
                 </div>
               </div>
