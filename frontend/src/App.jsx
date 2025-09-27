@@ -1,4 +1,14 @@
+import toast from "react-hot-toast";
+import React from "react";
 import {Route, Routes } from "react-router";
+import GKServiceRequest from './pages/GKServiceRequest.jsx'
+import KsViewParcels from "./pages/KsViewParcels.jsx"
+import KsAddParcel from "./pages/KsAddParcel.jsx";
+import KsParcelDetail from "./pages/KsParcelDetail.jsx"
+import SecurityDashboard from "./pages/SecurityDashboard.jsx";
+
+
+
 import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
 import GKDeleteService from './pages/GKDeleteService.jsx'
@@ -26,15 +36,19 @@ import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
+import KsScanner from "./pages/KsScanner.jsx";
+
 
 const App = () =>{
     return(
         <div className="p-4">
             <Routes>
-                <Route path="/" element={<GKViewServices />} />
+                 <Route path="/" element={<GKViewServices />} />
                 <Route path="/update-service/:id" element={<GKUpdateService />} />
                 <Route path="/delete-service/:id" element={<GKDeleteService />} />
                 <Route path="/add-service" element={<GKRequestService />} />
+                 <Route path="/" element={<GKServiceRequest />} />
                 <Route path="/admin-view" element={<GKAdminViewServices />} />
                 
                 <Route path="/chekout" element={<Checkout/>} />
@@ -59,6 +73,13 @@ const App = () =>{
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
                 
+               
+
+                <Route path="/viewParcels" element={<KsViewParcels />} />  
+                <Route path="/addParcel" element={<KsAddParcel />} />       
+                <Route path="/parcel/:id" element={<KsParcelDetail />} />
+                <Route path="/scanner" element={<KsScanner />} />
+                <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                 
 
                
@@ -67,6 +88,9 @@ const App = () =>{
 
 
         </div>
+
+
+       
         
     );
 };
