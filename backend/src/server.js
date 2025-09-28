@@ -33,9 +33,7 @@ app.use("/api/services", serviceRequestRouter);
 
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
-     console.log("Server started on port: ", PORT);
-    });
+  app.listen(PORT, () => {
+    console.log("Server started on port: ", PORT);
+  });
 });
-
-

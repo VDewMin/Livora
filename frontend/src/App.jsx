@@ -1,4 +1,14 @@
+import toast from "react-hot-toast";
+import React from "react";
 import {Route, Routes } from "react-router";
+import GKServiceRequest from './pages/GKServiceRequest.jsx'
+import KsViewParcels from "./pages/KsViewParcels.jsx"
+import KsAddParcel from "./pages/KsAddParcel.jsx";
+import KsParcelDetail from "./pages/KsParcelDetail.jsx"
+import SecurityDashboard from "./pages/SecurityDashboard.jsx";
+
+
+
 import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
 import GKDeleteService from './pages/GKDeleteService.jsx'
@@ -24,49 +34,70 @@ import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
+import DashboardLayout from "./components/vd_dashboardLayout.jsx";
+import UserProfile from "./pages/vd_userProfile.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+import ChangePassword from "./pages/vd_changePassword.jsx";
+import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
+import KsScanner from "./pages/KsScanner.jsx";
+
 
 const App = () =>{
     return(
         <div className="p-4">
             <Routes>
-                <Route path="/" element={<GKViewServices />} />
-                <Route path="/update-service/:id" element={<GKUpdateService />} />
-                <Route path="/delete-service/:id" element={<GKDeleteService />} />
-                <Route path="/add-service" element={<GKRequestService />} />
-                <Route path="/admin-view" element={<GKAdminViewServices />} />
-                
-                <Route path="/chekout" element={<Checkout/>} />
-                <Route path="/verify-otp" element={<VerifyOTP />} />
-                <Route path="/success" element={<Success />} />
-                <Route path="/cancel" element={<Cancel />} />
-                <Route path="/offline-slip" element={<OfflineSlipForm />} />
-                <Route path="/payment-history" element={<PaymentHistory />} />
-                <Route path="/payment-detail/:id" element={<PaymentDetail />} />
-                <Route path="/expense" element={<ExpensePage />} />
-                <Route path="/admin/billing" element={<ProtectedRoute><AdminBillingDashboard /></ProtectedRoute>} />
-                <Route path="/resident/billing" element={<ProtectedRoute><ResidentBillingPage /></ProtectedRoute>} />
-                
-                <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-                <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
-                <Route path="/residentlist" element={<ResidentList/>}/>
-                <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
-                <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-                <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-                <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
-                <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
-                
+
+                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+
+                    <Route path="/" element={<GKViewServices />} />
+                    <Route path="/update-service/:id" element={<GKUpdateService />} />
+                    <Route path="/delete-service/:id" element={<GKDeleteService />} />
+                    <Route path="/add-service" element={<GKRequestService />} />
+                    <Route path="/admin-view" element={<GKAdminViewServices />} />
+                    
+                    <Route path="/chekout" element={<Checkout/>} />
+                    <Route path="/verify-otp" element={<VerifyOTP />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/cancel" element={<Cancel />} />
+                    <Route path="/offline-slip" element={<OfflineSlipForm />} />
+                    <Route path="/payment-history" element={<PaymentHistory />} />
+                    <Route path="/payment-detail/:id" element={<PaymentDetail />} />
+                    <Route path="/expense" element={<ExpensePage />} />
+                    <Route path="/admin/billing" element={<ProtectedRoute><AdminBillingDashboard /></ProtectedRoute>} />
+                    <Route path="/resident/billing" element={<ProtectedRoute><ResidentBillingPage /></ProtectedRoute>} />
+                    
+                    
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
+                    <Route path="/residentlist" element={<ResidentList/>}/>
+                    <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
+                    <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                    <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                    <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
+
+                    <Route path="/viewParcels" element={<KsViewParcels />} />  
+                    <Route path="/addParcel" element={<KsAddParcel />} />       
+                    <Route path="/parcel/:id" element={<KsParcelDetail />} />
+                    <Route path="/scanner" element={<KsScanner />} />
+                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
+
+                </Route>
                 
 
+                <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+                <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
+                <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+                <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
                
                 
             </Routes>
 
 
         </div>
+
+
+       
         
     );
 };
