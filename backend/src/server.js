@@ -8,6 +8,11 @@ import usersRoutes from "./routes/vd_usersRoutes.js";
 import parcelRoutes from "./routes/ks_parcelRoutes.js"
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import { connectDB } from "./config/db.js";
+import noteRoutes from "./routes/SDnotesRoutes.js";
+import purchaseRoutes from "./routes/SDpurchaseRoutes.js";
+import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.js";
+
+
 
 dotenv.config();
 
@@ -30,6 +35,11 @@ app.use("/api/parcels", parcelRoutes);
 app.use("/api/payments", sn_paymentRoutes)
 app.use("/api/expenses", sn_expenseRoutes)
 app.use("/api/services", serviceRequestRouter);
+app.use("/api/notes",noteRoutes)
+app.use("/api/purchases", purchaseRoutes)
+app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
+
+
 
 
 connectDB().then(() => {

@@ -13,6 +13,7 @@ import PaymentDetail from "./pages/SN_PaymentDetail.jsx";
 import ExpensePage from "./pages/SN_ExpensePage.jsx";
 import AdminBillingDashboard from "./pages/SN_AdminBillingDashboard.jsx";
 
+
 import Login from "./pages/vd_login.jsx";
 import GuestRoute from "./components/vd_guestRoute.jsx";
 import Register from './pages/vd_register.jsx'
@@ -22,6 +23,20 @@ import ProfileSettings from "./pages/vd_profileSettings.jsx";
 import ProtectedRoute from "./components/vd_protectedRoute.jsx";
 import VerifyOtp from "./pages/vd_verifyOtp.jsx";
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
+
+
+import HomePage from './pages/SDHomePage'
+import CreatePage from './pages/SDCreatePage'
+import NoteDetailsPage from './pages/SDNoteDetailsPage'
+import PurchasesList from './pages/SDpurchasesList'
+import SDcreatepurchase from './pages/SDcreatepurchase'
+import SDpurchaseDetails from './components/SDpurchaseDetails'
+import SDAdminPurchasesTable from './pages/SDAdminPurchasesTable'
+import SDConventionHallBookingForm from "./components/SDConventionHallBookingForm.jsx";
+import SDConventionHallBookingDetails from "./components/SDConventionHallBookingDetails.jsx";
+import SDConventionHallHomePage from "./components/SDConventionHallHomePage.jsx";
+import SDAdminConventionHallBookings from "./pages/SDAdminConventionHallBookings.jsx";
+
 
 const App = () =>{
     return(
@@ -51,11 +66,27 @@ const App = () =>{
                 <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
 
+
+               
+
                 
                 
 
                
                 <Route path="/admin-view" element={<GKAdminViewServices />} />
+                
+                
+                <Route path='/notes' element={<HomePage/>} />
+               <Route path='/create' element={<CreatePage/>} />
+               <Route path='/note/:id' element={<NoteDetailsPage/>} />
+               <Route path="/purchases" element={<PurchasesList />} />
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
+               <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
+               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
+                <Route path="/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
+                <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
+                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
             </Routes>
 
 
