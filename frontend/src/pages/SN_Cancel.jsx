@@ -6,7 +6,6 @@ const Cancel = () => {
     <div className="min-h-screen flex items-center justify-center bg-red-100 p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 text-center">
         <h2 className="text-3xl font-bold text-red-700 mb-4">❌ Payment Failed</h2>
-        <p className="text-gray-700">{reason}</p>
       </div>
     </div>
   );

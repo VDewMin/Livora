@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import path from "path";
 import sn_paymentRoutes from "./routes/sn_paymentRoutes.js";
 import sn_expenseRoutes from "./routes/sn_expenseRoutes.js"
 import usersRoutes from "./routes/vd_usersRoutes.js";
@@ -22,7 +21,8 @@ const PORT = process.env.PORT || 5001
 
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
     })
 );
 
@@ -43,9 +43,7 @@ app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
 
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
-     console.log("Server started on port: ", PORT);
-    });
+  app.listen(PORT, () => {
+    console.log("Server started on port: ", PORT);
+  });
 });
-
-

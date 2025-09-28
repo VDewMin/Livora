@@ -17,6 +17,7 @@ const UserProfile = () => {
     });
 
     const [formData, setFormData] = useState({
+        userId: '',
         firstName: '',
         lastName: '',
         email: '',
@@ -72,6 +73,7 @@ const UserProfile = () => {
             .then((res) => {
                 setUser(res.data);
                 setFormData({
+                    userId: res.data.userId || '',
                     firstName: res.data.firstName || '',
                     lastName: res.data.lastName || '',
                     email: res.data.email || '',
@@ -113,7 +115,18 @@ const UserProfile = () => {
                                 'bg-green-100 text-green-800'
                             }`}>
                                 {user.role}
+                                
                             </span>
+
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                user.userId === 'Admin' ? 'bg-purple-100 text-purple-800' :
+                                user.userId === 'Staff' ? 'bg-blue-100 text-blue-800' :
+                                'bg-green-100 text-green-800'
+                            }`}>
+                                {user.userId}
+                                
+                            </span>
+                         { /*  <span className={`px-3 py-1 rounded-full text-sm font-medium ${'bg-red-100 text-red-800'}`}></span>*/}
                         </div>
                     </div>
                 </div>
@@ -135,6 +148,7 @@ const UserProfile = () => {
                                 {user.firstName} {user.lastName}
                             </h2>
                             <p className="text-gray-600">{user.email}</p>
+                            <p className="text-gray-600 text-xs">{user.userId}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                             <button

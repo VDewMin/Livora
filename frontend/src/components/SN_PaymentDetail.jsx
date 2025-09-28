@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [isImageOpen, setIsImageOpen] = useState(false); // ✅ New state
+  const [isImageOpen, setIsImageOpen] = useState(false);
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -37,7 +38,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       if (!res.ok) throw new Error(`Failed to ${action} payment`);
       const data = await res.json();
 
-      alert(
+      toast.success(
         `Payment ${action === "verify" ? "verified" : "rejected"} successfully!`
       );
 
@@ -45,7 +46,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       goBack();
     } catch (err) {
       console.error(err);
-      alert(`Failed to ${action} payment`);
+      toast.error(`Failed to ${action} payment`);
     } finally {
       setActionLoading(false);
     }
@@ -71,7 +72,8 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="Payment ID" value={payment.paymentId} />
-            <Field label="Resident ID" value={payment.residentId} />
+            <Field label="Apartment No" value={payment.apartmentNo} />
+            <Field label="Resident Name" value={payment.residentName} />
             <Field label="Phone Number" value={payment.phoneNumber} />
             <Field
               label="Status"
@@ -106,7 +108,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             )}
           </div>
 
-          {/* ✅ Payment Slip Preview */}
+          {/* Payment Slip Preview */}
           {payment.slipFile?.data && (
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -142,7 +144,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
         </div>
       </div>
 
-      {/* ✅ Fullscreen Image Modal */}
+      {/* Fullscreen Image Modal */}
       {isImageOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
@@ -152,7 +154,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             src={`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`}
             alt="Slip Fullscreen"
             className="max-h-[90%] max-w-[90%] rounded-lg shadow-2xl"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+            onClick={(e) => e.stopPropagation()}
           />
           <button
             className="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded-full shadow-md hover:bg-gray-200"
