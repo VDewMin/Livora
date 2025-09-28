@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/vd_AuthContext";
 
 const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
+  const { user: authUser } = useAuth(); // get logged-in user info
+  const isAdmin = authUser?.role === "Admin"; // adjust based on your role field
+
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -15,6 +19,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
         setPayment(data.payment ? { ...data.payment, paymentType: data.type } : null);
       } catch (err) {
         console.error("Error fetching payment detail:", err);
+        toast.error("Failed to fetch payment details");
       } finally {
         setLoading(false);
       }
@@ -52,7 +57,9 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   if (loading) return <p className="text-center text-gray-600">Loading payment details...</p>;
   if (!payment) return <p className="text-center text-red-500">Payment not found.</p>;
 
-  const showAdminActions = payment.paymentType === "Offline" && payment.status === "Pending";
+  // Only show Verify/Reject buttons if admin and offline payment is pending
+  const showAdminActions =
+    isAdmin && payment.paymentType === "Offline" && payment.status === "Pending";
 
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center p-6">
@@ -97,19 +104,13 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
           )}
 
           {payment.transactionId && (
-            <Field
-              label="Transaction ID"
-              value={payment.transactionId}
-              className="col-span-2"
-            />
+            <Field label="Transaction ID" value={payment.transactionId} className="col-span-2" />
           )}
         </div>
 
         {payment.slipFile?.data && (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Slip
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Slip</label>
             <img
               src={`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`}
               alt="Slip"
@@ -137,7 +138,6 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             </button>
           </div>
         )}
-
       </div>
 
       {isImageOpen && (
