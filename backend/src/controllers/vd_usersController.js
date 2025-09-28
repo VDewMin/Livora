@@ -45,6 +45,7 @@ export const getUserById = async(req, res) => {
     
 }
 
+
 export const createUser = async(req, res) => {
 
     try{
@@ -146,8 +147,9 @@ export const loginUser = async (req, res) => {
             subject: "Your OTP code",
             text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
         });
-        
         res.json({ message: "OTP sent to email", userId: user._id });
+
+
 
     } catch (err) {
         console.error("Login error:", err);
@@ -288,3 +290,6 @@ export const resetPassword = async (req, res) => {
         return res.status(500).json({ message: "Server error"});
     }
 };
+
+
+

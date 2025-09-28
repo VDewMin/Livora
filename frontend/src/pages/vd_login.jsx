@@ -29,6 +29,7 @@ export default function Login() {
       navigate(`/verify-otp/${res.data.userId}`);
 
       toast.success("OTP sent to your email");
+
       
     } catch (err) {
         console.error("Login failed:", err.response?.data || err);

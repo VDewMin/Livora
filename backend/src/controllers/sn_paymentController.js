@@ -1,6 +1,7 @@
 import Payment from "../models/sn_payment.js";
 import OnlinePayment from "../models/sn_onlinePayment.js";
 import OfflinePayment from "../models/sn_offlinePayment.js";
+import User from "../models/vd_user.js";
 import OTP from "../models/sn_otp.js";
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
@@ -156,7 +157,7 @@ export const validateOTPAndCompletePayment = async (req, res) => {
     if (!record) return res.status(400).json({ message: "OTP not found" });
     if (record.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
     if (record.otpCode !== otp) return res.status(400).json({ message: "Invalid OTP" });
-
+    
     const parentPayment = await Payment.findOneAndUpdate(
       { paymentId },
       { status: "Completed" },
@@ -393,4 +394,42 @@ export const getPaymentsByResident = async (req, res) => {
 };
 
 
+export const getResidentPaymentStatus = async (req, res) => {
+  try {
+    const { month, year } = req.query;
 
+    if (!month || !year) return res.status(400).json({ message: "Month and year required" });
+
+    // Build date range for that month
+    const start = new Date(`${year}-${month}-01T00:00:00.000Z`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    // 1. Get all residents
+    const residents = await User.find({ role: "Resident" }).sort({ apartmentNo: 1 });
+
+    // 2. Get all payments for that month
+    const payments = await Payment.find({
+      paymentDate: { $gte: start, $lt: end },
+    });
+
+    // 3. Build response
+    const result = residents.map((r) => {
+      const residentPayments = payments.filter((p) => p.residentId === r.userId);
+      const completedPayment = residentPayments.find((p) => p.status === "Completed");
+
+      return {
+        residentId: r.userId,
+        apartmentNo: r.apartmentNo,
+        residentName: `${r.firstName} ${r.lastName}`,
+        amountToPay: completedPayment ? completedPayment.totalAmount : 0, // optional: calculate default rent from config
+        status: completedPayment ? "Paid" : "Unpaid",
+      };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching resident payment status:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

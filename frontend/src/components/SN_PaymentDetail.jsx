@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
+const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment, user }) => {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -10,9 +10,9 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   useEffect(() => {
     const fetchPayment = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/payments/${paymentId}`);
+        const res = await fetch(`http://localhost:5001/api/payments/payment/${paymentId}`);
         const data = await res.json();
-        setPayment(data.payment);
+        setPayment(data.payment ? { ...data.payment, paymentType: data.type } : null);
       } catch (err) {
         console.error("Error fetching payment detail:", err);
       } finally {
@@ -36,12 +36,9 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       });
 
       if (!res.ok) throw new Error(`Failed to ${action} payment`);
-      const data = await res.json();
+      await res.json();
 
-      toast.success(
-        `Payment ${action === "verify" ? "verified" : "rejected"} successfully!`
-      );
-
+      toast.success(`Payment ${action === "verify" ? "verified" : "rejected"} successfully!`);
       if (onRemovePayment) onRemovePayment(paymentId);
       goBack();
     } catch (err) {
@@ -55,9 +52,24 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   if (loading) return <p className="text-center text-gray-600">Loading payment details...</p>;
   if (!payment) return <p className="text-center text-red-500">Payment not found.</p>;
 
+  const showAdminActions =
+    payment.paymentType === "Offline" && payment.status === "Pending";
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* ---------------- Sidebar (Your original sidebar code here) ---------------- */}
+      <div className="w-64">
+        {/* Replace this with your actual sidebar component */}
+        {user && user.role && (
+          <div className="p-4 shadow-lg h-screen sticky top-0 overflow-y-auto">
+            {/* Your sidebar items */}
+            <p className="font-bold mb-4">Sidebar</p>
+          </div>
+        )}
+      </div>
+
+      {/* ---------------- Main Content ---------------- */}
+      <div className="flex-1 p-6 overflow-y-auto">
         <button
           onClick={goBack}
           className="mb-6 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
@@ -72,6 +84,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="Payment ID" value={payment.paymentId} />
+            <Field label="Payment Type" value={payment.paymentType} />
             <Field label="Apartment No" value={payment.apartmentNo} />
             <Field label="Resident Name" value={payment.residentName} />
             <Field label="Phone Number" value={payment.phoneNumber} />
@@ -108,7 +121,6 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             )}
           </div>
 
-          {/* Payment Slip Preview */}
           {payment.slipFile?.data && (
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -123,7 +135,8 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             </div>
           )}
 
-          {payment.status === "Pending" && (
+          {/* ---------------- Verify / Reject Buttons (Offline Pending Only) ---------------- */}
+          {showAdminActions && (
             <div className="mt-6 flex gap-4">
               <button
                 onClick={() => handleAction("verify")}
@@ -141,6 +154,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
               </button>
             </div>
           )}
+
         </div>
       </div>
 
