@@ -172,6 +172,14 @@ export const validateOTPAndCompletePayment = async (req, res) => {
 
     await OTP.deleteOne({ email });
 
+    // 🟢 Update Resident Charges
+    const resident = await Resident.findOne({ residentId: parentPayment.residentId });
+    if (resident) {
+      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      resident.lastPaidMonth = currentMonth;
+      await resident.save();
+    }
+
     res.status(200).json({
       message: "OTP verified successfully. Payment completed.",
       parentPayment,
@@ -280,6 +288,13 @@ export const vertifyOfflinePayment = async (req, res) => {
     if (payment) {
       payment.status = "Completed";
       await payment.save();
+    }
+
+    const resident = await Resident.findOne({ residentId: payment.residentId });
+    if (resident) {
+      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      resident.lastPaidMonth = currentMonth;
+      await resident.save();
     }
 
     // Return updated list for frontend to remove it from pending
@@ -394,42 +409,72 @@ export const getPaymentsByResident = async (req, res) => {
 };
 
 
-export const getResidentPaymentStatus = async (req, res) => {
+// Get Resident Charges with Monthly Payment Check
+export const getResidentMonthlyCharges = async (req, res) => {
   try {
-    const { month, year } = req.query;
+    const { id } = req.params;
 
-    if (!month || !year) return res.status(400).json({ message: "Month and year required" });
+    const resident = await User.findOne({ residentId: id });
+    if (!resident) return res.status(404).json({ message: "Resident not found" });
 
-    // Build date range for that month
-    const start = new Date(`${year}-${month}-01T00:00:00.000Z`);
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + 1);
+    const currentMonth = new Date().toISOString().slice(0, 7);
 
-    // 1. Get all residents
-    const residents = await User.find({ role: "Resident" }).sort({ apartmentNo: 1 });
-
-    // 2. Get all payments for that month
-    const payments = await Payment.find({
-      paymentDate: { $gte: start, $lt: end },
+    // Check if resident paid this month
+    const payment = await Payment.findOne({
+      residentId: id,
+      status: "Completed",
+      paymentDate: {
+        $gte: new Date(`${currentMonth}-01T00:00:00Z`),
+        $lte: new Date(`${currentMonth}-31T23:59:59Z`),
+      },
     });
 
-    // 3. Build response
-    const result = residents.map((r) => {
-      const residentPayments = payments.filter((p) => p.residentId === r.userId);
-      const completedPayment = residentPayments.find((p) => p.status === "Completed");
-
-      return {
-        residentId: r.userId,
-        apartmentNo: r.apartmentNo,
-        residentName: `${r.firstName} ${r.lastName}`,
-        amountToPay: completedPayment ? completedPayment.totalAmount : 0, // optional: calculate default rent from config
-        status: completedPayment ? "Paid" : "Unpaid",
-      };
+    return res.json({
+      rent: resident.monthlyRent,
+      laundry: resident.laundryFee,
+      others: 0,
+      total: resident.monthlyRent + resident.laundryFee,
+      isPaid: !!payment,
     });
+  } catch (err) {
+    console.error("Error fetching resident charges:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Error fetching resident payment status:", error);
+//Get all residents with current month payment status
+// Get all residents with current month payment status
+export const getAllResidentsCurrentMonthCharges = async (req, res) => {
+  try {
+    const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+    const startDate = new Date(`${currentMonth}-01T00:00:00Z`);
+    const endDate = new Date(`${currentMonth}-31T23:59:59Z`);
+
+    // ✅ Fetch residents (already have apartmentNo, firstName, lastName, etc.)
+    const residents = await User.find({ role: "Resident" }).lean();
+
+    const result = await Promise.all(
+      residents.map(async (r) => {
+        // ✅ Find payment record for this resident for this month
+        const payment = await Payment.findOne({
+          residentId: r.userId, // use correct reference field
+          paymentDate: { $gte: startDate, $lte: endDate },
+        }).lean();
+
+        // ✅ Fill real values from DB (no "N/A" unless DB truly empty)
+        return {
+          residentId: r.userId,
+          residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
+          apartmentNo: r.apartmentNo ?? "",
+          monthlyPayment: payment?.amount ?? r.monthlyRent ?? 0, // fallback to monthlyRent if available
+          status: payment?.status ?? "Unpaid",
+        };
+      })
+    );
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching resident charges:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

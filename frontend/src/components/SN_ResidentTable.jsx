@@ -1,94 +1,88 @@
-// components/ResidentTable.jsx
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-export default function ResidentTable({ residents }) {
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
+export default function ResidentTable() {
+  const [residents, setResidents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  useEffect(() => {
+    const fetchResidents = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5001/api/payments/residents/current-month-charges"
+        );
+        console.log("Residents data:", res.data);
+        setResidents(res.data || []);
+      } catch (error) {
+        console.error("Error fetching residents:", error);
+        toast.error("Failed to load residents data");
+      }
+    };
+
+    fetchResidents();
+  }, []);
+
+  // ✅ Safe filter using correct fields
   const filteredResidents = residents.filter((r) => {
-    const matchesStatus =
-      filter === "All" || r.status.toLowerCase() === filter.toLowerCase();
-    const matchesSearch = r.apartmentNo
-      .toString()
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    return matchesStatus && matchesSearch;
+    const name = (r.residentName ?? "").toLowerCase();
+    const unit = (r.apartmentNo ?? "").toLowerCase();
+    return (
+      name.includes(searchTerm.toLowerCase()) ||
+      unit.includes(searchTerm.toLowerCase())
+    );
   });
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Resident Payment Status
-        </h2>
-
-        {/* Search + Filter */}
-        <div className="flex flex-wrap gap-3">
-          <input
-            type="text"
-            placeholder="Search by Apartment No"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border rounded-xl px-3 py-1 text-sm focus:ring focus:ring-blue-200"
-          />
-
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="border rounded-xl px-3 py-1 text-sm"
-          >
-            <option value="All">All</option>
-            <option value="Paid">Paid</option>
-            <option value="Unpaid">Unpaid</option>
-          </select>
-        </div>
-      </div>
+    <div className="p-4">
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search by name or unit..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="border border-gray-300 rounded px-3 py-1 mb-4 w-full"
+      />
 
       {/* Table */}
-      <table className="min-w-full border text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Apartment No</th>
-            <th className="border p-2">Resident Name</th>
-            <th className="border p-2">Amount To Pay</th>
-            <th className="border p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredResidents.length > 0 ? (
-            filteredResidents.map((r) => (
-              <tr key={r.residentId}>
-                <td className="border px-4 py-2">{r.apartmentNo}</td>
-                <td className="border px-4 py-2">{r.residentName}</td>
-                <td className="border px-4 py-2">
-                  Rs. {Number(r.amountToPay || 0).toLocaleString()}
-                </td>
-                <td className="border px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      r.status === "Paid"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2">Name</th>
+              <th className="border border-gray-300 px-4 py-2">Unit</th>
+              <th className="border border-gray-300 px-4 py-2">Amount Due</th>
+              <th className="border border-gray-300 px-4 py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredResidents.length > 0 ? (
+              filteredResidents.map((r, idx) => (
+                <tr key={idx} className="hover:bg-gray-50">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {r.residentName || "N/A"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {r.apartmentNo || "N/A"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {r.monthlyPayment ?? 0}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
                     {r.status}
-                  </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center py-4 text-gray-500">
+                  No residents found.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan={4}
-                className="text-center p-4 text-gray-500 italic"
-              >
-                No matching residents found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

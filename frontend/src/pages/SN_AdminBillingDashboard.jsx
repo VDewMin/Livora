@@ -162,32 +162,6 @@ const SN_AdminBillingDashboard = () => {
     fetchTransactions();
   };
 
-  const handleItemClick = (itemId) => {
-    setActiveItem(itemId);
-    switch (itemId) {
-      case "order":
-        navigate("/admin/orders");
-        break;
-      case "product":
-        navigate("/admin/products");
-        break;
-      case "customer":
-        navigate("/admin/customers");
-        break;
-      case "employee":
-        navigate("/admin/employees");
-        break;
-      case "billing":
-        navigate("/admin/billing");
-        break;
-      case "analytics":
-        navigate("/admin/analytics");
-        break;
-      default:
-        break;
-    }
-  };
-
   // ---------- Chart Data ----------
   const barData = [
     { name: "Income", value: totalIncome },

@@ -1,7 +1,9 @@
 import express from "express";
 import multer from "multer";
 
-import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment , vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment, getPaymentsByResident, getResidentPaymentStatus } from "../controllers/sn_paymentController.js"
+import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment ,
+     vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment,
+      getPaymentsByResident, getResidentMonthlyCharges, getAllResidentsCurrentMonthCharges } from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -25,6 +27,8 @@ router.post("/verify-offline", vertifyOfflinePayment);
 
 router.post("/reject-offline", rejectOfflinePayment);
 
-router.get("/resident-status", getResidentPaymentStatus);
+router.get("/charges/:id", getResidentMonthlyCharges);
+
+router.get("/residents/current-month-charges", getAllResidentsCurrentMonthCharges);
 
 export default router;

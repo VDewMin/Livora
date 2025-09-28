@@ -109,21 +109,21 @@ export const deleteExpense = async(req, res) => {
     }
 }
 
-
 export const calculateIncome = async (req, res) => {
   try {
     const { month, year } = req.query; // e.g. /calculateIncome?month=09&year=2025
 
     let startDate, endDate;
     if (month && year) {
-      // Build start & end date range for selected month
       startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
       endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    // Build filter if month/year provided
-    const paymentFilter = startDate ? { paymentDate: { $gte: startDate, $lt: endDate } } : {};
+    const paymentFilter = startDate
+      ? { paymentDate: { $gte: startDate, $lt: endDate }, status: "Completed" } 
+      : { status: "Completed" }; // ✅ Only completed payments
+
     const expenseFilter = startDate ? { date: { $gte: startDate, $lt: endDate } } : {};
 
     const payments = await Payment.find(paymentFilter);
@@ -142,7 +142,8 @@ export const calculateIncome = async (req, res) => {
     console.error("Error in calculateIncome Controller", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
 
 
 
