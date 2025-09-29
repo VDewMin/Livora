@@ -50,7 +50,7 @@ const App = () =>{
 
                 <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
-                    <Route path="/" element={<GKViewServices />} />
+                    <Route path="/user-view" element={<GKViewServices />} />
                     <Route path="/update-service/:id" element={<GKUpdateService />} />
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
@@ -80,9 +80,7 @@ const App = () =>{
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
                     <Route path="/scanner" element={<KsScanner />} />
-                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
-
-                </Route>
+                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} /></Route>
                 
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />

@@ -8,7 +8,7 @@ const GKServiceRequestSchema = new mongoose.Schema({
   contactEmail: { type: String, required: true },
   serviceType: { type: String, required: true },
   description: { type: String },
-  fileUrl: { type: String },
+  fileUrl: { data: Buffer, contentType: String },
   assignedAt: { type: Date },
   assignedTechnician: { type: String, default: "" },
   assignedDate: { type: Date },
