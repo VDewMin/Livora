@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
+import technicians from "../components/GKTechnician"; // ✅ Import technician data
 
 function AdminServiceRequests() {
   const [requests, setRequests] = useState([]);
   const [techInputs, setTechInputs] = useState({});
   const [dateInputs, setDateInputs] = useState({});
-  const [previewImage, setPreviewImage] = useState(null); // ✅ For image preview modal
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -28,7 +30,17 @@ function AdminServiceRequests() {
       const assignedDate = dateInputs[id];
 
       if (!assignedTechnician || !assignedDate) {
-        alert("Please enter technician name and date");
+        toast.error("Please select technician and date");
+        return;
+      }
+
+      // Prevent past dates
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const chosenDate = new Date(assignedDate);
+
+      if (chosenDate < today) {
+        toast.error("You cannot select a past date");
         return;
       }
 
@@ -36,12 +48,11 @@ function AdminServiceRequests() {
         assignedTechnician,
         assignedDate,
       });
-
-      alert("Technician assigned successfully");
+      toast.success("Technician assigned successfully");
       fetchRequests(); // refresh list
     } catch (err) {
       console.error(" Error assigning technician:", err);
-      alert("Failed to assign technician");
+      toast.error("Failed to assign technician");
     }
   };
 
@@ -106,7 +117,7 @@ function AdminServiceRequests() {
                           src={fileSrc}
                           alt="Uploaded"
                           className="w-32 h-20 object-cover rounded-md cursor-pointer hover:opacity-80"
-                          onClick={() => setPreviewImage(fileSrc)} //set preview image
+                          onClick={() => setPreviewImage(fileSrc)}
                         />
                       ) : fileSrc ? (
                         <a
@@ -152,9 +163,8 @@ function AdminServiceRequests() {
                     <td className="p-2 border">
                       {req.status === "Pending" ? (
                         <div className="flex flex-col gap-2">
-                          <input
-                            type="text"
-                            placeholder="Technician name"
+                          {/* ✅ Searchable Dropdown */}
+                          <select
                             value={techInputs[req._id] || ""}
                             onChange={(e) =>
                               setTechInputs({
@@ -163,10 +173,26 @@ function AdminServiceRequests() {
                               })
                             }
                             className="border p-1 rounded"
-                          />
+                          >
+                            <option value="">Select Technician</option>
+                            {Object.entries(technicians).map(
+                              ([category, techList]) => (
+                                <optgroup key={category} label={category}>
+                                  {techList.map((tech) => (
+                                    <option key={tech.id} value={tech.name}>
+                                      {tech.name}
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              )
+                            )}
+                          </select>
+
+                          {/* Date Picker */}
                           <input
                             type="date"
                             value={dateInputs[req._id] || ""}
+                            min={new Date().toISOString().split("T")[0]}
                             onChange={(e) =>
                               setDateInputs({
                                 ...dateInputs,
@@ -175,6 +201,7 @@ function AdminServiceRequests() {
                             }
                             className="border p-1 rounded"
                           />
+
                           <button
                             onClick={() => handleAssign(req._id)}
                             className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
@@ -194,7 +221,7 @@ function AdminServiceRequests() {
         </table>
       </div>
 
-      {/*Preview Modal */}
+      {/* Preview Modal */}
       {previewImage && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="relative">

@@ -184,7 +184,7 @@ function GKServiceRequest() {
           <input
             type="file"
             name="fileUrl"
-            accept="image/*,video/*"
+            accept=".jpg,.jpeg,.png"
             onChange={handleChange}
             className="w-full p-2 border border-black-200 rounded-lg"
           />
