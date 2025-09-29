@@ -81,17 +81,19 @@ const SN_ResidentBillingDashboard = () => {
   };
 
   useEffect(() => {
+    fetchUser();
+    //fetchCharges();
+    fetchPaymentHistory();
+  }, [userId]);
+
+  useEffect(() => {
     setCharges((prev) => ({
       ...prev,
       total: prev.rent + prev.laundry + prev.others,
     }));
   }, []);
 
-  useEffect(() => {
-    fetchUser();
-    //fetchCharges();
-    fetchPaymentHistory();
-  }, [userId]);
+  
 
   // Stripe checkout
   const handleStripeCheckout = async () => {

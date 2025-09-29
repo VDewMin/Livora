@@ -8,7 +8,6 @@ import KsParcelDetail from "./pages/KsParcelDetail.jsx"
 import SecurityDashboard from "./pages/SecurityDashboard.jsx";
 
 
-
 import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
 import GKDeleteService from './pages/GKDeleteService.jsx'
