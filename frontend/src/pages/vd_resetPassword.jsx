@@ -3,11 +3,13 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/vd_AuthContext";
 
 export default function ResetPassword() {
   const { token } = useParams();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,6 +20,9 @@ export default function ResetPassword() {
     try {
       await axiosInstance.post("/users/reset-password", { token, password });
       toast.success("Password reset successful — please log in");
+
+      logout();
+        
       navigate("/login");
     } catch (err) {
       console.error(err);

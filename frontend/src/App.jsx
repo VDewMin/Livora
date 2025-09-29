@@ -74,12 +74,18 @@ const App = () =>{
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
-
+                    <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
+                    <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
                     <Route path="/scanner" element={<KsScanner />} />
-                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} /></Route>
+                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
+                    
+                    
+
+                </Route>
                 
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
