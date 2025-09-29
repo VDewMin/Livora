@@ -7,6 +7,7 @@ function GKDeleteService() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [service, setService] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
     fetchService();
@@ -17,6 +18,19 @@ function GKDeleteService() {
     try {
       const res = await axios.get(`http://localhost:5001/api/services/${id}`);
       setService(res.data);
+
+      // Build preview if file exists
+      if (res.data.fileUrl && res.data.fileUrl.data) {
+        const base64String = btoa(
+          new Uint8Array(res.data.fileUrl.data.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        setPreviewUrl(
+          `data:${res.data.fileUrl.contentType};base64,${base64String}`
+        );
+      }
     } catch (err) {
       console.error("Error fetching service", err);
       toast.error("Failed to fetch service");
@@ -27,7 +41,7 @@ function GKDeleteService() {
     try {
       await axios.delete(`http://localhost:5001/api/services/${id}`);
       toast.success("Service deleted successfully", { duration: 2000 });
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/user-view"), 2000);
     } catch (err) {
       console.error("Error deleting service", err);
       toast.error("Failed to delete service");
@@ -38,12 +52,16 @@ function GKDeleteService() {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-md mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-center font-poppins">Delete Service</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center font-poppins">
+        Delete Service
+      </h2>
 
       {/* Service Details */}
       <div className="space-y-3 mb-6">
         <div>
-          <label className="block text-sm font-semibold font-poppins" >Apartment Number</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Apartment Number
+          </label>
           <input
             type="text"
             value={service.aptNo}
@@ -52,7 +70,9 @@ function GKDeleteService() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold font-poppins">Service ID</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Service ID
+          </label>
           <input
             type="text"
             value={service.serviceId}
@@ -61,7 +81,9 @@ function GKDeleteService() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold font-poppins">Contact Number</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Contact Number
+          </label>
           <input
             type="text"
             value={service.contactNo}
@@ -70,7 +92,9 @@ function GKDeleteService() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold font-poppins">Contact Email</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Contact Email
+          </label>
           <input
             type="text"
             value={service.contactEmail}
@@ -79,7 +103,9 @@ function GKDeleteService() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold font-poppins">Service Type</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Service Type
+          </label>
           <input
             type="text"
             value={service.serviceType}
@@ -88,7 +114,9 @@ function GKDeleteService() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold font-poppins">Description</label>
+          <label className="block text-sm font-semibold font-poppins">
+            Description
+          </label>
           <textarea
             value={service.description}
             disabled
@@ -97,22 +125,15 @@ function GKDeleteService() {
         </div>
 
         {/* Attached File Preview */}
-        {service.fileUrl && (
+        {previewUrl && (
           <div>
-            <label className="block text-sm font-semibold font-poppins">Attached File</label>
-            {service.fileUrl.endsWith(".mp4") ||
-            service.fileUrl.endsWith(".mov") ? (
-              <video
-                src={service.fileUrl}
-                controls
-                className="w-full mt-2 rounded-lg"
-              />
+            <label className="block text-sm font-semibold font-poppins">
+              Attached File
+            </label>
+            {service.fileUrl.contentType.startsWith("video/") ? (
+              <video src={previewUrl} controls className="w-full mt-2 rounded-lg" />
             ) : (
-              <img
-                src={service.fileUrl}
-                alt="Service File"
-                className="w-full mt-2 rounded-lg"
-              />
+              <img src={previewUrl} alt="Service File" className="w-full mt-2 rounded-lg" />
             )}
           </div>
         )}
@@ -132,7 +153,7 @@ function GKDeleteService() {
           Yes, Delete
         </button>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/user-view")}
           className="w-1/2 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition font-poppins"
         >
           Cancel

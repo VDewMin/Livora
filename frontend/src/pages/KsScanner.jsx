@@ -149,7 +149,6 @@ const KsScanner = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* ✅ Use your original Sidebar component */}
       
       
       <div className="flex-1 p-6 overflow-y-auto">

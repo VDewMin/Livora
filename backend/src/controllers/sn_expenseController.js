@@ -22,16 +22,6 @@ export const getAllExpenses = async(req, res) => {
 };
 
 
-/*export const getAllExpenses = async(req, res) => {
-    try {
-        const expenses = await Expense.find();
-        res.status(200).json(expenses);
-    } catch (error) {
-        console.error("Error in getAllExpense Controller", error);
-        res.status(500).json({message : "Internal server error"});
-    }
-}*/
-
 export const getExpenseById = async(req, res) => {
     try {
         const expense = await Expense.findById(req.params.id);
@@ -43,31 +33,70 @@ export const getExpenseById = async(req, res) => {
     }
 }
 
-export const createExpense = async(req, res) => {
-    try {
-        const {expenseId, description, amount, date} = req.body
-        const newExpense = new Expense({expenseId, description, amount, date})
+export const createExpense = async (req, res) => {
+  try {
+    const { expenseId, category, amount, paymentMethod, date, notes } = req.body;
+    const attachment = req.file;
 
-        const savedExpense = await newExpense.save();
-        res.status(201).json({savedExpense})
-    } catch (error) {
-        console.error("Error in createExpenses Controller", error) 
-        res.status(500).json({message : "Internal server error"}) 
+    const newExpense = new Expense({
+      expenseId,
+      category,
+      amount,
+      paymentMethod,
+      date,
+      notes,
+      attachment: attachment
+        ? { data: attachment.buffer, contentType: attachment.mimetype }
+        : undefined,
+    });
+
+    const savedExpense = await newExpense.save();
+    res.status(201).json({ savedExpense });
+  } catch (error) {
+    console.error("Error in createExpense Controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateExpense = async (req, res) => {
+  try {
+    const { category, amount, paymentMethod, date, notes } = req.body;
+    const attachment = req.file;
+
+    // Build update object dynamically
+    const updateData = {
+      category,
+      amount,
+      paymentMethod,
+      date,
+      notes,
+    };
+
+    // If a new file was uploaded, replace the existing attachment
+    if (attachment) {
+      updateData.attachment = {
+        data: attachment.buffer,
+        contentType: attachment.mimetype,
+      };
     }
-}
 
-export const updateExpense = async(req, res) => {
-    try {
-        const {expenseId, description, amount, date} = req.body
-        const updateExpense = await Expense.findByIdAndUpdate(req.params.id, {description, amount, date}, {new: true})
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-        if (!updateExpense) return res.status(404).json({message: "Expense not Found"})
-            res.status(200).json({updateExpense});
-    } catch (error) {
-        console.error("Error in updateExpense Controller", error) 
-        res.status(500).json({message : "Internal server error"})
+    if (!updatedExpense) {
+      return res.status(404).json({ message: "Expense not found" });
     }
-}
+
+    res.status(200).json({ updatedExpense });
+  } catch (error) {
+    console.error("Error in updateExpense Controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const deleteExpense = async(req, res) => {
     try {
@@ -80,21 +109,21 @@ export const deleteExpense = async(req, res) => {
     }
 }
 
-
 export const calculateIncome = async (req, res) => {
   try {
     const { month, year } = req.query; // e.g. /calculateIncome?month=09&year=2025
 
     let startDate, endDate;
     if (month && year) {
-      // Build start & end date range for selected month
       startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
       endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + 1);
     }
 
-    // Build filter if month/year provided
-    const paymentFilter = startDate ? { paymentDate: { $gte: startDate, $lt: endDate } } : {};
+    const paymentFilter = startDate
+      ? { paymentDate: { $gte: startDate, $lt: endDate }, status: "Completed" } 
+      : { status: "Completed" }; // ✅ Only completed payments
+
     const expenseFilter = startDate ? { date: { $gte: startDate, $lt: endDate } } : {};
 
     const payments = await Payment.find(paymentFilter);
@@ -113,7 +142,8 @@ export const calculateIncome = async (req, res) => {
     console.error("Error in calculateIncome Controller", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
 
 
 
