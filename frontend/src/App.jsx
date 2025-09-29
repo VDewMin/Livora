@@ -70,7 +70,7 @@ const App = () =>{
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
                     <Route path="/residentlist" element={<ProtectedRoute allowedRoles={["Admin"]}><ResidentList/></ProtectedRoute>}/>
-                    <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
+                    <Route path="/admin/stafflist" element={<ProtectedRoute allowedRoles={["Admin"]}><StaffList/></ProtectedRoute>}/>
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>

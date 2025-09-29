@@ -142,7 +142,7 @@ export const loginUser = async (req, res) => {
         const transporter = createTransporter();
 
         await transporter.sendMail({
-            from: `"Smart System" <${process.env.EMAIL_USER}>`,
+            from: `"LIVORA" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: "Your OTP code",
             text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
