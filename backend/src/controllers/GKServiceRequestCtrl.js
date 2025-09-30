@@ -18,6 +18,19 @@ export async function getAllServices(req, res) {
 }
 
 /**
+ * Get logged-in user's services
+ */
+export async function getMyServices(req, res) {
+  try {
+    const services = await GKServiceRequest.find().sort({ createdAt: -1 });
+    res.status(200).json(services);
+  } catch (error) {
+    console.error("Error in getMyServices:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+/**
  * Get service by ID
  */
 export async function getServicesById(req, res) {

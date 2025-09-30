@@ -14,7 +14,7 @@ function GKViewServices() {
 
   const fetchAllServices = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/services");
+      const res = await axios.get("http://localhost:5001/api/services/my");
       setServices(res.data);
     } catch (err) {
       console.error("Error fetching services", err);
