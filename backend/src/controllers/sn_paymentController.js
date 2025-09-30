@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
 //OTP email
 const sendOTPEmail = async (email, otp) => {
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"LIVORA" <${process.env.EMAIL_USER}`,
     to: email,
     subject: "Your OTP Code",
     text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
@@ -442,39 +442,44 @@ export const getResidentMonthlyCharges = async (req, res) => {
   }
 };
 
-//Get all residents with current month payment status
-// Get all residents with current month payment status
-export const getAllResidentsCurrentMonthCharges = async (req, res) => {
+// Get all residents with selected month payment status
+export const getAllResidentsMonthlyCharges = async (req, res) => {
   try {
-    const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-    const startDate = new Date(`${currentMonth}-01T00:00:00Z`);
-    const endDate = new Date(`${currentMonth}-31T23:59:59Z`);
+    // ✅ Read month & year from query (fallback to current month if missing)
+    const { month, year } = req.query;
+    const now = new Date();
 
-    // ✅ Fetch residents (already have apartmentNo, firstName, lastName, etc.)
+    const selectedYear = year ? Number(year) : now.getFullYear();
+    const selectedMonth = month ? Number(month) - 1 : now.getMonth(); // JS months are 0-based
+
+    // ✅ Build start & end of month range
+    const startDate = new Date(Date.UTC(selectedYear, selectedMonth, 1, 0, 0, 0));
+    const endDate = new Date(Date.UTC(selectedYear, selectedMonth + 1, 0, 23, 59, 59));
+
+    // ✅ Fetch all residents
     const residents = await User.find({ role: "Resident" }).lean();
 
+    // ✅ Map residents with their payment status for the selected month
     const result = await Promise.all(
       residents.map(async (r) => {
-        // ✅ Find payment record for this resident for this month
         const payment = await Payment.findOne({
-          residentId: r.userId, // use correct reference field
+          residentId: r.userId,
           paymentDate: { $gte: startDate, $lte: endDate },
         }).lean();
 
-        // ✅ Fill real values from DB (no "N/A" unless DB truly empty)
         return {
           residentId: r.userId,
           residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
           apartmentNo: r.apartmentNo ?? "",
-          monthlyPayment: payment?.amount ?? r.monthlyRent ?? 0, // fallback to monthlyRent if available
-          status: payment?.status ?? "Unpaid",
+          monthlyPayment: payment?.amount ?? r.monthlyRent ?? 0,
+          status: payment?.status ?? "Unpaid", // default to unpaid
         };
       })
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Error fetching resident charges:", err);
+    console.error("Error fetching resident monthly charges:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

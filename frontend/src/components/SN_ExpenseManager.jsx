@@ -12,17 +12,26 @@ const CATEGORIES = [
 
 const PAYMENT_METHODS = ["Cash", "Bank Transfer", "Online Payment", "Card", "Other"];
 
+ const getTodayLocal = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
 export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
   const [expenses, setExpenses] = useState([]);
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [today, setToday] = useState(getTodayLocal());
   const [newExpense, setNewExpense] = useState({
     expenseId: "",
     category: CATEGORIES[0],
     paymentMethod: PAYMENT_METHODS[0],
     notes: "",
     amount: "",
-    date: new Date().toISOString().slice(0, 10),
+    date: today,
     attachment: null,
   });
 
@@ -50,6 +59,15 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     if (!newExpense.expenseId || !newExpense.notes || !newExpense.amount) {
       return toast.error("Please fill all required fields");
     }
+
+    if (isNaN(newExpense.amount) || newExpense.amount <= 0) {
+      return toast.error("Amount must be a positive number");
+    }
+
+    const today = getTodayLocal();
+    if (newExpense.date > today) {
+      return toast.error("Date cannot be in the future");
+    }
     try {
       const formData = new FormData();
       formData.append("expenseId", newExpense.expenseId);
@@ -71,7 +89,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
         paymentMethod: PAYMENT_METHODS[0],
         notes: "",
         amount: "",
-        date: new Date().toISOString().slice(0, 10),
+        date: "",
         attachment: null,
       });
       fetchExpenses();
@@ -181,6 +199,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
                 <input
                   className="border p-2 rounded w-full mb-2"
                   type="number"
+                  min="1"
                   placeholder="Amount"
                   value={newExpense.amount}
                   onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
@@ -188,6 +207,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
                 <input
                   className="border p-2 rounded w-full mb-2"
                   type="date"
+                  max={today}
                   value={newExpense.date}
                   onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
                 />

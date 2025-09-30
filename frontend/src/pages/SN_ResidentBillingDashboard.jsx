@@ -10,7 +10,7 @@ const SN_ResidentBillingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [charges, setCharges] = useState({ 
     rent: 1000,   // hardcoded value
-    laundry: 100, // hardcoded value
+    laundry: 0, // hardcoded value
     others: 0,     // always 0
     total: 0       // calculated
   });
