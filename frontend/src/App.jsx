@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import React from "react";
 import {Route, Routes } from "react-router";
-import GKServiceRequest from './pages/GKServiceRequest.jsx'
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
@@ -49,11 +48,11 @@ const App = () =>{
 
                 <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
-                    <Route path="/user-view" element={<GKViewServices />} />
+                    <Route path="/resident/user-view" element={<ProtectedRoute allowedRoles={["Resident"]}><GKViewServices /></ProtectedRoute>} />
                     <Route path="/update-service/:id" element={<GKUpdateService />} />
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
-                    <Route path="/admin-view" element={<GKAdminViewServices />} />
+                    <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -69,17 +68,23 @@ const App = () =>{
                     
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
-                    <Route path="/residentlist" element={<ResidentList/>}/>
-                    <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
+                    <Route path="/residentlist" element={<ProtectedRoute allowedRoles={["Admin"]}><ResidentList/></ProtectedRoute>}/>
+                    <Route path="/admin/stafflist" element={<ProtectedRoute allowedRoles={["Admin"]}><StaffList/></ProtectedRoute>}/>
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
-
+                    <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
+                    <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
                     <Route path="/scanner" element={<KsScanner />} />
-                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} /></Route>
+                    <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
+                    
+                    
+
+                </Route>
                 
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />

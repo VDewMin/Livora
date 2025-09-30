@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import technicians from "../components/GKTechnician"; // ✅ Import technician data
+import technicians from "../components/GKTechnician"; //Import technician data
 
 function AdminServiceRequests() {
   const [requests, setRequests] = useState([]);
@@ -139,7 +139,7 @@ function AdminServiceRequests() {
                         className={`px-2 py-1 rounded text-white ${
                           req.status === "Pending"
                             ? "bg-yellow-500"
-                            : req.status === "In Processing"
+                            : req.status === "Processing"
                             ? "bg-blue-500"
                             : "bg-green-600"
                         }`}
@@ -163,7 +163,7 @@ function AdminServiceRequests() {
                     <td className="p-2 border">
                       {req.status === "Pending" ? (
                         <div className="flex flex-col gap-2">
-                          {/* ✅ Searchable Dropdown */}
+                          {/* Searchable Dropdown */}
                           <select
                             value={techInputs[req._id] || ""}
                             onChange={(e) =>

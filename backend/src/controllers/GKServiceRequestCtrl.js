@@ -18,6 +18,19 @@ export async function getAllServices(req, res) {
 }
 
 /**
+ * Get logged-in user's services
+ */
+export async function getMyServices(req, res) {
+  try {
+    const services = await GKServiceRequest.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    res.status(200).json(services);
+  } catch (error) {
+    console.error("Error in getMyServices:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+/**
  * Get service by ID
  */
 export async function getServicesById(req, res) {
@@ -38,11 +51,15 @@ export async function getServicesById(req, res) {
  */
 export async function createServices(req, res) {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized: user not found" });
+    }
     const { aptNo, contactNo, contactEmail, serviceType, description } = req.body;
     const fileUrl = req.file;
 
 
     const service = new GKServiceRequest({
+      userId: req.user._id,   // from authMiddleware
       aptNo,
       contactNo,
       contactEmail,
@@ -166,7 +183,7 @@ export async function assignTechnician(req, res) {
       {
         assignedTechnician,
         assignedDate,
-        status: "In Processing", //fixed enum value
+        status: "Processing", //fixed enum value
         assignedAt: new Date(),
       },
       { new: true }
@@ -178,7 +195,7 @@ export async function assignTechnician(req, res) {
 
     // --- Send email notification ---
     const mailOptions = {
-      from: `"Service Admin" <${process.env.EMAIL_USER}>`,
+      from: `"LIVORA" <${process.env.EMAIL_USER}>`,
       to: service.contactEmail,
       subject: "Technician Assigned for Your Service Request",
       html: `
