@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function GKServiceRequest() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     aptNo: "",
     contactNo: "",
@@ -22,31 +25,33 @@ function GKServiceRequest() {
     if (name === "contactNo") {
       const contact = /^\d*$/;
       if (!contact.test(value)) {
-        setErrors({ ...errors, contactNo: "Only numbers are allowed" });
+        setErrors((prev) => ({ ...prev, contactNo: "Only numbers are allowed" }));
         return;
       } else if (value.length > 10) {
-        setErrors({ ...errors, contactNo: "Contact number must be 10 digits" });
+        setErrors((prev) => ({ ...prev, contactNo: "Contact number must be 10 digits" }));
         return;
       } else {
-        setErrors({ ...errors, contactNo: "" });
+        setErrors((prev) => ({ ...prev, contactNo: "" }));
       }
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
     }
 
     if (name === "contactEmail") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
-        setErrors({ ...errors, contactEmail: "Please enter a valid email address" });
+        setErrors((prev) => ({ ...prev, contactEmail: "Please enter a valid email address" }));
       } else {
-        setErrors({ ...errors, contactEmail: "" });
+        setErrors((prev) => ({ ...prev, contactEmail: "" }));
       }
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
       return;
     }
 
     if (name === "fileUrl") {
-      setFile(files[0]); // ✅ store selected file
+      setFile(files[0]); // store selected file
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -55,7 +60,7 @@ function GKServiceRequest() {
     e.preventDefault();
 
     if (formData.contactNo.length !== 10) {
-      setErrors({ ...errors, contactNo: "Contact number must be exactly 10 digits" });
+      setErrors((prev) => ({ ...prev, contactNo: "Contact number must be exactly 10 digits" }));
       return;
     }
 
@@ -75,11 +80,10 @@ function GKServiceRequest() {
 
       toast.success("Service request submitted successfully", {
         position: "top-center",
-        autoClose: 3000,
       });
 
       navigate("/resident/user-view");
-      
+
       // Reset form
       setFormData({
         aptNo: "",
@@ -90,11 +94,8 @@ function GKServiceRequest() {
       });
       setFile(null);
     } catch (err) {
-      console.error(" Error submitting service request:", err);
-      toast.error("Failed to submit service request", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      console.error("Error submitting service request:", err);
+      toast.error("Failed to submit request. Please try again.");
     } finally {
       setLoading(false);
     }

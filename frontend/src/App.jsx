@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import React from "react";
 import {Route, Routes } from "react-router";
-import GKServiceRequest from './pages/GKServiceRequest.jsx'
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
