@@ -78,6 +78,8 @@ function GKServiceRequest() {
         autoClose: 3000,
       });
 
+      navigate("/resident/user-view");
+      
       // Reset form
       setFormData({
         aptNo: "",

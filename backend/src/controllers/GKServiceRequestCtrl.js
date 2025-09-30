@@ -178,7 +178,7 @@ export async function assignTechnician(req, res) {
 
     // --- Send email notification ---
     const mailOptions = {
-      from: `"Service Admin" <${process.env.EMAIL_USER}>`,
+      from: `"LIVORA" <${process.env.EMAIL_USER}>`,
       to: service.contactEmail,
       subject: "Technician Assigned for Your Service Request",
       html: `

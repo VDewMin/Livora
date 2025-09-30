@@ -103,7 +103,7 @@ function GKUpdateService() {
         position: "top-center",
         autoClose: 3000,
       });
-      navigate("/user-view");
+      navigate("/resident/user-view");
     } catch (err) {
       console.error("Error updating service", err);
       toast.error("Failed to update service", { position: "top-center" });
