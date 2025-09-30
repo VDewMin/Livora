@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function GKDeleteService() {
@@ -9,27 +9,46 @@ function GKDeleteService() {
   const [service, setService] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  // Convert file buffer to base64 (same as GKViewServices)
+  const getFileSrc = (fileUrl) => {
+    if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
+
+    try {
+      const base64String = btoa(
+        new Uint8Array(fileUrl.data.data).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+      return `data:${fileUrl.contentType};base64,${base64String}`;
+    } catch (error) {
+      console.error("File conversion error:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     fetchService();
     // eslint-disable-next-line
   }, []);
 
   const fetchService = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast.error("You are not logged in. Please login first.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const res = await axios.get(`http://localhost:5001/api/services/${id}`);
+      const res = await axios.get(`http://localhost:5001/api/services/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setService(res.data);
 
-      // Build preview if file exists
-      if (res.data.fileUrl && res.data.fileUrl.data) {
-        const base64String = btoa(
-          new Uint8Array(res.data.fileUrl.data.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        );
-        setPreviewUrl(
-          `data:${res.data.fileUrl.contentType};base64,${base64String}`
-        );
+      if (res.data.fileUrl) {
+        setPreviewUrl(getFileSrc(res.data.fileUrl));
       }
     } catch (err) {
       console.error("Error fetching service", err);
@@ -38,8 +57,18 @@ function GKDeleteService() {
   };
 
   const handleDelete = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast.error("Unauthorized. Please login again.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      await axios.delete(`http://localhost:5001/api/services/${id}`);
+      await axios.delete(`http://localhost:5001/api/services/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       toast.success("Service deleted successfully", { duration: 2000 });
       setTimeout(() => navigate("/resident/user-view"), 2000);
     } catch (err) {

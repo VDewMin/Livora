@@ -22,7 +22,7 @@ export async function getAllServices(req, res) {
  */
 export async function getMyServices(req, res) {
   try {
-    const services = await GKServiceRequest.find().sort({ createdAt: -1 });
+    const services = await GKServiceRequest.find({ userId: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json(services);
   } catch (error) {
     console.error("Error in getMyServices:", error);
@@ -51,11 +51,15 @@ export async function getServicesById(req, res) {
  */
 export async function createServices(req, res) {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized: user not found" });
+    }
     const { aptNo, contactNo, contactEmail, serviceType, description } = req.body;
     const fileUrl = req.file;
 
 
     const service = new GKServiceRequest({
+      userId: req.user._id,   // from authMiddleware
       aptNo,
       contactNo,
       contactEmail,
@@ -179,7 +183,7 @@ export async function assignTechnician(req, res) {
       {
         assignedTechnician,
         assignedDate,
-        status: "In Processing", //fixed enum value
+        status: "Processing", //fixed enum value
         assignedAt: new Date(),
       },
       { new: true }

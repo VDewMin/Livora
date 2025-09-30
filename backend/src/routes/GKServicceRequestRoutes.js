@@ -22,19 +22,19 @@ const upload = multer({ storage });
  */
 
 // Get logged-in user's service requests
-router.get("/my", getMyServices);
+router.get("/my", authMiddleware, getMyServices);
 
 // Get a service request by ID (owner or admin can view)
-router.get("/:id", getServicesById);
+router.get("/:id", authMiddleware, getServicesById);
 
 // Create a new service request
-router.post("/", upload.single("file"), createServices);
+router.post("/", authMiddleware, upload.single("file"), createServices);
 
 // Update a service request (owner or admin only)
-router.put("/:id", upload.single("file"), updateServices);
+router.put("/:id", authMiddleware, upload.single("file"), updateServices);
 
 // Delete a service request (owner or admin only)
-router.delete("/:id", deleteServices);
+router.delete("/:id", authMiddleware, deleteServices);
 
 /**
  * --- Admin Routes ---

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 function GKViewServices() {
@@ -8,40 +9,61 @@ function GKViewServices() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAllServices();
-  }, []);
-
+  // Fetch user-specific services
   const fetchAllServices = async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      toast.error("You are not logged in. Please login first.");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const res = await axios.get("http://localhost:5001/api/services/my");
+      const res = await axios.get("http://localhost:5001/api/services/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setServices(res.data);
     } catch (err) {
-      console.error("Error fetching services", err);
+      console.error("Error fetching services:", err);
+      if (err.response?.status === 401) {
+        toast.error("Unauthorized! Please login again.");
+        navigate("/login");
+      } else {
+        toast.error("Failed to fetch services. Try again later.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Convert Buffer to Base64 string
+  useEffect(() => {
+    fetchAllServices();
+  }, []);
+
+  // Convert file buffer to base64
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
 
-    const base64String = btoa(
-      new Uint8Array(fileUrl.data.data).reduce(
-        (data, byte) => data + String.fromCharCode(byte),
-        ""
-      )
-    );
-
-    return `data:${fileUrl.contentType};base64,${base64String}`;
+    try {
+      const base64String = btoa(
+        new Uint8Array(fileUrl.data.data).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+      return `data:${fileUrl.contentType};base64,${base64String}`;
+    } catch (error) {
+      console.error("File conversion error:", error);
+      return null;
+    }
   };
 
   return (
     <div className="p-6 max-w-10xl mx-auto font-poppins">
-      {/* Header with button */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">All Service Requests</h1>
+        <h1 className="text-2xl font-bold">My Service Requests</h1>
         <button
           onClick={() => navigate("/add-service")}
           className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -50,7 +72,7 @@ function GKViewServices() {
         </button>
       </div>
 
-      {/* Service requests table */}
+      {/* Table */}
       {loading ? (
         <p>Loading services...</p>
       ) : services.length === 0 ? (
@@ -75,7 +97,6 @@ function GKViewServices() {
             <tbody>
               {services.map((s) => {
                 const fileSrc = getFileSrc(s.fileUrl);
-
                 return (
                   <tr key={s._id} className="hover:bg-gray-50">
                     <td className="p-3 border">{s.aptNo}</td>
@@ -84,8 +105,6 @@ function GKViewServices() {
                     <td className="p-3 border">{s.contactEmail}</td>
                     <td className="p-3 border">{s.serviceType}</td>
                     <td className="p-3 border w-5xl">{s.description}</td>
-
-                    {/* File Display */}
                     <td className="p-3 border">
                       {fileSrc ? (
                         s.fileUrl.contentType.startsWith("image/") ? (
@@ -108,14 +127,21 @@ function GKViewServices() {
                         "No file"
                       )}
                     </td>
-
                     <td className="p-3 border text-sm text-gray-600">
-                      {new Date(s.createdAt).toLocaleString()}
+                      {s.createdAt ? new Date(s.createdAt).toLocaleString() : "N/A"}
                     </td>
-                    <td className="p-3 border text-green-600">{s.status}</td>
-
-                    {/* Actions */}
-                    <td className="p-3 border gap-3">
+                    <td
+                      className={`p-3 border ${
+                        s.status === "Pending"
+                          ? "text-yellow-600"
+                          : s.status === "Processing"
+                          ? "text-green-600"
+                          : "text-green-800" 
+                      }`}
+                    >
+                      {s.status || "Pending"}
+                    </td>
+                    <td className="p-3 border flex gap-2">
                       <button
                         onClick={() => navigate(`/update-service/${s._id}`)}
                         className="text-blue-600 hover:text-blue-800 p-2"
