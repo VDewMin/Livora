@@ -21,7 +21,7 @@ const roleRoutes = {
   Admin: {
     dashboard: "/admin/dashboard",
     deliveries: "/admin/deliveries",
-    services: "/admin/services",
+    services: "/admin/admin-view",
     booking: "/admin/booking",
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
@@ -29,7 +29,7 @@ const roleRoutes = {
   Resident: {
     dashboard: "/resident/dashboard",
     deliveries: "/resident/deliveries",
-    services: "/resident/services",
+    services: "/resident/user-view",
     booking: "/resident/booking",
     billing: "/resident/billing",
   },
@@ -60,7 +60,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
  const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
-  { id: "user-view", label: "Services", icon: BrushCleaning, roles: ["Resident", "Staff"] },
+  { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
   { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
@@ -113,23 +113,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {allowedMenuItems.map((item) => {
           const Icon = item.icon;
-          // If Services tab, navigate to /services
-          if (item.label === "Services") {
-            return (
-              <button
-                key={item.id}
-                onClick={() => navigate('/user-view')}
-                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  activeItem === item.id
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="mr-3 h-5 w-5" />
-                {item.label}
-              </button>
-            );
-          }
+          
           // Other tabs use onItemClick
           return (
             <button

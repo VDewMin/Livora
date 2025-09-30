@@ -41,7 +41,7 @@ function GKDeleteService() {
     try {
       await axios.delete(`http://localhost:5001/api/services/${id}`);
       toast.success("Service deleted successfully", { duration: 2000 });
-      setTimeout(() => navigate("/user-view"), 2000);
+      setTimeout(() => navigate("/resident/user-view"), 2000);
     } catch (err) {
       console.error("Error deleting service", err);
       toast.error("Failed to delete service");
@@ -153,7 +153,7 @@ function GKDeleteService() {
           Yes, Delete
         </button>
         <button
-          onClick={() => navigate("/user-view")}
+          onClick={() => navigate("/resident/user-view")}
           className="w-1/2 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition font-poppins"
         >
           Cancel
