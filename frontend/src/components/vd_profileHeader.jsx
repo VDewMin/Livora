@@ -15,6 +15,9 @@ const ProfileHeader = () => {
     "/admin/booking": "Booking",
     "/admin/billing": "Billing",
     "/admin/stafflist": "Employees",
+    "/admin/residentlist": "Residents",
+    "/admin/apartments": "Apartments",
+  
 
     "/resident/dashboard": "Dashboard",
     "/resident/deliveries": "Deliveries",
@@ -76,14 +79,12 @@ const ProfileHeader = () => {
               </div>
             </div>
             {user?.profilePicture ? (
-              
               <img
-                key={user?.updatedAt}
+                key={user?.avatarVersion || user?.updatedAt}
                 className="h-8 w-8 rounded-full object-cover"
-                src={`${axiosInstance.defaults.baseURL}/users/${user.userId}/profile-picture?updated=${user.updatedAt || Date.now()}`}
+                src={`${axiosInstance.defaults.baseURL}/users/${user.userId}/profile-picture?v=${user?.avatarVersion || user?.updatedAt || Date.now()}`}
                 alt="Profile"
               />
-
             ) : (
               <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
                 {user?.firstName?.[0]}

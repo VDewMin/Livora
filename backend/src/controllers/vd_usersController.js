@@ -403,7 +403,11 @@ export const getProfilePicture = async (req, res) => {
       return res.status(404).send("No profile picture found");
     }
 
+    // Prevent browsers/CDNs from caching stale avatars
     res.set("Content-Type", user.profilePicture.contentType);
+    res.set("Cache-Control", "private, max-age=0, no-cache, no-store, must-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
     res.send(user.profilePicture.data);
   } catch (error) {
     console.error("Error fetching profile picture:", error);
@@ -411,3 +415,24 @@ export const getProfilePicture = async (req, res) => {
   }
 };
 
+export const deleteProfilePicture = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Unset the profilePicture field based on app-level userId (e.g., R001)
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      { $unset: { profilePicture: "" } },
+      { new: true }
+    ).select("-profilePicture.data");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({ message: "Profile picture deleted successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error deleting profile picture:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
