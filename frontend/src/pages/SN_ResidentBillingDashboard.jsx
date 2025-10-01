@@ -192,7 +192,7 @@ const SN_ResidentBillingDashboard = () => {
           background: #94a3b8;
         }
       `}</style>
-      {/* Fixed Header */}
+      
       <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">

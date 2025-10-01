@@ -56,7 +56,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
   };
 
   const addExpense = async () => {
-    if (!newExpense.expenseId || !newExpense.notes || !newExpense.amount) {
+    if ( !newExpense.notes || !newExpense.amount) {
       return toast.error("Please fill all required fields");
     }
 
@@ -70,7 +70,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     }
     try {
       const formData = new FormData();
-      formData.append("expenseId", newExpense.expenseId);
+      
       formData.append("category", newExpense.category);
       formData.append("paymentMethod", newExpense.paymentMethod);
       formData.append("notes", newExpense.notes);
@@ -162,12 +162,12 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
             <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-start pt-20 z-50">
               <div className="bg-white p-6 rounded-xl shadow-lg w-[400px]">
                 <h3 className="text-lg font-bold mb-3">Add New Expense</h3>
-                <input
+                {/*<input
                   className="border p-2 rounded w-full mb-2"
                   placeholder="Expense ID"
                   value={newExpense.expenseId}
                   onChange={(e) => setNewExpense({ ...newExpense, expenseId: e.target.value })}
-                />
+                />*/}
                 <select
                   className="border p-2 rounded w-full mb-2"
                   value={newExpense.category}

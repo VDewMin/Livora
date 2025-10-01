@@ -71,34 +71,52 @@ const SN_ExpenseDetail = ({ expenseId, goBack, onRemoveExpense, onUpdateExpense 
     }
   };
 
-  const handleVerify = async () => {
-    if (!window.confirm("Are you sure you want to save changes?")) return;
-    try {
-      setActionLoading(true);
-      const res = await fetch(`http://localhost:5001/api/expenses/${expenseId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          notes: formData.description,
-          amount: formData.amount,
-          category: formData.category,
-          paymentMethod: formData.paymentMethod,
-          date: formData.date,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to update expense");
-      const updated = await res.json();
-      toast.success("Expense updated successfully!");
-      setExpense(updated);
-      setEditMode(false);
-      onUpdateExpense && onUpdateExpense(updated); // Update parent real-time
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update expense");
-    } finally {
-      setActionLoading(false);
-    }
-  };
+const handleVerify = async () => {
+  // ✅ Validation
+  if (!formData.description || !formData.amount) {
+    return toast.error("Please fill all required fields");
+  }
+
+  if (isNaN(formData.amount) || formData.amount <= 0) {
+    return toast.error("Amount must be a positive number");
+  }
+
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  if (formData.date > today) {
+    return toast.error("Date cannot be in the future");
+  }
+
+  if (!window.confirm("Are you sure you want to save changes?")) return;
+
+  try {
+    setActionLoading(true);
+    const res = await fetch(`http://localhost:5001/api/expenses/${expenseId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: formData.description,
+        amount: formData.amount,
+        category: formData.category,
+        paymentMethod: formData.paymentMethod,
+        date: formData.date,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update expense");
+
+    const updated = await res.json();
+    toast.success("Expense updated successfully!");
+    setExpense(updated);
+    setEditMode(false);
+    onUpdateExpense && onUpdateExpense(updated);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update expense");
+  } finally {
+    setActionLoading(false);
+  }
+};
+
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this expense?")) return;
