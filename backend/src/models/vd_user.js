@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
   
   passwordChangedAt: { type: Date },
 
+  profilePicture: {
+    data: Buffer,
+    contentType: String
+  },
+
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {

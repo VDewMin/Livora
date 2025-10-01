@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaFilePdf } from "react-icons/fa";
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 function GKViewServices() {
   const navigate = useNavigate();
@@ -46,6 +45,7 @@ function GKViewServices() {
   // Convert file buffer to base64
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
+
     try {
       const base64String = btoa(
         new Uint8Array(fileUrl.data.data).reduce(
@@ -60,41 +60,24 @@ function GKViewServices() {
     }
   };
 
-  // Generate PDF with table + image
+  // Generate PDF for one service
   const handleDownloadPDF = (service) => {
     const doc = new jsPDF();
 
-    // Title
     doc.setFontSize(16);
-    doc.text("Service Request Details", 14, 20);
+    doc.text("Service Request Details", 20, 20);
 
-    // Table data
-    const tableData = [
-      ["Apartment No", service.aptNo],
-      ["Service ID", service.serviceId],
-      ["Contact No", service.contactNo],
-      ["Contact Email", service.contactEmail],
-      ["Service Type", service.serviceType],
-      ["Description", service.description],
-      ["Status", service.status],
-      ["Created At", service.createdAt ? new Date(service.createdAt).toLocaleString() : "N/A"],
-    ];
+    doc.setFontSize(12);
+    doc.text(`Apartment No: ${service.aptNo}`, 20, 40);
+    doc.text(`Service ID: ${service.serviceId}`, 20, 50);
+    doc.text(`Contact No: ${service.contactNo}`, 20, 60);
+    doc.text(`Contact Email: ${service.contactEmail}`, 20, 70);
+    doc.text(`Service Type: ${service.serviceType}`, 20, 80);
+    doc.text(`Description: ${service.description}`, 20, 90);
+    doc.text(`Status: ${service.status}`, 20, 100);
+    doc.text(`Created At: ${service.createdAt ? new Date(service.createdAt).toLocaleString() : "N/A"}`, 20, 110);
 
-    autoTable(doc, {
-      head: [["Field", "Value"]],
-      body: tableData,
-      startY: 30,
-      theme: "grid",
-    });
-
-    // Add image if available
-    const fileSrc = getFileSrc(service.fileUrl);
-    if (fileSrc && service.fileUrl.contentType.startsWith("image/")) {
-      const finalY = doc.lastAutoTable.finalY + 10; // Place image below table
-      doc.addImage(fileSrc, "JPEG", 14, finalY, 80, 60); // (x, y, width, height)
-    }
-
-    // Save file
+    // Save as PDF
     doc.save(`service-${service._id}.pdf`);
   };
 
@@ -146,11 +129,22 @@ function GKViewServices() {
                     <td className="p-3 border w-5xl">{s.description}</td>
                     <td className="p-3 border">
                       {fileSrc ? (
-                        <img
-                          src={fileSrc}
-                          alt="Uploaded"
-                          className="w-32 h-20 object-cover rounded-md"
-                        />
+                        s.fileUrl.contentType.startsWith("image/") ? (
+                          <img
+                            src={fileSrc}
+                            alt="Uploaded"
+                            className="w-32 h-20 object-cover rounded-md"
+                          />
+                        ) : (
+                          <a
+                            href={fileSrc}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            View File
+                          </a>
+                        )
                       ) : (
                         "No file"
                       )}
@@ -164,7 +158,7 @@ function GKViewServices() {
                           ? "text-yellow-600"
                           : s.status === "Processing"
                           ? "text-green-600"
-                          : "text-green-800"
+                          : "text-green-800" 
                       }`}
                     >
                       {s.status || "Pending"}
@@ -188,6 +182,7 @@ function GKViewServices() {
                       >
                         <FaFilePdf size={18} />
                       </button>
+
                     </td>
                   </tr>
                 );
@@ -200,4 +195,4 @@ function GKViewServices() {
   );
 }
 
-export default GKViewServices;
+export default GKViewServices;  

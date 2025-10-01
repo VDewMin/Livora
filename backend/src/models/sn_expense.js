@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import Counter from "./counter.js";
 
 const expenseShema = new mongoose.Schema ({
 
     expenseId: {
         type: String,
-        required: true,
         unique: true
     },
 
@@ -54,6 +54,34 @@ const expenseShema = new mongoose.Schema ({
         contentType: String
     }
 });
+
+//generate auto service id 
+expenseShema.pre("save", async function (next) {
+  try {
+    // Only generate expenseId if it is not already set
+    if (!this.expenseId) {
+      let counter = await Counter.findOne({ name: "expense" });
+      
+      // Initialize counter if missing
+      if (!counter) {
+        counter = await Counter.create({ name: "expense", seq: 0 });
+      }
+
+      // Increment counter
+      counter.seq += 1;
+      await counter.save();
+
+      // Set expenseId
+      this.expenseId = "E" + counter.seq.toString().padStart(3, "0");
+    }
+
+    next();
+  } catch (err) {
+    console.error("Error in pre-save hook:", err);
+    next(err);
+  }
+});
+
 
 const Expense = mongoose.model("Expense", expenseShema);
 

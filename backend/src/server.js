@@ -42,6 +42,8 @@ app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
 app.use('/api/laundry', laundryRoutes);
 
 
+app.use("/uploads", express.static("uploads"));
+
 
 connectDB().then(() => {
   app.listen(PORT, () => {
