@@ -86,7 +86,7 @@ export const updateUser = async(req, res) => {
             password,
             role,
             ...(role === "Resident" && { apartmentNo, residentType }),
-            ...(role === "Staff" && { staffType, department }),
+            ...(role === "Staff" && { staffType }),
         };
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -192,6 +192,7 @@ export const verifyOtp = async(req, res) => {
                 token,
                 user: {
                     _id: user._id,
+                    userId: user.userId, 
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
@@ -368,3 +369,45 @@ export const changePassword = async (req, res) => {
     });
   }
 };
+
+export const updateProfilePicture = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      {
+        profilePicture: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype
+        }
+      },
+      { new: true }
+    ).select("-profilePicture.data");
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    res.status(500).json({ message: "Failed to update profile picture" });
+  }
+};
+
+export const getProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findOne({ userId: req.params.userId });
+    if (!user || !user.profilePicture || !user.profilePicture.data) {
+      return res.status(404).send("No profile picture found");
+    }
+
+    res.set("Content-Type", user.profilePicture.contentType);
+    res.send(user.profilePicture.data);
+  } catch (error) {
+    console.error("Error fetching profile picture:", error);
+    res.status(500).send("Failed to fetch profile picture");
+  }
+};
+

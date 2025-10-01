@@ -30,6 +30,8 @@ app.use("/api/payments", sn_paymentRoutes)
 app.use("/api/expenses", sn_expenseRoutes)
 app.use("/api/services", serviceRequestRouter);
 
+app.use("/uploads", express.static("uploads"));
+
 
 connectDB().then(() => {
   app.listen(PORT, () => {

@@ -1,5 +1,6 @@
 import { Search, Bell, Mail } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
+import axiosInstance from '../lib/axios';
 
 const ProfileHeader = () => {
 
@@ -41,16 +42,27 @@ const ProfileHeader = () => {
                 {user ? user.email : "Not logged in"}
               </div>
             </div>
-            <img
-              className="h-8 w-8 rounded-full object-cover"
-              src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"
-              alt="Profile"
-            />
+            {user?.profilePicture ? (
+              
+              <img
+                key={user?.updatedAt}
+                className="h-8 w-8 rounded-full object-cover"
+                src={`${axiosInstance.defaults.baseURL}/users/${user.userId}/profile-picture?updated=${user.updatedAt || Date.now()}`}
+                alt="Profile"
+              />
+
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                {user?.firstName?.[0]}
+              </div>
+            )}
+
           </div>
         </div>
       </div>
     </header>
   );
+
 };
 
 export default ProfileHeader;
