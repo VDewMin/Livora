@@ -22,6 +22,7 @@ import ExpensePage from "./pages/SN_ExpensePage.jsx";
 import AdminBillingDashboard from "./pages/SN_AdminBillingDashboard.jsx";
 import ResidentBillingPage from "./pages/SN_ResidentBillingDashboard.jsx";
 
+
 import Login from "./pages/vd_login.jsx";
 import GuestRoute from "./components/vd_guestRoute.jsx";
 import Register from './pages/vd_register.jsx'
@@ -41,6 +42,26 @@ import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
 import KsScanner from "./pages/KsScanner.jsx";
 
 
+
+import HomePage from './pages/SDHomePage'
+import CreatePage from './pages/SDCreatePage'
+import NoteDetailsPage from './pages/SDNoteDetailsPage'
+import PurchasesList from './pages/SDpurchasesList'
+import SDcreatepurchase from './pages/SDcreatepurchase'
+import SDpurchaseDetails from './components/SDpurchaseDetails'
+import SDAdminPurchasesTable from './pages/SDAdminPurchasesTable'
+import SDConventionHallBookingForm from "./components/SDConventionHallBookingForm.jsx";
+import SDConventionHallBookingDetails from "./components/SDConventionHallBookingDetails.jsx";
+import SDConventionHallHomePage from "./components/SDConventionHallHomePage.jsx";
+import SDAdminConventionHallBookings from "./pages/SDAdminConventionHallBookings.jsx";
+import SDAdminConventionHallBookingsDetails from "./pages/SDAdminBookingDetails.jsx";
+import SDLaundryRequestForm from "./pages/SDLaundryRequestForm.jsx";
+import SDLaundryDetails from "./pages/SDLaundryDetails.jsx";
+import SDLaundryStaffView from "./pages/SDLaundryStaffView.jsx";
+import SDLandingPage from "./pages/SDLandingPage.jsx";
+import SDApartmentPage from "./pages/SDApartmentPage.jsx";
+import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
+import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 const App = () =>{
     return(
         <div className="p-4">
@@ -89,8 +110,56 @@ const App = () =>{
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
+                <Route path="/residentlist" element={<ResidentList/>}/>
+                <Route path="/stafflist" element={<StaffList/>}/>
+                <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+
+
+               
+
+                
+                
+
+               
+                <Route path="/admin-view" element={<GKAdminViewServices />} />
+                
+                
+                
+               <Route path='/notes' element={<HomePage/>} />
+               <Route path='/create' element={<CreatePage/>} />
+               <Route path='/note/:id' element={<NoteDetailsPage/>} />
+               
+               <Route path="/purchases" element={<PurchasesList />} />
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
+               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+               <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+               <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
+
+                <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
+               <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
+                <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
+                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
+               <Route path="/admin/convention-hall-booking/:id" element={<SDAdminConventionHallBookingsDetails />} />
+               </Route>
+               <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
+                <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
+                <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
+                </Route>
+                <Route path="/landing" element={<SDLandingPage />} />
+                <Route path="/apartments" element={<SDApartmentPage />} />
+                <Route path="/about" element={<SDAboutUsPage />} />
+                <Route path="/contact" element={<SDContactUsPage />} />
+
+
+
+ 
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
+
                
                 
             </Routes>
