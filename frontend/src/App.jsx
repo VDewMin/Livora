@@ -4,7 +4,6 @@ import {Route, Routes } from "react-router";
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
-import SecurityDashboard from "./pages/SecurityDashboard.jsx";
 
 
 import GKViewServices from './pages/GKViewServices.jsx'
