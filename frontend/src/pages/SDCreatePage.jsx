@@ -11,7 +11,9 @@ import axiosInstance from '../lib/axios.js';
 
 const SDCreatePage = () => {
   const [title,setTitle] = useState('');
-  const [content,setContent] = useState('');  
+  const [content,setContent] = useState(''); 
+  const [phone_no,setPhone_no] = useState('');
+  const [email,setEmail] = useState('');
   const [loading,setloading] = useState(false);
 
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ const SDCreatePage = () => {
    const handleSubmit = async(e) => {
     e.preventDefault();
 
-    if(!title.trim() || !content.trim()) {
+    if(!title.trim() || !content.trim() || !phone_no.trim()||!email.trim()) {
         toast.error("Please provide both title and content");
         return;
     }
@@ -28,7 +30,10 @@ const SDCreatePage = () => {
     try {
          await axiosInstance.post('/notes', {
             title,
-            content
+            content,
+            phone_no,
+            email
+
         })
 
         toast.success("Note created successfully");
@@ -52,20 +57,20 @@ const SDCreatePage = () => {
   return <div className='min-h-screen bg-base-200'>
       <div className='container mx-auto px-3 py-8'>
         <div className='max-w-2xl mx-auto '>
-          <Link to ={"/notes"} className='btn btn-ghost mb-6'>
+          <Link to ={"/landing"} className='btn btn-ghost mb-6'>
           <ArrowLeftIcon className='size-5'/>
           Back to home
           </Link>
 
           <div className='card bg-base-100 shadow-md'>
             <div className='card-body'>
-              <h2 className='card-title text-2xl mb-4'>Create a new note </h2>
+              <h2 className='card-title text-2xl mb-4'>Create an Apointment </h2>
               <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
                 <div className='form-control mb-4'>
                   <label className='label'>
-                    <span className='label-text'>Title</span>
+                    <span className='label-text'>Name</span>
                   </label>
-                  <input type='text' placeholder='Note title' className='input input-bordered w-full'
+                  <input type='text' placeholder='K.D Kumara' className='input input-bordered w-full'
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   />
@@ -83,6 +88,31 @@ const SDCreatePage = () => {
                     onChange={(e) => setContent(e.target.value)}
                     ></textarea>  
                 </div>
+
+                <div className='form-control mb-4'>
+                  <label className='label'> 
+                    <span className='label-text'>Phone Number</span>
+                  </label>
+                  <textarea
+                    className='textarea textarea-bordered h-24' 
+                    placeholder='eg : 0712345678'
+                    value={phone_no}
+                    onChange={(e) => setPhone_no(e.target.value)}
+                    ></textarea>  
+                </div>
+
+                <div className='form-control mb-4'>
+                  <label className='label'> 
+                    <span className='label-text'>Email</span>
+                  </label>
+                  <textarea
+                    className='textarea textarea-bordered h-24' 
+                    placeholder='eg : abc@gmail.com'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    ></textarea>  
+                </div>
+
 
                 <div className='card-actions justify-end'>
                 <button type='submit' className='btn btn-primary' disabled={loading}>

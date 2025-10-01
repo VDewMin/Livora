@@ -10,7 +10,7 @@ import { connectDB } from "./config/db.js";
 import noteRoutes from "./routes/SDnotesRoutes.js";
 import purchaseRoutes from "./routes/SDpurchaseRoutes.js";
 import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.js";
-
+import laundryRoutes from "./routes/SDlaundryRoutes.js";
 
 
 dotenv.config();
@@ -19,12 +19,14 @@ const app = express();
 const PORT = process.env.PORT || 5001
 
 
+
 app.use(
     cors({
         origin: process.env.FRONTEND_URL,
         credentials: true,
     })
 );
+
 
 //middleware
 app.use(express.json());  
@@ -38,7 +40,7 @@ app.use("/api/services", serviceRequestRouter);
 app.use("/api/notes",noteRoutes)
 app.use("/api/purchases", purchaseRoutes)
 app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
-
+app.use('/api/laundry', laundryRoutes);
 
 
 

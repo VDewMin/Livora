@@ -14,11 +14,11 @@ const SDConventionHallHomePage = () => {
     const fetchBookings = async () => {
       try {
         const response = await axiosInstance.get('/convention-hall-bookings');
-        console.log('API Response:', response.data); // Debug the raw data
+        //console.log('API Response:', response.data); // Debug the raw data
        //  Replace 'A101' with dynamic resident ID (e.g., from auth context)
-        const residentId = 'A101'; // Placeholder; replace with actual resident ID
-       const residentBookings = response.data.filter(b => b.apartment_room_number === residentId);
-      setBookings(residentBookings);
+      //  const residentId = 'A101'; // Placeholder; replace with actual resident ID
+      // const residentBookings = response.data.filter(b => b.apartment_room_number === residentId);
+     // setBookings(residentBookings);
       } catch (error) {
         console.error('Error fetching bookings:', error);
         toast.error('Failed to load bookings');

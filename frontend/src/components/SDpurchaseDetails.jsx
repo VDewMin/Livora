@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, LoaderIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router';
@@ -7,10 +7,9 @@ import {
     CalendarIcon, ClockIcon, AlertTriangleIcon, CheckCircleIcon,
     SendIcon, FileTextIcon, UserIcon
 } from 'lucide-react';
-
 import { formatCurrency, formatDate } from '../lib/utils.js';
 import axiosInstance from '../lib/axios.js';
-
+import html2pdf from 'html2pdf.js'; // Import html2pdf
 
 const SDpurchaseDetails = () => {
     const [purchase, setPurchase] = useState(null);
@@ -18,7 +17,7 @@ const SDpurchaseDetails = () => {
     const [saving, setSaving] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
     const [leaseStatus, setLeaseStatus] = useState(null);
-
+    const detailsRef = useRef(null); // Ref to target the details for PDF
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -85,11 +84,7 @@ const SDpurchaseDetails = () => {
                 const response = await axiosInstance.get(`/purchases/${id}`);
                 const fetchedPurchase = response.data;
                 setPurchase(fetchedPurchase);
-                
-                // Determine editability
                 setIsEditable(['rent', 'lease'].includes(fetchedPurchase.room_type));
-                
-                // Calculate lease metrics if rental
                 if (fetchedPurchase.room_type === 'rent') {
                     setLeaseStatus(calculateLeaseMetrics(fetchedPurchase));
                 }
@@ -120,15 +115,12 @@ const SDpurchaseDetails = () => {
         }
     };
 
-
-
     const handleSave = async () => {
         if (!isEditable) {
             toast.error("Only rental agreements can be modified");
             return;
         }
 
-        // Validation logic (same as before)
         if (!purchase.buyer_Name?.trim() || !purchase.buyer_Email?.trim() || !purchase.room_id?.trim()) {
             toast.error("Required fields cannot be empty");
             return;
@@ -158,7 +150,6 @@ const SDpurchaseDetails = () => {
                 price: priceNum,
                 purchase_date: purchase.purchase_date,
                 content: purchase.content,
-                // Update rental fields if applicable
                 ...(purchase.room_type === 'rent' && {
                     lease_duration: purchase.lease_duration,
                     lease_start_date: purchase.lease_start_date,
@@ -167,7 +158,6 @@ const SDpurchaseDetails = () => {
                     monthly_rent: Number(purchase.monthly_rent)
                 })
             });
-            
             const saveMessage = purchase.room_type === 'rent' 
                 ? 'Rental agreement updated successfully'
                 : 'Purchase details updated successfully';
@@ -190,35 +180,31 @@ const SDpurchaseDetails = () => {
         setPurchase(prev => ({ ...prev, [field]: value }));
     };
 
-    
+    const handleGenerateReceipt = () => {
+        if (!purchase || !detailsRef.current) {
+            console.error('❌ No purchase data or details ref available');
+            toast.error('No purchase data available');
+            return;
+        }
 
-// In src/pages/SDpurchaseDetails.jsx - UPDATE handleGenerateReceipt
-const handleGenerateReceipt = async () => {
-    console.log('🔍 Generate Receipt clicked!');
-    console.log('📦 Purchase data:', purchase);  // ← ADD THIS LINE
-   // console.log('📦 Purchase ID:', purchase?.purchase_id);  // ← ADD THIS LINE
-    
-    if (!purchase) {
-        console.error('❌ No purchase data available');
-        toast.error('No purchase data available');
-        return;
-    }
-    
-   /* if (!purchase.purchase_id) {
-        console.error('❌ Purchase missing ID:', purchase);
-        toast.error('Invalid purchase data');
-        return;
-    }*/
-    
-
-        
-    try {
-        const filename = await generateAndDownloadReceipt(purchase);
-        console.log('✅ Receipt downloaded:', filename);
-    } catch (error) {
-        console.error('❌ Receipt generation failed:', error);
-    }
-};
+        html2pdf()
+            .from(detailsRef.current)
+            .set({
+                filename: `receipt_${purchase.purchase_id}.pdf`,
+                margin: [10, 10, 10, 10],
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            })
+            .save()
+            .then(() => {
+                console.log('✅ Receipt downloaded:', `receipt_${purchase.purchase_id}.pdf`);
+                toast.success('Receipt generated and downloaded!');
+            })
+            .catch((error) => {
+                console.error('❌ Receipt generation failed:', error);
+                toast.error('Failed to generate receipt');
+            });
+    };
 
     if (loading) {
         return (
@@ -289,7 +275,6 @@ const handleGenerateReceipt = async () => {
                             <div className='flex gap-2'>
                                 {isRental && leaseStatus && leaseStatus.status !== 'expired' && (
                                     <button className='btn btn-outline btn-sm' onClick={() => {
-                                        // Future: Send renewal notice
                                         toast.success('Renewal notice sent to tenant');
                                     }}>
                                         <SendIcon className='h-4 w-4 mr-2'/>
@@ -407,7 +392,7 @@ const handleGenerateReceipt = async () => {
                     <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                         {/* Left Column - Core Details */}
                         <div className='lg:col-span-2 space-y-6'>
-                            <div className='card bg-base-100 shadow-lg'>
+                            <div className='card bg-base-100 shadow-lg' ref={detailsRef}>
                                 <div className='card-body'>
                                     {/* Buyer Information */}
                                     <div className='mb-6'>
@@ -651,48 +636,47 @@ const handleGenerateReceipt = async () => {
                                 </div>
                             )}
 
-                           
-                            {/* Quick Actions Card - FIXED: Single Button, No Nesting */}
+                            {/* Quick Actions Card */}
                             <div className='card bg-base-100 shadow-lg'>
-             <div className='card-body p-4'>
-        <h4 className='font-semibold mb-3 flex items-center gap-2'>
-            📋 Quick Actions
-        </h4>
-        <div className='space-y-2 text-sm'>
-            {/* Generate Receipt Button */}
-            <button 
-                type="button"
-                className='btn btn-outline btn-sm w-full justify-start' 
-                onClick={handleGenerateReceipt}
-               // disabled={loading || !purchase || !purchase.purchase_id}
-            >
-                <FileTextIcon className='h-4 w-4 mr-2'/>
-                Generate Receipt
-            </button>
-            
-            {/* Other buttons - keep as single buttons */}
-            {purchase?.room_type === 'rent' && (
-                <button 
-                    type="button"
-                    className='btn btn-ghost btn-sm w-full justify-start' 
-                    onClick={() => toast.success('Invoice sent to tenant')}
-                >
-                    <SendIcon className='h-4 w-4 mr-2'/>
-                    Send Monthly Invoice
-                </button>
-            )}
-            
-            <button 
-                type="button"
-                className='btn btn-ghost btn-sm w-full justify-start' 
-                onClick={() => toast.success('Maintenance request created')}
-            >
-                <AlertTriangleIcon className='h-4 w-4 mr-2'/>
-                Report Maintenance
-            </button>
-        </div>
-    </div>
-</div>
+                                <div className='card-body p-4'>
+                                    <h4 className='font-semibold mb-3 flex items-center gap-2'>
+                                        📋 Quick Actions
+                                    </h4>
+                                    <div className='space-y-2 text-sm'>
+                                        {/* Generate Receipt Button */}
+                                        <button 
+                                            type="button"
+                                            className='btn btn-outline btn-sm w-full justify-start' 
+                                            onClick={handleGenerateReceipt}
+                                           // disabled={loading || !purchase || !purchase.purchase_id}
+                                        >
+                                            <FileTextIcon className='h-4 w-4 mr-2'/>
+                                            Generate Receipt
+                                        </button>
+                                        
+                                        {/* Other buttons */}
+                                        {purchase?.room_type === 'rent' && (
+                                            <button 
+                                                type="button"
+                                                className='btn btn-ghost btn-sm w-full justify-start' 
+                                                onClick={() => toast.success('Invoice sent to tenant')}
+                                            >
+                                                <SendIcon className='h-4 w-4 mr-2'/>
+                                                Send Monthly Invoice
+                                            </button>
+                                        )}
+                                        
+                                        <button 
+                                            type="button"
+                                            className='btn btn-ghost btn-sm w-full justify-start' 
+                                            onClick={() => toast.success('Maintenance request created')}
+                                        >
+                                            <AlertTriangleIcon className='h-4 w-4 mr-2'/>
+                                            Report Maintenance
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -738,5 +722,3 @@ const handleGenerateReceipt = async () => {
 };
 
 export default SDpurchaseDetails;
-
-

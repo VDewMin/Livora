@@ -39,7 +39,7 @@ export const formatPhone = (phone) => {
     }
     return phone;
 };
-export function formatDate(date){
+/*export function formatDate(date){
     return date.toLocaleDateString("en-US",{
         month: "short",
         day: "numeric",
@@ -48,4 +48,4 @@ export function formatDate(date){
         minute: "2-digit",
         hour12: true,
     })
-}
+}*/

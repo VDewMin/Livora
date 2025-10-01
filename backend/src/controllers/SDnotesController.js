@@ -31,8 +31,8 @@ export async function getNotebyId (req,res){
 
 export async function createNotes (req,res){ 
    try{
-      const { title, content } = req.body; // Destructure title and content from the request body
-      const note = new Note({title, content }); // Create a new note instance
+      const { title, content,phone_no,email } = req.body; // Destructure title and content from the request body
+      const note = new Note({title, content,phone_no,email }); // Create a new note instance
 
       const savedNote =await note.save(); // Save the new note to the database
       res.status(201).json(savedNote); 
@@ -47,8 +47,8 @@ export async function createNotes (req,res){
 
 export async function updatedNotes (req,res){ 
   try {
-    const {title,content} = req.body
-   const updatedNotes= await Note.findByIdAndUpdate(req.params.id,{title,content},
+    const {title,content,phone_no,email} = req.body
+   const updatedNotes= await Note.findByIdAndUpdate(req.params.id,{title,content,phone_no,email},
    {new:true}  
    );
    

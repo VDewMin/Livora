@@ -30,6 +30,8 @@ const SDNoteCard = ({note,setNotes}) => {
          <div className='card-body'>
             <h3 className='card-title text-base-content'>{note.title}</h3>
             <p className='text-sm text-base-content/70 line-clamp-3'> {note.content}</p>
+            <p className='text-sm text-base-content/70 '> {note.phone_No}</p>
+            <p className='text-sm text-base-content/70 '> {note.email}</p>
             <div className='card-actions justify-between items-center mt-4'>
                 <span className='text-sm text-base-content/50 '>
                 {note.createdAt} </span>

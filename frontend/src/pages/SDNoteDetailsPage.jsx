@@ -50,7 +50,7 @@ const SDNoteDetailsPage = () => {
     
   }
   const handleSave = async() => {
-    if(!note.title.trim() || !note.content.trim()) {
+    if(!note.title.trim() || !note.content.trim()|| !note.email.trim()) {
       toast.error("Title and content are required");
       return;
     }
@@ -61,6 +61,8 @@ const SDNoteDetailsPage = () => {
       await api.put(`/notes/${id}`, {
         title: note.title,
         content: note.content,
+        phone_no: note.phone_no,
+        email: note.email
       });
       toast.success("Note updated successfully");
       navigate("/notes");
@@ -88,7 +90,7 @@ const SDNoteDetailsPage = () => {
     <div className='container mx-auto px-3 py-8'>
       <div className='max-w-2xl mx-auto '>
         <div className='flex items-center justify-between mb-6'>
-        <Link to="/" className='btn btn-ghost'>
+        <Link to="/notes" className='btn btn-ghost'>
          <ArrowLeftIcon className='h-5 w-5'/>
             Back to home
                </Link>
@@ -101,10 +103,9 @@ const SDNoteDetailsPage = () => {
           <div className='card-body'>
             <div className='form-control mb-4'>
                 <label className='label'>
-                  <span className='label-text'>Title</span>
+                  <span className='label-text'>Name</span>
                 </label>
                 <input type="text" 
-                placeholder='Note title'
                 className='input input-bordered' 
                 value={note?.title}
                 onChange={(e) => setNote({...note, title: e.target.value})}
@@ -120,6 +121,29 @@ const SDNoteDetailsPage = () => {
                 placeholder='Note content'
                 value={note?.content}
                 onChange={(e) => setNote({...note, content: e.target.value})}
+                ></textarea>  
+                  </div>
+
+
+                  <div className='form-control mb-4'>
+                <label className='label'>
+                  <span className='label-text'>Phone Number</span>
+                </label>
+                <textarea 
+                className='textarea textarea-bordered h-24' 
+                value={note?.phone_no}
+                onChange={(e) => setNote({...note, phone_no: e.target.value})}
+                ></textarea>  
+                  </div>
+
+                  <div className='form-control mb-4'>
+                <label className='label'>
+                  <span className='label-text'>Email</span>
+                </label>
+                <textarea 
+                className='textarea textarea-bordered h-24' 
+                value={note?.email}
+                onChange={(e) => setNote({...note, email: e.target.value})}
                 ></textarea>  
                   </div>
 

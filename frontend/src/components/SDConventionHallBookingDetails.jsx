@@ -16,8 +16,12 @@ const SDConventionHallBookingDetails = () => {
     const fetchBooking = async () => {
       try {
         const response = await axiosInstance.get(`/convention-hall-bookings/${id}`);
-        setBooking(response.data);
-        setEditData(response.data);
+        if (response.data && Object.keys(response.data).length > 0) {
+          setBooking(response.data);
+          setEditData(response.data);
+        } else {
+          throw new Error('Empty response');
+        }
       } catch (error) {
         console.error('Error fetching booking:', error);
         toast.error('Failed to load booking details');
@@ -33,7 +37,7 @@ const SDConventionHallBookingDetails = () => {
     try {
       await axiosInstance.delete(`/convention-hall-bookings/${id}`);
       toast.success('Booking deleted successfully');
-      navigate('/convention-hall-home');
+      navigate('/convention-hall-home'); // No state needed on delete
     } catch (error) {
       console.error('Error deleting booking:', error);
       toast.error('Failed to delete booking');
@@ -44,14 +48,32 @@ const SDConventionHallBookingDetails = () => {
     setIsEditing(true);
   };
 
+  const validateEditData = () => {
+    const errors = {};
+    if (!editData.name?.trim()) errors.name = 'Name is required';
+    if (!editData.phone_number?.trim()) errors.phone_number = 'Phone number is required';
+    if (!editData.apartment_room_number?.trim()) errors.apartment_room_number = 'Room number is required';
+    if (!editData.number_of_guests || isNaN(Number(editData.number_of_guests)) || Number(editData.number_of_guests) <= 0)
+      errors.number_of_guests = 'Guests must be a positive number';
+    if (!editData.time_duration || isNaN(Number(editData.time_duration)) || Number(editData.time_duration) <= 0)
+      errors.time_duration = 'Duration must be a positive number';
+    if (!editData.date) errors.date = 'Date is required';
+    return errors;
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
+    const errors = validateEditData();
+    if (Object.keys(errors).length > 0) {
+      toast.error('Please fix the errors in the form');
+      return;
+    }
     try {
       const updatedBooking = await axiosInstance.put(`/convention-hall-bookings/${id}`, editData);
       setBooking(updatedBooking.data);
       setIsEditing(false);
       toast.success('Booking updated successfully');
-      navigate('/convention-hall-home', { state: { booking: updatedBooking.data } }); // Pass updated booking
+      navigate('/convention-hall-home', { state: { booking: updatedBooking.data } });
     } catch (error) {
       console.error('Error updating booking:', error);
       toast.error('Failed to update booking');
@@ -60,7 +82,7 @@ const SDConventionHallBookingDetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   if (loading) {
@@ -75,6 +97,12 @@ const SDConventionHallBookingDetails = () => {
     return (
       <div className="text-center py-10 bg-gradient-to-r from-blue-100 to-purple-100 min-h-screen">
         <h2 className="text-2xl font-bold text-gray-700">Booking Not Found</h2>
+        <button
+          onClick={() => navigate('/convention-hall-home')}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
@@ -213,27 +241,27 @@ const SDConventionHallBookingDetails = () => {
             <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded-lg">
               <strong>Note:</strong> Please arrive 15 minutes before your scheduled time. For any changes, contact support.
             </div>
-            <div>
+            <div className="mt-6 flex justify-between">
               <button
-                onClick={() => navigate('/convention-hall-home', { state: { booking } })} // Pass current booking state
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                onClick={() => navigate('/convention-hall-home', { state: { booking } })}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
               >
                 Back to Home
               </button>
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={handleEdit}
-                className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-              >
-                <Edit2Icon className="mr-2" /> Edit Booking
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-              >
-                <Trash2Icon className="mr-2" /> Delete Booking
-              </button>
+              <div className="space-x-4">
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                >
+                  <Edit2Icon className="mr-2" /> Edit Booking
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                >
+                  <Trash2Icon className="mr-2" /> Delete Booking
+                </button>
+              </div>
             </div>
           </>
         )}
