@@ -173,7 +173,7 @@ export const validateOTPAndCompletePayment = async (req, res) => {
     await OTP.deleteOne({ email });
 
     // 🟢 Update Resident Charges
-    const resident = await Resident.findOne({ residentId: parentPayment.residentId });
+    const resident = await User.findOne({ residentId: parentPayment.residentId });
     if (resident) {
       const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
       resident.lastPaidMonth = currentMonth;
