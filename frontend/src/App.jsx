@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import React from "react";
 import {Route, Routes } from "react-router";
-import GKServiceRequest from './pages/GKServiceRequest.jsx'
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
@@ -49,11 +48,11 @@ const App = () =>{
 
                 <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
-                    <Route path="/user-view" element={<GKViewServices />} />
+                    <Route path="/resident/user-view" element={<ProtectedRoute allowedRoles={["Resident"]}><GKViewServices /></ProtectedRoute>} />
                     <Route path="/update-service/:id" element={<GKUpdateService />} />
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
-                    <Route path="/admin-view" element={<GKAdminViewServices />} />
+                    <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />

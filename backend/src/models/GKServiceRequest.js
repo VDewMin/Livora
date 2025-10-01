@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Counter from "./counter.js";
 
 const GKServiceRequestSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   aptNo: { type: String, required: true },
   serviceId: { type: String, unique: true },
   contactNo: { type: String, required: true },
@@ -14,7 +15,7 @@ const GKServiceRequestSchema = new mongoose.Schema({
   assignedDate: { type: Date },
   status: {
       type: String,
-      enum: ["Pending", "In Processing",],
+      enum: ["Pending", "Processing",],
       default: "Pending",
     },
 },
