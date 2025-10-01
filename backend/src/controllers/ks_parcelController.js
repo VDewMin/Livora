@@ -190,3 +190,67 @@ export const getParcelCounts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getParcelsOverTime = async (req, res) => {
+  try {
+    const data = await Parcel.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$arrivalDateTime" } },
+
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const result = data.map(item => ({
+      date: item._id,
+      count: item.count
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in getParcelsOverTime:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getStatusDistribution = async (req, res) => {
+  try {
+    const data = await Parcel.aggregate([
+      { $group: { _id: "$status", count: { $sum: 1 } } }
+    ]);
+
+    const result = {
+      pending: data.find(d => d._id === "Pending")?.count || 0,
+      collected: data.find(d => d._id === "Collected")?.count || 0,
+      removed: data.find(d => d._id === "Removed")?.count || 0
+    };
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in getStatusDistribution:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getParcelsPerApartment = async (req, res) => {
+  try {
+    const data = await Parcel.aggregate([
+      { $group: { _id: "$apartmentNo", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 } // top 10 apartments
+    ]);
+
+    const result = data.map(item => ({
+      apartment: item._id,
+      count: item.count
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in getParcelsPerApartment:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

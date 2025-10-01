@@ -41,6 +41,7 @@ import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
 import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
 import KsScanner from "./pages/KsScanner.jsx";
+import KsAdminDeliveries from "./pages/KsAdminDeliveries.jsx";
 
 
 const App = () =>{
@@ -81,6 +82,8 @@ const App = () =>{
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
                     <Route path="/scanner" element={<KsScanner />} />
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
+
 
                 </Route>
                 

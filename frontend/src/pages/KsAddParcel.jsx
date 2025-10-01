@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Home,
@@ -11,9 +11,11 @@ import {
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import api from "../lib/axios.js";
-import Sidebar from "../components/vd_sidebar.jsx"; // import your sidebar
+import Sidebar from "../components/vd_sidebar.jsx"; 
+import { useAuth } from "../context/vd_AuthContext";
 
 const KsAddParcel = () => {
+  const { user } = useAuth(); 
   const [residentName, setResidentName] = useState("");
   const [apartmentNo, setApartmentNo] = useState("");
   const [parcelType, setParcelType] = useState("Normal");
@@ -31,6 +33,14 @@ const KsAddParcel = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.firstName && user?.lastName) {
+      setReceivedByStaff(`${user.firstName} ${user.lastName}`);
+    } else if (user?.name) {
+      setReceivedByStaff(user.name);
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
       e.preventDefault();
@@ -270,9 +280,10 @@ const KsAddParcel = () => {
                   <input
                     type="text"
                     value={receivedByStaff}
-                    onChange={(e) => setReceivedByStaff(e.target.value)}
+                   // onChange={(e) => setReceivedByStaff(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Staff member name"
+                   // placeholder="Staff member name"
+                   readOnly
                   />
                 </div>
               </div>

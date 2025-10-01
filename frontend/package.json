@@ -16,6 +16,8 @@
     "axios": "^1.11.0",
     "chart.js": "^4.5.0",
     "html5-qrcode": "^2.3.8",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.25",
     "lucide-react": "^0.510.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",

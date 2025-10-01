@@ -11,7 +11,8 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
-  PackageCheck
+  ScanLine,
+  PackagePlus
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate } from "react-router-dom";
@@ -68,8 +69,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
-  { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
-  { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
+  { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
 ];
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;

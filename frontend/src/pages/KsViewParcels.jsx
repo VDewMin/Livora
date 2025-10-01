@@ -6,6 +6,9 @@ import { Link } from "react-router";
 import toast from "react-hot-toast";
 import Sidebar from "../components/vd_sidebar.jsx";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 
 const KsViewParcels = () => {
   const [parcels, setParcels] = useState([]);
@@ -69,13 +72,75 @@ const KsViewParcels = () => {
   });
 
   const handleExportPDF = () => {
-    toast.success("PDF export feature will be implemented");
+   //toast.success("PDF export feature will be implemented");
+   if (filteredParcels.length === 0) {
+    toast.error("No parcels to export for this filter!");
+    return;
+  }
+
+  // Pick current month and year (or let user choose via filter)
+  const now = new Date();
+  const currentMonth = now.getMonth(); // 0 = Jan
+  const currentYear = now.getFullYear();
+
+  // Filter only parcels from current month
+  const monthlyParcels = filteredParcels.filter((p) => {
+    const parcelDate = new Date(p.arrivalDateTime);
+    return (
+      parcelDate.getMonth() === currentMonth &&
+      parcelDate.getFullYear() === currentYear
+    );
+  });
+
+  if (monthlyParcels.length === 0) {
+    toast.error("No parcels found for this month!");
+    return;
+  }
+
+  // Initialize PDF
+  const doc = new jsPDF();
+  const monthName = now.toLocaleString("default", { month: "long" });
+
+  // Title
+  doc.setFontSize(16);
+  doc.text(`Parcel Logs Report - ${monthName} ${currentYear}`, 14, 20);
+
+  doc.autoTable({
+  head: [
+    ["Parcel ID", "Resident", "Apartment", "Type", "Location", "Status", "Arrival", "Collected"],
+  ],
+  body: monthlyParcels.map((p) => [
+    p.parcelId,
+    p.residentName,
+    p.apartmentNo,
+    p.parcelType,
+    p.locId,
+    p.status,
+    new Date(p.arrivalDateTime).toLocaleDateString(),
+    p.collectedDateTime ? new Date(p.collectedDateTime).toLocaleDateString() : "-",
+  ]),
+  startY: 60,
+  styles: { fontSize: 9 },
+  headStyles: { fillColor: [79, 70, 229] },
+});
+
+  // Footer
+  const pageHeight = doc.internal.pageSize.height;
+  doc.setFontSize(10);
+  doc.text(
+    `Generated on: ${new Date().toLocaleString()}`,
+    14,
+    pageHeight - 10
+  );
+
+  // Save file
+  doc.save(`Parcel_Report_${monthName}_${currentYear}.pdf`);
   };
 
   if (loading) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
+          
         <main className="flex-1 flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
@@ -154,7 +219,7 @@ const KsViewParcels = () => {
         <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
           <div className="overflow-x-auto flex-1">
             <div className="h-full overflow-y-auto">
-              <table className="w-full min-w-[800px] table-auto">
+              <table id="parcelTable" className="w-full min-w-[800px] table-auto">
                 <thead className="bg-gray-50 sticky top-0 z-10 border-b border-gray-200">
                   <tr>
                     <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Parcel ID</th>
