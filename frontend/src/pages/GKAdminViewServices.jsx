@@ -136,12 +136,12 @@ function AdminServiceRequests() {
                     {/* Status */}
                     <td className="p-2 border">
                       <span
-                        className={`px-2 py-1 rounded text-white ${
+                        className={`px-2 py-1 rounded ${
                           req.status === "Pending"
-                            ? "bg-yellow-500"
+                            ? "text-yellow-500"
                             : req.status === "Processing"
-                            ? "bg-blue-500"
-                            : "bg-green-600"
+                            ? "text-green-500"
+                            : "text-green-600"
                         }`}
                       >
                         {req.status || "Pending"}
