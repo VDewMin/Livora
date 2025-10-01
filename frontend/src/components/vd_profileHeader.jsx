@@ -14,7 +14,7 @@ const ProfileHeader = () => {
     "/admin/admin-view": "Services",
     "/admin/booking": "Booking",
     "/admin/billing": "Billing",
-    "/admin/stafflist": "Manage Staff",
+    "/admin/stafflist": "Employees",
 
     "/resident/dashboard": "Dashboard",
     "/resident/deliveries": "Deliveries",

@@ -11,7 +11,8 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
-  PackageCheck
+  PackageCheck,
+  LucideBuilding
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -62,15 +63,16 @@ const Sidebar = ({ activeItem, onItemClick }) => {
  const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
-  { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
+  { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
   { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
   { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
-  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
-  { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
+  //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+  { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
   { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
+  { id: "apartments", label: "Apartments", icon: LucideBuilding, roles: ["Admin"]},
 ];
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;

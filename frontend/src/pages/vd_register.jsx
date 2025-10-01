@@ -2,6 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast"
 import axiosInstance from "../lib/axios";
 
+const nameRegex = /^[A-Za-z]+$/; // strict: letters only (no spaces, no symbols)
+const emailRegex = /^(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const phoneRegex = /^\d{10}$/; // exactly 10 numbers
+const apartmentRegex = /^[PR](?:[1-8]0[1-6]|0[1-6])$/;
+
 const Register = () => {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -16,10 +21,75 @@ const Register = () => {
     //department: "",
   });
 
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNo: "",
+    apartmentNo: "",
+  });
+
   const [loading, setLoading] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+  
+    if (name === "firstName" || name === "lastName") {
+      
+      if (value === "" || nameRegex.test(value)) {
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "Letters only. No numbers or special characters."
+        }));
+      }
+      return;
+    }
+
+    if (name === "email") {
+      const normalized = value.trim().toLowerCase();
+      setFormData((prev) => ({ ...prev, email: normalized }));
+      setErrors((prev) => ({
+        ...prev,
+        email:
+          normalized === "" || emailRegex.test(normalized)
+            ? ""
+            : "Enter a valid email (no spaces or consecutive dots).",
+      }));
+      return;
+    }
+
+    if (name === "phoneNo") {
+    // optional sanitize: strip non-digits and trim to 10
+      const onlyDigits = value.replace(/\D/g, "").slice(0, 10);
+
+      setFormData((prev) => ({ ...prev, phoneNo: onlyDigits }));
+      setErrors((prev) => ({
+        ...prev,
+        phoneNo:
+          onlyDigits === "" || phoneRegex.test(onlyDigits)
+            ? ""
+            : "Enter exactly 10 digits.",
+      }));
+      return;
+    }
+
+    if (name === "apartmentNo") {
+      const normalized = value.trim().toUpperCase();
+      setFormData(prev => ({ ...prev, apartmentNo: normalized }));
+      setErrors(prev => ({
+        ...prev,
+        apartmentNo:
+          normalized === "" || apartmentRegex.test(normalized)
+            ? ""
+            : "Format: P/R + [1-8]01–06 (e.g., P201) or P/R + 01–06 (e.g., P06)."
+      }));
+      return;
+    }
+  
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -27,6 +97,29 @@ const Register = () => {
     console.log("Registration Data:", formData);
 
     setLoading(true);
+
+    if (!nameRegex.test(formData.firstName) || !nameRegex.test(formData.lastName)) {
+      toast.error("Names must contain letters only.");
+      return;
+    }
+
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    if (!phoneRegex.test(formData.phoneNo)) {
+      toast.error("Phone number must be exactly 10 digits.");
+      setLoading(false);
+      return;
+    }
+
+    if (!apartmentRegex.test(formData.apartmentNo)) {
+      toast.error("Apartment No must be like P201, P304, or P06.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await axiosInstance.post(
@@ -66,6 +159,7 @@ const Register = () => {
           className="w-full mb-4 p-2 border rounded-lg"
           required
         />
+        {errors.firstName && <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>}
 
         <input
           type="text"
@@ -76,6 +170,8 @@ const Register = () => {
           className="w-full mb-4 p-2 border rounded-lg"
           required
         />
+        {errors.lastName && <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>}
+
 
         {/* Email & Phone */}
         <input
