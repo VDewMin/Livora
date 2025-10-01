@@ -13,22 +13,33 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex -m-4">
+    <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
       <div
         className={`transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-0"
-        } flex-shrink-0`}
+        } flex-shrink-0 fixed left-0 top-0 h-screen z-30`}
       >
         <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        <ProfileHeader />
-        <div className="flex-1 p-6 bg-gray-50">
-          {/* ✅ This is where child pages render */}
-          <Outlet />
+      <div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: isSidebarOpen ? '256px' : '0px' }}>
+        {/* Fixed Header */}
+        <div className="fixed top-0 right-0 z-20" style={{ left: isSidebarOpen ? "256px" : "0px" }}>
+          <ProfileHeader />
+        </div>
+        
+        {/* Scrollable Content */}
+        <div 
+          className="flex-1 bg-gray-50 overflow-y-auto"
+          style={{ 
+            marginTop: '80px' // Adjust based on header height
+          }}
+        >
+          <div className="p-6">
+            <Outlet />
+          </div>
         </div>
       </div>
 
