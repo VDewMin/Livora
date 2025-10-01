@@ -45,6 +45,7 @@ export const getUserById = async(req, res) => {
     
 }
 
+
 export const createUser = async(req, res) => {
 
     try{
@@ -85,7 +86,7 @@ export const updateUser = async(req, res) => {
             password,
             role,
             ...(role === "Resident" && { apartmentNo, residentType }),
-            ...(role === "Staff" && { staffType, department }),
+            ...(role === "Staff" && { staffType }),
         };
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -141,13 +142,14 @@ export const loginUser = async (req, res) => {
         const transporter = createTransporter();
 
         await transporter.sendMail({
-            from: `"Smart System" <${process.env.EMAIL_USER}>`,
+            from: `"LIVORA" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: "Your OTP code",
             text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
         });
-        
         res.json({ message: "OTP sent to email", userId: user._id });
+
+
 
     } catch (err) {
         console.error("Login error:", err);
@@ -190,6 +192,7 @@ export const verifyOtp = async(req, res) => {
                 token,
                 user: {
                     _id: user._id,
+                    userId: user.userId, 
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
@@ -313,3 +316,98 @@ export const resetPassword = async (req, res) => {
         return res.status(500).json({ message: "Server error"});
     }
 };
+
+
+export const changePassword = async (req, res) => {
+  try {
+    const { userId, currentPassword, newPassword } = req.body;
+
+    if (!userId || !currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    // 1. Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 2. Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // 3. Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 4. Update user
+    user.password = hashedPassword;
+    user.passwordChangedAt = new Date();
+    await user.save();
+
+    // (Optional) Invalidate existing sessions/tokens here if you’re using JWT
+
+    return res.json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    console.error("Error in changePassword:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const updateProfilePicture = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      {
+        profilePicture: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype
+        }
+      },
+      { new: true }
+    ).select("-profilePicture.data");
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    res.status(500).json({ message: "Failed to update profile picture" });
+  }
+};
+
+export const getProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findOne({ userId: req.params.userId });
+    if (!user || !user.profilePicture || !user.profilePicture.data) {
+      return res.status(404).send("No profile picture found");
+    }
+
+    res.set("Content-Type", user.profilePicture.contentType);
+    res.send(user.profilePicture.data);
+  } catch (error) {
+    console.error("Error fetching profile picture:", error);
+    res.status(500).send("Failed to fetch profile picture");
+  }
+};
+

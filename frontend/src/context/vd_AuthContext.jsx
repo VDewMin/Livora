@@ -5,6 +5,7 @@ const AuthContext = createContext();
 export let golbalLogout;
 
 export const AuthProvider = ({children}) => {
+
     const [user, setUser] = useState(() =>{
 
         const savedUser = localStorage.getItem("user");
@@ -13,6 +14,15 @@ export const AuthProvider = ({children}) => {
 
     const [token, setToken] = useState(() => localStorage.getItem("authToken") || null);
     const [loading, setLoading] = useState(true);
+
+    const updateUser = (newUserData) => {
+        setUser((prev) => ({
+            ...prev,
+            ...newUserData,
+            updatedAt: new Date().toISOString(),
+        }));
+    };
+
 
     useEffect(() => {
 
@@ -48,7 +58,7 @@ export const AuthProvider = ({children}) => {
     golbalLogout = logout;
 
     return (
-        <AuthContext.Provider value={{user, token, login, logout}}>
+        <AuthContext.Provider value={{user, token, login, logout, setUser, updateUser}}>
             {children}
         </AuthContext.Provider>
     );

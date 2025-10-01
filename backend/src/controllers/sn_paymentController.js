@@ -1,6 +1,7 @@
 import Payment from "../models/sn_payment.js";
 import OnlinePayment from "../models/sn_onlinePayment.js";
 import OfflinePayment from "../models/sn_offlinePayment.js";
+import User from "../models/vd_user.js";
 import OTP from "../models/sn_otp.js";
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
@@ -156,7 +157,7 @@ export const validateOTPAndCompletePayment = async (req, res) => {
     if (!record) return res.status(400).json({ message: "OTP not found" });
     if (record.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
     if (record.otpCode !== otp) return res.status(400).json({ message: "Invalid OTP" });
-
+    
     const parentPayment = await Payment.findOneAndUpdate(
       { paymentId },
       { status: "Completed" },
@@ -170,6 +171,14 @@ export const validateOTPAndCompletePayment = async (req, res) => {
     );
 
     await OTP.deleteOne({ email });
+
+    // 🟢 Update Resident Charges
+    const resident = await Resident.findOne({ residentId: parentPayment.residentId });
+    if (resident) {
+      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      resident.lastPaidMonth = currentMonth;
+      await resident.save();
+    }
 
     res.status(200).json({
       message: "OTP verified successfully. Payment completed.",
@@ -281,6 +290,13 @@ export const vertifyOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
+    const resident = await Resident.findOne({ residentId: payment.residentId });
+    if (resident) {
+      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      resident.lastPaidMonth = currentMonth;
+      await resident.save();
+    }
+
     // Return updated list for frontend to remove it from pending
     res.json({ paymentId, status: "Completed" });
   } catch (error) {
@@ -378,16 +394,87 @@ export const getAllPayment = async (req, res) => {
   }
 };
 
+//get payment by resident
+export const getPaymentsByResident = async (req, res) => {
+  try {
+    const { id } = req.params; // residentId
+    if (!id) return res.status(400).json({ message: "Resident ID required" });
 
-/*//get all payment
-export const getAllPayment = async(req,res) => {
-    try {
-        const payments = await Payment.find().sort({createdAt: -1});
-        res.status(200).json(payments)
-    } catch (error) {
-        console.error("Error in getAllPayments controller", error);
-        res.status(500).json({message: "Internel Server Error"});
-    }
-};*/
+    const payments = await Payment.find({ residentId: id }).sort({ createdAt: -1 });
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Error in getPaymentsByResident controller", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 
+// Get Resident Charges with Monthly Payment Check
+export const getResidentMonthlyCharges = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resident = await User.findOne({ residentId: id });
+    if (!resident) return res.status(404).json({ message: "Resident not found" });
+
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    // Check if resident paid this month
+    const payment = await Payment.findOne({
+      residentId: id,
+      status: "Completed",
+      paymentDate: {
+        $gte: new Date(`${currentMonth}-01T00:00:00Z`),
+        $lte: new Date(`${currentMonth}-31T23:59:59Z`),
+      },
+    });
+
+    return res.json({
+      rent: resident.monthlyRent,
+      laundry: resident.laundryFee,
+      others: 0,
+      total: resident.monthlyRent + resident.laundryFee,
+      isPaid: !!payment,
+    });
+  } catch (err) {
+    console.error("Error fetching resident charges:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//Get all residents with current month payment status
+// Get all residents with current month payment status
+export const getAllResidentsCurrentMonthCharges = async (req, res) => {
+  try {
+    const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+    const startDate = new Date(`${currentMonth}-01T00:00:00Z`);
+    const endDate = new Date(`${currentMonth}-31T23:59:59Z`);
+
+    // ✅ Fetch residents (already have apartmentNo, firstName, lastName, etc.)
+    const residents = await User.find({ role: "Resident" }).lean();
+
+    const result = await Promise.all(
+      residents.map(async (r) => {
+        // ✅ Find payment record for this resident for this month
+        const payment = await Payment.findOne({
+          residentId: r.userId, // use correct reference field
+          paymentDate: { $gte: startDate, $lte: endDate },
+        }).lean();
+
+        // ✅ Fill real values from DB (no "N/A" unless DB truly empty)
+        return {
+          residentId: r.userId,
+          residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
+          apartmentNo: r.apartmentNo ?? "",
+          monthlyPayment: payment?.amount ?? r.monthlyRent ?? 0, // fallback to monthlyRent if available
+          status: payment?.status ?? "Unpaid",
+        };
+      })
+    );
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching resident charges:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

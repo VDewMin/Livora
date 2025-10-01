@@ -2,19 +2,20 @@ import mongoose from "mongoose";
 import Counter from "./counter.js";
 
 const GKServiceRequestSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   aptNo: { type: String, required: true },
   serviceId: { type: String, unique: true },
   contactNo: { type: String, required: true },
   contactEmail: { type: String, required: true },
   serviceType: { type: String, required: true },
   description: { type: String },
-  fileUrl: { type: String },
+  fileUrl: { data: Buffer, contentType: String },
   assignedAt: { type: Date },
   assignedTechnician: { type: String, default: "" },
   assignedDate: { type: Date },
   status: {
       type: String,
-      enum: ["Pending", "In Processing",],
+      enum: ["Pending", "Processing",],
       default: "Pending",
     },
 },

@@ -1,12 +1,10 @@
 import toast from "react-hot-toast";
 import React from "react";
 import {Route, Routes } from "react-router";
-import GKServiceRequest from './pages/GKServiceRequest.jsx'
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
 import SecurityDashboard from "./pages/SecurityDashboard.jsx";
-
 
 
 import GKViewServices from './pages/GKViewServices.jsx'
@@ -23,6 +21,7 @@ import PaymentDetail from "./pages/SN_PaymentDetail.jsx";
 import ExpensePage from "./pages/SN_ExpensePage.jsx";
 import AdminBillingDashboard from "./pages/SN_AdminBillingDashboard.jsx";
 import ResidentBillingPage from "./pages/SN_ResidentBillingDashboard.jsx";
+
 
 import Login from "./pages/vd_login.jsx";
 import GuestRoute from "./components/vd_guestRoute.jsx";
@@ -44,6 +43,26 @@ import KsScanner from "./pages/KsScanner.jsx";
 import KsAdminDeliveries from "./pages/KsAdminDeliveries.jsx";
 
 
+
+import HomePage from './pages/SDHomePage'
+import CreatePage from './pages/SDCreatePage'
+import NoteDetailsPage from './pages/SDNoteDetailsPage'
+import PurchasesList from './pages/SDpurchasesList'
+import SDcreatepurchase from './pages/SDcreatepurchase'
+import SDpurchaseDetails from './components/SDpurchaseDetails'
+import SDAdminPurchasesTable from './pages/SDAdminPurchasesTable'
+import SDConventionHallBookingForm from "./components/SDConventionHallBookingForm.jsx";
+import SDConventionHallBookingDetails from "./components/SDConventionHallBookingDetails.jsx";
+import SDConventionHallHomePage from "./components/SDConventionHallHomePage.jsx";
+import SDAdminConventionHallBookings from "./pages/SDAdminConventionHallBookings.jsx";
+import SDAdminConventionHallBookingsDetails from "./pages/SDAdminBookingDetails.jsx";
+import SDLaundryRequestForm from "./pages/SDLaundryRequestForm.jsx";
+import SDLaundryDetails from "./pages/SDLaundryDetails.jsx";
+import SDLaundryStaffView from "./pages/SDLaundryStaffView.jsx";
+import SDLandingPage from "./pages/SDLandingPage.jsx";
+import SDApartmentPage from "./pages/SDApartmentPage.jsx";
+import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
+import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 const App = () =>{
     return(
         <div className="p-4">
@@ -51,11 +70,11 @@ const App = () =>{
 
                 <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
 
-                    <Route path="/" element={<GKViewServices />} />
+                    <Route path="/resident/user-view" element={<ProtectedRoute allowedRoles={["Resident"]}><GKViewServices /></ProtectedRoute>} />
                     <Route path="/update-service/:id" element={<GKUpdateService />} />
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
-                    <Route path="/admin-view" element={<GKAdminViewServices />} />
+                    <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -71,12 +90,14 @@ const App = () =>{
                     
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
-                    <Route path="/residentlist" element={<ResidentList/>}/>
-                    <Route path="/admin/stafflist" element={<ProtectedRoute><StaffList/></ProtectedRoute>}/>
+                    <Route path="/residentlist" element={<ProtectedRoute allowedRoles={["Admin"]}><ResidentList/></ProtectedRoute>}/>
+                    <Route path="/admin/stafflist" element={<ProtectedRoute allowedRoles={["Admin"]}><StaffList/></ProtectedRoute>}/>
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
-
+                    <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
+                    <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
@@ -90,8 +111,56 @@ const App = () =>{
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
+                <Route path="/residentlist" element={<ResidentList/>}/>
+                <Route path="/stafflist" element={<StaffList/>}/>
+                <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+
+
+               
+
+                
+                
+
+               
+                <Route path="/admin-view" element={<GKAdminViewServices />} />
+                
+                
+                
+               <Route path='/notes' element={<HomePage/>} />
+               <Route path='/create' element={<CreatePage/>} />
+               <Route path='/note/:id' element={<NoteDetailsPage/>} />
+               
+               <Route path="/purchases" element={<PurchasesList />} />
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
+               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+               <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+               <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
+
+                <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
+               <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
+                <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
+                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
+               <Route path="/admin/convention-hall-booking/:id" element={<SDAdminConventionHallBookingsDetails />} />
+               </Route>
+               <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
+                <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
+                <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
+                </Route>
+                <Route path="/landing" element={<SDLandingPage />} />
+                <Route path="/apartments" element={<SDApartmentPage />} />
+                <Route path="/about" element={<SDAboutUsPage />} />
+                <Route path="/contact" element={<SDContactUsPage />} />
+
+
+
+ 
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
                 <Route path="/reset-password/:token" element={<GuestRoute><ResetPassword /></GuestRoute>} />
+
                
                 
             </Routes>

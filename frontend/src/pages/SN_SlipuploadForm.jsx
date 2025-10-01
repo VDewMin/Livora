@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const OfflineSlipForm = () => {
-  const [residentId, setResidentId] = useState("");
-  const [apartmentNo, setApartmentNo] = useState("");
-  const [residentName, setResidentName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [amountRent, setAmountRent] = useState(0);
-  const [amountLaundry, setAmountLaundry] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const data = location.state || {};
+
   const [slip, setSlip] = useState(null);
   const [preview, setPreview] = useState(null);
 
@@ -26,22 +25,19 @@ const OfflineSlipForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!residentId || !apartmentNo || !residentName || !phoneNumber) {
-      toast.error("Please fill all required fields!");
-      return;
-    }
     if (!slip) {
       toast.error("Please upload a slip file (PNG/JPG)");
+      setTimeout(() => navigate("/resident/billing"), 2000); // redirect after 2s
       return;
     }
 
     const formData = new FormData();
-    formData.append("residentId", residentId);
-    formData.append("apartmentNo", apartmentNo);
-    formData.append("residentName", residentName);
-    formData.append("phoneNumber", phoneNumber);
-    formData.append("amountRent", amountRent);
-    formData.append("amountLaundry", amountLaundry);
+    formData.append("residentId", data.residentId);
+    formData.append("apartmentNo", data.apartmentNo);
+    formData.append("residentName", data.residentName);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("amountRent", data.amountRent);
+    formData.append("amountLaundry", data.amountLaundry);
     formData.append("slipFile", slip);
 
     try {
@@ -52,14 +48,6 @@ const OfflineSlipForm = () => {
 
       if (res.ok) {
         toast.success("Offline payment submitted successfully! Awaiting admin verification.");
-        setSlip(null);
-        setPreview(null);
-        setResidentId("");
-        setApartmentNo("");
-        setResidentName("");
-        setPhoneNumber("");
-        setAmountRent(0);
-        setAmountLaundry(0);
       } else {
         const err = await res.json();
         toast.error("Error: " + err.message);
@@ -67,6 +55,9 @@ const OfflineSlipForm = () => {
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
+    } finally {
+      // Redirect after 2 seconds so toast is visible
+      setTimeout(() => navigate("/resident/billing"), 2000);
     }
   };
 
@@ -77,67 +68,48 @@ const OfflineSlipForm = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          value={residentId}
-          onChange={(e) => setResidentId(e.target.value)}
-          placeholder="Resident ID"
-          className="w-full mb-3 p-2 border rounded"
-          required
-        />
-
-        <input
-          type="text"
-          value={apartmentNo}
-          onChange={(e) => setApartmentNo(e.target.value)}
+          value={data.apartmentNo}
+          readOnly
+          className="w-full mb-3 p-2 border rounded bg-gray-100"
           placeholder="Apartment No"
-          className="w-full mb-3 p-2 border rounded"
-          required
         />
-
         <input
           type="text"
-          value={residentName}
-          onChange={(e) => setResidentName(e.target.value)}
+          value={data.residentName}
+          readOnly
+          className="w-full mb-3 p-2 border rounded bg-gray-100"
           placeholder="Resident Name"
-          className="w-full mb-3 p-2 border rounded"
-          required
         />
-
         <input
           type="text"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          value={data.phoneNumber}
+          readOnly
+          className="w-full mb-3 p-2 border rounded bg-gray-100"
           placeholder="Phone Number"
-          className="w-full mb-3 p-2 border rounded"
-          required
         />
-
         <input
           type="number"
-          value={amountRent}
-          onChange={(e) => setAmountRent(e.target.value)}
+          value={data.amountRent}
+          readOnly
+          className="w-full mb-3 p-2 border rounded bg-gray-100"
           placeholder="Rent Amount"
-          className="w-full mb-3 p-2 border rounded"
         />
-
         <input
           type="number"
-          value={amountLaundry}
-          onChange={(e) => setAmountLaundry(e.target.value)}
+          value={data.amountLaundry}
+          readOnly
+          className="w-full mb-3 p-2 border rounded bg-gray-100"
           placeholder="Laundry Amount"
-          className="w-full mb-3 p-2 border rounded"
         />
-
-        <p className="mb-3">
-          <strong>Total:</strong> Rs.{Number(amountRent) + Number(amountLaundry)}
+        <p className="mb-3 font-semibold">
+          Total: Rs. {Number(data.amountRent) + Number(data.amountLaundry)}
         </p>
-
         <input
           type="file"
           accept="image/png, image/jpeg"
           onChange={handleFileChange}
           className="w-full mb-3 p-2 border rounded"
         />
-
         {preview && (
           <img
             src={preview}
@@ -145,7 +117,6 @@ const OfflineSlipForm = () => {
             className="w-40 h-40 object-cover rounded mb-3"
           />
         )}
-
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"

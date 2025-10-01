@@ -1,78 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function GKServiceRequest() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     aptNo: "",
     contactNo: "",
     contactEmail: "",
     serviceType: "",
     description: "",
-    fileUrl: "",
   });
 
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [errors, setErrors] = useState({});
 
-  // Handle input changes
+  //Load user details after login
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+    setFormData((prev) => ({
+      ...prev,
+      aptNo: storedUser.apartmentNo || "",
+      contactEmail: storedUser.email || "",
+    }));
+
+    if (!storedUser.apartmentNo || !storedUser.email) {
+      console.warn("Missing user details in localStorage");
+    }
+  }, []);
+
+  // Handle input changes for fields that user can edit
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    //contact number validation
-    if (name === "contactNo") {
-      if (!/^\d*$/.test(value)) {
-        setErrors({ ...errors, contactNo: "Only numbers are allowed" });
-        return;
-      } else if (value.length > 10) {
-        setErrors({ ...errors, contactNo: "Contact number must be 10 digits" });
-        return;
-      } else {
-        setErrors({ ...errors, contactNo: "" });
-      }
-    }
-
     if (name === "fileUrl") {
-      setFormData({ ...formData, fileUrl: files[0] });
+      setFile(files[0]);
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.contactNo.length !== 10) {
-      setErrors({ ...errors, contactNo: "Contact number must be exactly 10 digits" });
-      return;
-    }
-
     setLoading(true);
-    setMessage("");
 
     try {
-      await axios.post("http://localhost:5001/api/services", formData);
-      toast.success("Service request submitted successfully", {
-        position: "top-center",
-        autoClose: 3000, });
+      const requestData = new FormData();
+      Object.keys(formData).forEach((key) =>
+        requestData.append(key, formData[key])
+      );
+      if (file) requestData.append("file", file);
 
-      setFormData({
-        aptNo: "",
-        contactNo: "",
-        contactEmail: "",
+      await axios.post("http://localhost:5001/api/services", requestData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Service request submitted successfully!", {
+        position: "top-center",
+      });
+      navigate("/resident/user-view");
+
+      // Reset only editable fields
+      setFormData((prev) => ({
+        ...prev,
         serviceType: "",
         description: "",
-        fileUrl: "",
-      });
+      }));
+      setFile(null);
     } catch (err) {
-      console.log("Error submitting service request:", err);
-      toast.error("Failed to submit service request", {
+      console.error("Error submitting service request:", err);
+      toast.error("Failed to submit request. Please try again.", {
         position: "top-center",
-        autoClose: 3000,
       });
-
     } finally {
       setLoading(false);
     }
@@ -82,16 +88,6 @@ function GKServiceRequest() {
     <div className="max-w-md mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
       <h2 className="text-xl font-bold mb-6 text-center">Service Request</h2>
 
-      {message && (
-        <p
-          className={`text-center mb-4 ${
-            message.includes("successfully") ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {message}
-        </p>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Apartment No */}
         <div>
@@ -100,26 +96,9 @@ function GKServiceRequest() {
             type="text"
             name="aptNo"
             value={formData.aptNo}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-black-200 rounded-lg"
+            readOnly
+            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
           />
-        </div>
-
-        {/* Contact No */}
-        <div>
-          <label className="block font-semibold mb-1">Contact No</label>
-          <input
-            type="text"
-            name="contactNo"
-            value={formData.contactNo}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-black-200 rounded-lg"
-          />
-          {errors.contactNo && (
-            <p className="text-red-600 text-sm">{errors.contactNo}</p>
-          )}
         </div>
 
         {/* Contact Email */}
@@ -129,9 +108,21 @@ function GKServiceRequest() {
             type="text"
             name="contactEmail"
             value={formData.contactEmail}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-black-200 rounded-lg"
+            readOnly
+            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+
+         {/* Contact No */}
+        <div>
+          <label className="block font-semibold mb-1">Contact No</label>
+          <input
+            type="text"
+            name="contactNo"
+            value={formData.contactNo}
+             onChange={handleChange}
+             required
+            className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
 
@@ -143,7 +134,7 @@ function GKServiceRequest() {
             value={formData.serviceType}
             onChange={handleChange}
             required
-            className="w-full p-2 border border-black-200 rounded-lg"
+            className="w-full p-2 border border-gray-300 rounded-lg"
           >
             <option value="">-- Select Service Type --</option>
             <option value="Electrical">Electrical</option>
@@ -161,7 +152,7 @@ function GKServiceRequest() {
             value={formData.description}
             onChange={handleChange}
             required
-            className="w-full p-2 border border-black-200 rounded-lg"
+            className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
 
@@ -171,8 +162,9 @@ function GKServiceRequest() {
           <input
             type="file"
             name="fileUrl"
+            accept=".jpg,.jpeg,.png,.mp4,.mov"
             onChange={handleChange}
-            className="w-full p-2 border border-black-200 rounded-lg"
+            className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
 

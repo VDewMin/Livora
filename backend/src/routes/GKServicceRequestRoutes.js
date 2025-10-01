@@ -1,15 +1,49 @@
-import express from "express"
-import{getAllServices, getServicesById, createServices, updateServices, 
-    deleteServices, assignTechnician} from "../controllers/GKServiceRequestCtrl.js";
+import express from "express";
+import multer from "multer";
+import {
+  getAllServices,
+  getMyServices,
+  getServicesById,
+  createServices,
+  updateServices,
+  deleteServices,
+  assignTechnician,
+} from "../controllers/GKServiceRequestCtrl.js";
+import { authMiddleware } from "../middleware/auth.js";
+
 const router = express.Router();
 
-router.get("/", getAllServices);
-router.get("/:id", getServicesById);
-router.post("/", createServices);
-router.put("/:id", updateServices);
-router.delete("/:id", deleteServices);
+// Multer setup (in-memory storage for file upload)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-//admin
+/**
+ * --- User Routes ---
+ */
+
+// Get logged-in user's service requests
+router.get("/my", authMiddleware, getMyServices);
+
+// Get a service request by ID (owner or admin can view)
+router.get("/:id", authMiddleware, getServicesById);
+
+// Create a new service request
+router.post("/", authMiddleware, upload.single("file"), createServices);
+
+// Update a service request (owner or admin only)
+router.put("/:id", authMiddleware, upload.single("file"), updateServices);
+
+// Delete a service request (owner or admin only)
+router.delete("/:id", authMiddleware, deleteServices);
+
+/**
+ * --- Admin Routes ---
+ */
+
+// Get all service requests (admin only)
+router.get("/", getAllServices);
+
+// Assign technician to a request (admin only)
 router.put("/:id/assign", assignTechnician);
 
-export default router
+export default router;
