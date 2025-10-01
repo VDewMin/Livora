@@ -1,12 +1,8 @@
-import { PenSquareIcon, Trash2Icon, FileTextIcon } from 'lucide-react'
-import { Link } from 'react-router' // Fixed import
-import api from '../lib/axios.js'
-import toast from 'react-hot-toast'
-import { formatDate } from '../lib/utils.js' // Assuming you have a date formatting utility
-
-
-
-    
+import { PenSquareIcon, Trash2Icon, FileTextIcon } from 'lucide-react';
+import { Link } from 'react-router-dom'; // Fixed import
+import api from '../lib/axios.js';
+import toast from 'react-hot-toast';
+import { formatDate } from '../lib/utils.js';
 
 const SDpurchaseCard = ({ purchase, setPurchases }) => {
     const handleDelete = async (e, id) => {
@@ -16,75 +12,73 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
             return;
         
         try {
-            await api.delete(`/purchases/${id}`)
-            setPurchases((prevPurchases) => prevPurchases.filter((p) => p._id !== id))
-            toast.success(`Purchase ${purchase.purchase_id} deleted successfully`)
+            await api.delete(`/purchases/${id}`);
+            setPurchases((prevPurchases) => prevPurchases.filter((p) => p._id !== id));
+            toast.success(`Purchase ${purchase.purchase_id} deleted successfully`);
         } catch (error) {
-            console.error("Error deleting purchase: ", error)
-            toast.error("Failed to delete purchase")
+            console.error("Error deleting purchase: ", error);
+            toast.error("Failed to delete purchase");
         }
-    }
+    };
 
     const handleViewDetails = (e) => {
-        // Optional: Handle view details without navigation
-        e.preventDefault()
-        // Could open modal or navigate programmatically
-        toast(`Viewing details for ${purchase.purchase_id}`)
-    }
+        e.preventDefault();
+        toast(`Viewing details for ${purchase.purchase_id}`);
+    };
 
     return (
-        <Link to={`/purchases/${purchase._id}`} className="card bg-base-100 hover:shadow-lg transition-all duration-200 border-t-4 border-solid border-[#00FF9D]">
-            <div className='card-body'>
+        <Link to={`/purchases/${purchase._id}`} className="card bg-white hover:shadow-xl transition-all duration-300 border-t-4 border-solid border-teal-500 rounded-lg overflow-hidden">
+            <div className='card-body p-4'>
                 {/* Purchase Header */}
                 <div className='flex justify-between items-start'>
-                    <h3 className='card-title text-base-content'>
+                    <h3 className='card-title text-xl font-semibold text-teal-700'>
                         {purchase.room_id} - {purchase.buyer_Name}
                     </h3>
-                    <span className='badge badge-success badge-sm'>{purchase.room_type}</span>
+                    <span className='badge badge-success badge-sm text-white bg-green-500'>{purchase.room_type}</span>
                 </div>
 
                 {/* Purchase Summary */}
-                <div className='space-y-2'>
-                    <p className='text-sm text-base-content/80'>
-                        <strong>Room:</strong> {purchase.room_id}
+                <div className='space-y-2 mt-2'>
+                    <p className='text-sm text-teal-600'>
+                        <strong className='font-medium'>Room:</strong> {purchase.room_id}
                     </p>
-                    <p className='text-sm text-base-content/70 line-clamp-2'>
+                    <p className='text-sm text-teal-800 line-clamp-2'>
                         {purchase.content || `Purchase of ${purchase.room_type} apartment ${purchase.room_id}`}
                     </p>
                 </div>
 
                 {/* Price and Date */}
-                <div className='stats stats-horizontal stats-sm w-full mt-3'>
+                <div className='stats stats-horizontal stats-sm w-full mt-4 bg-teal-50 p-2 rounded'>
                     <div className='stat'>
-                        <div className='stat-title text-xs'>Price</div>
-                        <div className='stat-value text-primary'>${purchase.price?.toLocaleString()}</div>
+                        <div className='stat-title text-xs text-teal-600'>Price</div>
+                        <div className='stat-value text-teal-800'>${purchase.price?.toLocaleString()}</div>
                     </div>
                     <div className='stat'>
-                        <div className='stat-title text-xs'>Date</div>
-                        <div className='stat-value text-xs'>{formatDate(purchase.purchase_date)}</div>
-                             <span className='text-sm text-base-content/50'>
-                                 Created: {formatDate(purchase.createdAt)}
-                            </span>
+                        <div className='stat-title text-xs text-teal-600'>Date</div>
+                        <div className='stat-value text-sm text-teal-800'>{formatDate(purchase.purchase_date)}</div>
+                        <span className='text-xs text-teal-500'>
+                            Created: {formatDate(purchase.createdAt)}
+                        </span>
                     </div>
                 </div>
 
                 {/* Actions */}
                 <div className='card-actions justify-between items-center mt-4'>
-                    <span className='text-sm text-base-content/50'>
+                    <span className='text-xs text-teal-500'>
                         Created: {formatDate(purchase.createdAt)}
                     </span>
 
-                    <div className='flex items-center gap-1'>
+                    <div className='flex items-center gap-2'>
                         <Link 
                             to={`/purchases/${purchase._id}`} 
-                            className='btn btn-ghost btn-xs'
+                            className='btn btn-ghost btn-xs text-teal-700 hover:bg-teal-100 transition-all'
                             title='Edit Purchase'
                         >
                             <PenSquareIcon className='size-4' />
                         </Link>
                         
                         <button 
-                            className='btn btn-ghost btn-xs text-error'
+                            className='btn btn-ghost btn-xs text-red-600 hover:bg-red-100 transition-all'
                             onClick={(e) => handleDelete(e, purchase._id)}
                             title='Delete Purchase'
                         >
@@ -92,7 +86,7 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
                         </button>
 
                         <button 
-                            className='btn btn-ghost btn-xs'
+                            className='btn btn-ghost btn-xs text-teal-700 hover:bg-teal-100 transition-all'
                             onClick={handleViewDetails}
                             title='View Details'
                         >
@@ -102,9 +96,7 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
                 </div>
             </div>
         </Link>
-    )
-}
+    );
+};
 
-
-
-export default SDpurchaseCard
+export default SDpurchaseCard;

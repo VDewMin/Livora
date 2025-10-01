@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router'; // Corrected import
+import { useNavigate, Link } from 'react-router-dom'; // Corrected import
 import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, UsersIcon } from 'lucide-react';
-
 
 const SDConventionHallBookingForm = () => {
   const navigate = useNavigate();
@@ -63,93 +62,93 @@ const SDConventionHallBookingForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="container mx-auto px-3 py-8">
+    <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 animate-fade-in">
+      <div className="container mx-auto px-4 py-10">
         <div className="max-w-4xl mx-auto">
-          <Link to="/convention-hall-home" className="btn btn-ghost mb-6">
-            <ArrowLeftIcon className="size-5" />
+          <Link to="/convention-hall-home" className="btn btn-ghost mb-8 text-teal-700 hover:bg-teal-100 transition-all">
+            <ArrowLeftIcon className="h-6 w-6 mr-2" />
             Back to Home
           </Link>
 
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title text-3xl mb-6">
-                <CalendarIcon className="inline mr-2 text-teal-500" /> Book Convention Hall
+          <div className="card bg-white shadow-2xl rounded-lg border-l-4 border-teal-500 overflow-hidden transform transition-all hover:scale-101">
+            <div className="card-body p-6">
+              <h2 className="card-title text-4xl font-bold mb-6 text-teal-700 flex items-center">
+                <CalendarIcon className="h-8 w-8 mr-2 text-teal-500" /> Book Convention Hall
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Booking Information Section */}
-                <div className="divider">Booking Information</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="divider text-teal-600 font-semibold">Booking Information</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Name </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Name</span>
                     </label>
                     <input
                       type="text"
                       name="name"
                       placeholder="Enter your full name"
-                      className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.name ? 'input-error' : ''}`}
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={loading}
                     />
                     {errors.name && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.name}</span>
+                        <span className="label-text-alt text-red-500">{errors.name}</span>
                       </label>
                     )}
                   </div>
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Phone Number </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Phone Number</span>
                     </label>
                     <input
                       type="tel"
                       name="phone_number"
                       placeholder="+94 123 456 789"
-                      className={`input input-bordered w-full ${errors.phone_number ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.phone_number ? 'input-error' : ''}`}
                       value={formData.phone_number}
                       onChange={handleInputChange}
                       disabled={loading}
                     />
                     {errors.phone_number && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.phone_number}</span>
+                        <span className="label-text-alt text-red-500">{errors.phone_number}</span>
                       </label>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Apartment Room Number </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Apartment Room Number</span>
                     </label>
                     <input
                       type="text"
                       name="apartment_room_number"
                       placeholder="e.g., A101"
-                      className={`input input-bordered w-full ${errors.apartment_room_number ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.apartment_room_number ? 'input-error' : ''}`}
                       value={formData.apartment_room_number}
                       onChange={handleInputChange}
                       disabled={loading}
                     />
                     {errors.apartment_room_number && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.apartment_room_number}</span>
+                        <span className="label-text-alt text-red-500">{errors.apartment_room_number}</span>
                       </label>
                     )}
                   </div>
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Number of Guests </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Number of Guests</span>
                     </label>
                     <input
                       type="number"
                       name="number_of_guests"
                       placeholder="e.g., 10"
-                      className={`input input-bordered w-full ${errors.number_of_guests ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.number_of_guests ? 'input-error' : ''}`}
                       value={formData.number_of_guests}
                       onChange={handleInputChange}
                       min="1"
@@ -157,22 +156,22 @@ const SDConventionHallBookingForm = () => {
                     />
                     {errors.number_of_guests && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.number_of_guests}</span>
+                        <span className="label-text-alt text-red-500">{errors.number_of_guests}</span>
                       </label>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Time Duration (hours) </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Time Duration (hours)</span>
                     </label>
                     <input
                       type="number"
                       name="time_duration"
                       placeholder="e.g., 2"
-                      className={`input input-bordered w-full ${errors.time_duration ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.time_duration ? 'input-error' : ''}`}
                       value={formData.time_duration}
                       onChange={handleInputChange}
                       min="1"
@@ -180,18 +179,18 @@ const SDConventionHallBookingForm = () => {
                     />
                     {errors.time_duration && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.time_duration}</span>
+                        <span className="label-text-alt text-red-500">{errors.time_duration}</span>
                       </label>
                     )}
                   </div>
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Date </span>
+                    <label className="label text-teal-700">
+                      <span className="label-text font-medium">Date</span>
                     </label>
                     <input
                       type="date"
                       name="date"
-                      className={`input input-bordered w-full ${errors.date ? 'input-error' : ''}`}
+                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.date ? 'input-error' : ''}`}
                       value={formData.date}
                       onChange={handleInputChange}
                       disabled={loading}
@@ -199,19 +198,19 @@ const SDConventionHallBookingForm = () => {
                     />
                     {errors.date && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.date}</span>
+                        <span className="label-text-alt text-red-500">{errors.date}</span>
                       </label>
                     )}
                   </div>
                 </div>
 
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Purpose</span>
+                  <label className="label text-teal-700">
+                    <span className="label-text font-medium">Purpose</span>
                   </label>
                   <textarea
                     name="purpose"
-                    className={`textarea textarea-bordered h-24 ${errors.purpose ? 'textarea-error' : ''}`}
+                    className={`textarea textarea-bordered h-32 w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.purpose ? 'textarea-error' : ''}`}
                     placeholder="Enter the purpose of the booking (e.g., event, meeting)"
                     value={formData.purpose}
                     onChange={handleInputChange}
@@ -219,17 +218,17 @@ const SDConventionHallBookingForm = () => {
                   />
                   {errors.purpose && (
                     <label className="label">
-                      <span className="label-text-alt text-error">{errors.purpose}</span>
+                      <span className="label-text-alt text-red-500">{errors.purpose}</span>
                     </label>
                   )}
                 </div>
 
                 {/* Form Actions */}
-                <div className="card-actions justify-end gap-4">
-                  <Link to="/convention-hall-home" className="btn btn-ghost">
+                <div className="card-actions justify-end gap-4 mt-6">
+                  <Link to="/convention-hall-home" className="btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all">
                     Cancel
                   </Link>
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                  <button type="submit" className="btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all transform hover:scale-105" disabled={loading}>
                     {loading ? (
                       <>
                         <span className="loading loading-spinner"></span>
@@ -252,11 +251,11 @@ const SDConventionHallBookingForm = () => {
 // Simple fade-in animation
 const styles = `
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .animate-fade-in {
-    animation: fadeIn 1s ease-in;
+    animation: fadeIn 1s ease-out;
   }
 `;
 const styleSheet = document.createElement('style');

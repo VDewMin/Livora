@@ -10,7 +10,7 @@ const SDLaundryRequestForm = () => {
     weight: '',
     service_type: 'silver',
     time_duration: '',
-    total_cost: 0, // Initialize with 0 to avoid undefined
+    total_cost: 0, // Still used for display, but not sent
   });
   const navigate = useNavigate();
 
@@ -33,21 +33,33 @@ const SDLaundryRequestForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.weight || !formData.time_duration) {
-      toast.error('Please fill all required fields');
+    // Validate all required fields
+    if (!formData.resident_name.trim() || !formData.resident_id.trim() || !formData.weight || !formData.time_duration) {
+      toast.error('Please fill all required fields (Name, ID, Weight, Duration)');
       return;
     }
+
     try {
-      const response = await axiosInstance.post('/laundry', {
-        ...formData,
+      console.log('Submitting data:', {
+        resident_name: formData.resident_name,
+        resident_id: formData.resident_id,
         weight: Number(formData.weight),
+        service_type: formData.service_type,
         time_duration: Number(formData.time_duration),
-        total_cost: calculateCost(Number(formData.weight), formData.service_type),
+      }); // Log data for debugging
+      const response = await axiosInstance.post('/laundry', {
+        resident_name: formData.resident_name,
+        resident_id: formData.resident_id,
+        weight: Number(formData.weight),
+        service_type: formData.service_type,
+        time_duration: Number(formData.time_duration),
+        // Omit total_cost, let server calculate if needed
       });
       toast.success('Request submitted successfully!');
-      navigate(`/laundry/details/${response.data.schedule_id}`);
+      navigate(`/laundry/details/${response.data.schedule_id}`); // Use relative path
     } catch (error) {
-      toast.error('Failed to submit request');
+      console.error('Error submitting request:', error.response?.data || error.message);
+      toast.error(`Failed to submit request: ${error.response?.data?.message || 'Unknown error'}`);
     }
   };
 
@@ -116,7 +128,7 @@ const SDLaundryRequestForm = () => {
             />
           </div>
           <div>
-            <p className="text-lg"><strong>Total Cost (LKR):</strong> {formData.total_cost?.toLocaleString() || '0'}</p> {/* Add nullish coalescing */}
+            <p className="text-lg"><strong>Total Cost (LKR):</strong> {formData.total_cost?.toLocaleString() || '0'}</p>
           </div>
           <button type="submit" className="btn btn-primary w-full">
             Submit Request

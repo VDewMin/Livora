@@ -10,7 +10,7 @@ const SDLaundryStaffView = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axiosInstance.get('/api/laundry');
+        const response = await axiosInstance.get('/laundry');
         setRequests(response.data);
       } catch (error) {
         toast.error('Failed to load requests');
@@ -24,7 +24,7 @@ const SDLaundryStaffView = () => {
   const handleUpdateStatus = async (id, status) => {
     if (status === 'completed' && !window.confirm('Mark as completed?')) return;
     try {
-      const updatedRequest = await axiosInstance.put(`/api/laundry/${id}`, { status });
+      const updatedRequest = await axiosInstance.put(`/laundry/${id}`, { status });
       setRequests((prev) =>
         prev.map((req) => (req._id === id ? updatedRequest.data : req))
       );
