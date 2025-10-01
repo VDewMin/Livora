@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../lib/axios";
 import { PenSquareIcon, Trash2Icon, Camera, Edit, Check, User, Mail, Phone, Shield, Home, Users } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/vd_AuthContext";
 
 const UserProfile = () => {
     const { userId } = useParams();
     const [user, setUser] = useState(null);
+    const { user: authUser, setUser: setAuthUser, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState({
         firstName: false,
         lastName: false,
@@ -137,12 +139,54 @@ const UserProfile = () => {
                     <div className="flex items-start space-x-6 mb-8">
                         <div className="relative">
                             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                {user.profilePicture ? (
+                                
+                                <img
+                                    src={`${axiosInstance.defaults.baseURL}/users/${user.userId}/profile-picture?updated=${user.updatedAt || Date.now()}`}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+
+                                ) : (
                                 <User className="w-10 h-10 text-gray-400" />
+                                )}
                             </div>
-                            <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <label htmlFor="profileUpload" className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 cursor-pointer">
                                 <Camera className="w-4 h-4 text-white" />
-                            </button>
+                            </label>
+                            <input
+                                id="profileUpload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                const formData = new FormData();
+                                formData.append("profilePicture", e.target.files[0]);
+                                try {
+                                    const res = await axiosInstance.put(`/users/${user.userId}/profile-picture`, formData, {
+                                    headers: { "Content-Type": "multipart/form-data" },
+                                    });
+                                    setUser(res.data);
+
+                                    // Update Auth context if current user updated their own profile
+                                    if (
+                                        (authUser?._id && authUser?._id === res.data?._id) ||
+                                        (authUser?.userId && authUser?.userId === res.data?.userId) ||
+                                        (authUser?.email && authUser?.email === res.data?.email)
+                                    ) {
+                                        // Use updateUser to stamp updatedAt for cache-busting in header
+                                        updateUser(res.data);
+                                    }
+
+                                    toast.success("Profile picture updated");
+                                } catch (err) {
+                                    console.error("Upload failed", err);
+                                    toast.error("Failed to update profile picture");
+                                }
+                                }}
+                            />
                         </div>
+
                         <div className="flex-1">
                             <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                                 {user.firstName} {user.lastName}

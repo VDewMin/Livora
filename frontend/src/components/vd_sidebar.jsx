@@ -14,7 +14,7 @@ import {
   PackageCheck
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from 'react';
 
 const roleRoutes = {
@@ -45,6 +45,7 @@ const roleRoutes = {
 const Sidebar = ({ activeItem, onItemClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -113,14 +114,14 @@ const Sidebar = ({ activeItem, onItemClick }) => {
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {allowedMenuItems.map((item) => {
           const Icon = item.icon;
-          
+          const route = roleRoutes[effectiveRole]?.[item.id] || null;
           // Other tabs use onItemClick
           return (
             <button
               key={item.id}
               onClick={() => handleMenuClick(item)}
               className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                activeItem === item.id
+                route && location.pathname === route
                   ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
@@ -139,7 +140,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
                     <ChevronRight className="ml-auto h-4 w-4" />
             </div>
             <div className="ml-6 space-y-1">
-              {settingsSubmenu.map((item) => (
+              {settingsSubmenu.map((item) => {
+                const route = item.route ? item.route(user) : null;
+              return( 
               <button
                 key={item.id}
                 onClick={() => {
@@ -150,14 +153,15 @@ const Sidebar = ({ activeItem, onItemClick }) => {
                   }
                 }}
                 className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  activeItem === item.id
+                  route && location.pathname === route
                     ? "bg-blue-50 text-blue-600 font-medium"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 {item.label}
               </button>
-              ))}
+              );
+              })}
             </div>
 
         </div>

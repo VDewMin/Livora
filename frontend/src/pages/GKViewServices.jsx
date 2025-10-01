@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaFilePdf } from "react-icons/fa";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function GKViewServices() {
   const navigate = useNavigate();
@@ -44,7 +46,6 @@ function GKViewServices() {
   // Convert file buffer to base64
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
-
     try {
       const base64String = btoa(
         new Uint8Array(fileUrl.data.data).reduce(
@@ -59,8 +60,46 @@ function GKViewServices() {
     }
   };
 
+  // Generate PDF with table + image
+  const handleDownloadPDF = (service) => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(16);
+    doc.text("Service Request Details", 14, 20);
+
+    // Table data
+    const tableData = [
+      ["Apartment No", service.aptNo],
+      ["Service ID", service.serviceId],
+      ["Contact No", service.contactNo],
+      ["Contact Email", service.contactEmail],
+      ["Service Type", service.serviceType],
+      ["Description", service.description],
+      ["Status", service.status],
+      ["Created At", service.createdAt ? new Date(service.createdAt).toLocaleString() : "N/A"],
+    ];
+
+    autoTable(doc, {
+      head: [["Field", "Value"]],
+      body: tableData,
+      startY: 30,
+      theme: "grid",
+    });
+
+    // Add image if available
+    const fileSrc = getFileSrc(service.fileUrl);
+    if (fileSrc && service.fileUrl.contentType.startsWith("image/")) {
+      const finalY = doc.lastAutoTable.finalY + 10; // Place image below table
+      doc.addImage(fileSrc, "JPEG", 14, finalY, 80, 60); // (x, y, width, height)
+    }
+
+    // Save file
+    doc.save(`service-${service._id}.pdf`);
+  };
+
   return (
-    <div className="p-6 max-w-10xl mx-auto font-poppins">
+    <div className="p-6 max-w-8xl mx-auto font-poppins">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">My Service Requests</h1>
@@ -107,22 +146,11 @@ function GKViewServices() {
                     <td className="p-3 border w-5xl">{s.description}</td>
                     <td className="p-3 border">
                       {fileSrc ? (
-                        s.fileUrl.contentType.startsWith("image/") ? (
-                          <img
-                            src={fileSrc}
-                            alt="Uploaded"
-                            className="w-32 h-20 object-cover rounded-md"
-                          />
-                        ) : (
-                          <a
-                            href={fileSrc}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 underline"
-                          >
-                            View File
-                          </a>
-                        )
+                        <img
+                          src={fileSrc}
+                          alt="Uploaded"
+                          className="w-32 h-20 object-cover rounded-md"
+                        />
                       ) : (
                         "No file"
                       )}
@@ -136,7 +164,7 @@ function GKViewServices() {
                           ? "text-yellow-600"
                           : s.status === "Processing"
                           ? "text-green-600"
-                          : "text-green-800" 
+                          : "text-green-800"
                       }`}
                     >
                       {s.status || "Pending"}
@@ -153,6 +181,12 @@ function GKViewServices() {
                         className="text-red-600 hover:text-red-800 p-2"
                       >
                         <FaTrash size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDownloadPDF(s)}
+                        className="text-green-600 hover:text-green-800 p-2"
+                      >
+                        <FaFilePdf size={18} />
                       </button>
                     </td>
                   </tr>
