@@ -2,11 +2,17 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export default function ResidentTable() {
+export default function ResidentTable({ residents: propResidents }) {
   const [residents, setResidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All"); // ✅ Dropdown state
 
   useEffect(() => {
+    if (propResidents) {
+      setResidents(propResidents);
+      return;
+    }
+
     const fetchResidents = async () => {
       try {
         const res = await axios.get(
@@ -21,28 +27,46 @@ export default function ResidentTable() {
     };
 
     fetchResidents();
-  }, []);
+  }, [propResidents]);
 
-  // ✅ Safe filter using correct fields
+  // ✅ Filter by search + dropdown status
   const filteredResidents = residents.filter((r) => {
     const name = (r.residentName ?? "").toLowerCase();
     const unit = (r.apartmentNo ?? "").toLowerCase();
-    return (
+    const matchesSearch =
       name.includes(searchTerm.toLowerCase()) ||
-      unit.includes(searchTerm.toLowerCase())
-    );
+      unit.includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "All" ||
+      r.status?.toLowerCase() === statusFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="p-4">
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search by name or unit..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="border border-gray-300 rounded px-3 py-1 mb-4 w-full"
-      />
+      {/* Search + Dropdown Filter */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
+        <input
+          type="text"
+          placeholder="Search by name or unit..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-1 md:w-1/3"
+        />
+
+        {/* Dropdown Filter */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-1 w-40"
+        >
+          <option value="All">All</option>
+          <option value="Paid">Paid</option>
+          <option value="Unpaid">Unpaid</option>
+        </select>
+      </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
