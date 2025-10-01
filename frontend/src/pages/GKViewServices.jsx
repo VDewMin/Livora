@@ -82,7 +82,7 @@ function GKViewServices() {
   };
 
   return (
-    <div className="p-6 max-w-8xl mx-auto font-poppins">
+    <div className="max-w-full p-4 bg-white rounded-2xl shadow-md font-sans-serif">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">My Service Requests</h1>
@@ -101,7 +101,7 @@ function GKViewServices() {
         <p className="text-gray-600">No service requests found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow">
+          <table className="max-w-full border border-gray-200 bg-white rounded-lg shadow">
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-3 border text-left">Apartment</th>
@@ -111,7 +111,6 @@ function GKViewServices() {
                 <th className="p-3 border text-left">Service Type</th>
                 <th className="p-3 border text-left">Description</th>
                 <th className="p-3 border text-left">Attachment</th>
-                <th className="p-3 border text-left">Created At</th>
                 <th className="p-3 border text-left">Status</th>
                 <th className="p-3 border text-left">Actions</th>
               </tr>
@@ -149,9 +148,6 @@ function GKViewServices() {
                         "No file"
                       )}
                     </td>
-                    <td className="p-3 border text-sm text-gray-600">
-                      {s.createdAt ? new Date(s.createdAt).toLocaleString() : "N/A"}
-                    </td>
                     <td
                       className={`p-3 border ${
                         s.status === "Pending"
@@ -163,27 +159,30 @@ function GKViewServices() {
                     >
                       {s.status || "Pending"}
                     </td>
-                    <td className="p-3 border flex gap-2">
+                    <td className="p-3 border flex flex-col gap-2">
+                    {s.status === "Pending" && (
                       <button
                         onClick={() => navigate(`/update-service/${s._id}`)}
-                        className="text-blue-600 hover:text-blue-800 p-2"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 p-2"
                       >
-                        <FaEdit size={18} />
+                        <FaEdit size={18} /> Edit
                       </button>
+                    )}
+                    {s.status === "Pending" && (
                       <button
                         onClick={() => navigate(`/delete-service/${s._id}`)}
-                        className="text-red-600 hover:text-red-800 p-2"
+                        className="flex items-center gap-2 text-red-600 hover:text-red-800 p-2"
                       >
-                        <FaTrash size={18} />
+                        <FaTrash size={18} /> Delete
                       </button>
-                      <button
-                        onClick={() => handleDownloadPDF(s)}
-                        className="text-green-600 hover:text-green-800 p-2"
-                      >
-                        <FaFilePdf size={18} />
-                      </button>
-
-                    </td>
+                    )}
+                    <button
+                      onClick={() => handleDownloadPDF(s)}
+                      className="flex items-center gap-2 text-green-600 hover:text-green-800 p-2"
+                    >
+                      <FaFilePdf size={18} /> Download PDF
+                    </button>
+                  </td>
                   </tr>
                 );
               })}
