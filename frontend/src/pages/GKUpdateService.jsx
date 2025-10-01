@@ -22,7 +22,6 @@ function GKUpdateService() {
   // Convert file buffer to base64
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
-
     try {
       const base64String = btoa(
         new Uint8Array(fileUrl.data.data).reduce(
@@ -95,9 +94,19 @@ function GKUpdateService() {
     }
 
     if (name === "fileUrl") {
-      const selectedFile = files[0];
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
+      if (files && files[0]) {
+        const selectedFile = files[0];
+        // ✅ Only allow PNG images
+        if (selectedFile.type !== "image/png") {
+          toast.error("Only PNG images are allowed!");
+          e.target.value = null;
+          setFile(null);
+          setPreview(null);
+          return;
+        }
+        setFile(selectedFile);
+        setPreview(URL.createObjectURL(selectedFile));
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -186,7 +195,7 @@ function GKUpdateService() {
           type="text"
           name="contactEmail"
           value={formData.contactEmail}
-          onChange={handleChange}
+          readOnly
           className="w-full border px-3 py-2 rounded bg-gray-100"
         />
         {errors.contactEmail && <p className="text-red-600 text-sm">{errors.contactEmail}</p>}
@@ -217,7 +226,7 @@ function GKUpdateService() {
 
         {/* File Upload */}
         <div>
-          <label className="block font-semibold mb-1">Upload Image or Video</label>
+          <label className="block font-semibold mb-1">Upload PNG Image</label>
           <input
             type="file"
             name="fileUrl"
@@ -229,14 +238,7 @@ function GKUpdateService() {
         {/* Preview */}
         {preview && (
           <div className="mt-4">
-            {file?.type?.startsWith("video") ? (
-              <video controls width="100%">
-                <source src={preview} type={file?.type} />
-                Your browser does not support video.
-              </video>
-            ) : (
-              <img src={preview} alt="Preview" className="rounded-lg border" />
-            )}
+            <img src={preview} alt="Preview" className="rounded-lg border" />
           </div>
         )}
 
