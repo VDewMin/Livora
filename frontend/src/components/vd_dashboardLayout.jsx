@@ -20,7 +20,7 @@ const DashboardLayout = () => {
           isSidebarOpen ? "w-64" : "w-0"
         } flex-shrink-0`}
       >
-        <Sidebar activeItem={activeItem} onItemClick={handleItemClick} />
+        <Sidebar activeItem={activeItem} onItemClick={handleItemClick} /> 
       </div>
 
       {/* Main Content */}
