@@ -24,10 +24,11 @@ function GKServiceRequest() {
     setFormData((prev) => ({
       ...prev,
       aptNo: storedUser.apartmentNo || "",
+      contactNo: storedUser.phoneNo || "",
       contactEmail: storedUser.email || "",
     }));
 
-    if (!storedUser.apartmentNo || !storedUser.email) {
+    if (!storedUser.apartmentNo || !storedUser.email || !storedUser.phoneNo) {
       console.warn("Missing user details in localStorage");
     }
   }, []);
@@ -130,8 +131,7 @@ function GKServiceRequest() {
             name="contactNo"
             value={formData.contactNo}
             onChange={handleChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100"
           />
         </div>
 
