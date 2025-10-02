@@ -11,7 +11,8 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
-  PackageCheck,
+  ScanLine,
+  PackagePlus,
   Building2,
   Users,
 } from 'lucide-react';
@@ -75,8 +76,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
   { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
-  { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
-  { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
+  { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
 
 ];

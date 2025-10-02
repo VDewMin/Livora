@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Home,
@@ -11,9 +11,12 @@ import {
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import api from "../lib/axios.js";
-import Sidebar from "../components/vd_sidebar.jsx"; // import your sidebar
+import Sidebar from "../components/vd_sidebar.jsx"; 
+import { useAuth } from "../context/vd_AuthContext";
+import {getLocalDateTimeString} from "../lib/utils.js"
 
 const KsAddParcel = () => {
+  const { user } = useAuth(); 
   const [residentName, setResidentName] = useState("");
   const [apartmentNo, setApartmentNo] = useState("");
   const [parcelType, setParcelType] = useState("Normal");
@@ -22,8 +25,9 @@ const KsAddParcel = () => {
   const [locId, setLocId] = useState("");
   const [status, setStatus] = useState("Pending");
   const [arrivalDateTime, setArrivalDateTime] = useState(() => {
-    const now = new Date();
-    return now.toISOString().slice(0, 16);
+    //const now = new Date();
+    //return now.toISOString().slice(0, 16);
+    return getLocalDateTimeString();
   });
   const [receivedByStaff, setReceivedByStaff] = useState("");
   const [collectedDateTime, setCollectedDateTime] = useState("");
@@ -31,6 +35,14 @@ const KsAddParcel = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.firstName && user?.lastName) {
+      setReceivedByStaff(`${user.firstName} ${user.lastName}`);
+    } else if (user?.name) {
+      setReceivedByStaff(user.name);
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
       e.preventDefault();
@@ -62,9 +74,7 @@ const KsAddParcel = () => {
   return (
     <div className="flex h-screen">
       
-      <div className="w-64 bg-white shadow-lg">
-        
-      </div>
+      
 
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50 p-8">
@@ -272,9 +282,10 @@ const KsAddParcel = () => {
                   <input
                     type="text"
                     value={receivedByStaff}
-                    onChange={(e) => setReceivedByStaff(e.target.value)}
+                   // onChange={(e) => setReceivedByStaff(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Staff member name"
+                   // placeholder="Staff member name"
+                   readOnly
                   />
                 </div>
               </div>
