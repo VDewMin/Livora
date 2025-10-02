@@ -81,7 +81,8 @@ const SDpurchaseDetails = () => {
             try {
                 const response = await axiosInstance.get(`/purchases/${id}`);
                 const fetchedPurchase = response.data;
-                setPurchase(fetchedPurchase);
+                // Assuming apartmentNo exists; if not, use room_id as fallback
+                setPurchase({ ...fetchedPurchase, apartmentNo: fetchedPurchase.apartmentNo || fetchedPurchase.room_id });
                 setIsEditable(['rent', 'lease'].includes(fetchedPurchase.room_type));
                 if (fetchedPurchase.room_type === 'rent') {
                     setLeaseStatus(calculateLeaseMetrics(fetchedPurchase));
@@ -119,7 +120,7 @@ const SDpurchaseDetails = () => {
             return;
         }
 
-        if (!purchase.buyer_Name?.trim() || !purchase.buyer_Email?.trim() || !purchase.room_id?.trim()) {
+        if (!purchase.buyer_Name?.trim() || !purchase.buyer_Email?.trim() || !purchase.apartmentNo?.trim()) {
             toast.error("Required fields cannot be empty");
             return;
         }
@@ -143,7 +144,7 @@ const SDpurchaseDetails = () => {
                 buyer_id: purchase.buyer_id,
                 buyer_Email: purchase.buyer_Email,
                 buyer_Phone: purchase.buyer_Phone,
-                room_id: purchase.room_id,
+                apartmentNo: purchase.apartmentNo, // Updated from room_id
                 room_type: purchase.room_type,
                 price: priceNum,
                 purchase_date: purchase.purchase_date,
@@ -285,7 +286,7 @@ const SDpurchaseDetails = () => {
                                     <button 
                                         onClick={handleSave} 
                                         disabled={saving}
-                                        className='btn btn-primary btn-sm bg-teal-600 text-white hover:bg-teal-700'
+                                        className='btn btn-primary btn-sm bg-teal-600 text-white hover:bg-teal-700 px-3 py-4 rounded-full flex items-center'
                                     >
                                         {saving ? (
                                             <>
@@ -301,7 +302,7 @@ const SDpurchaseDetails = () => {
                                     </button>
                                 ) : (
                                     <div className='tooltip' data-tip="Only rental agreements can be edited">
-                                        <button className='btn btn-primary btn-sm btn-disabled bg-gray-300 text-gray-600 cursor-not-allowed'>
+                                        <button className='btn btn-primary btn-sm btn-disabled bg-gray-300 text-gray-600 cursor-not-allowed px-3 py-4 rounded-full flex items-center'>
                                             <LockIcon className='h-4 w-4 mr-2'/>
                                             Edit Locked
                                         </button>
@@ -310,7 +311,7 @@ const SDpurchaseDetails = () => {
                                 
                                 <button 
                                     onClick={handleDelete} 
-                                    className='btn btn-error btn-sm bg-red-600 text-white hover:bg-red-700'
+                                    className='btn btn-error btn-sm bg-red-600 text-white hover:bg-red-700 px-3 py-4 rounded-full flex items-center'
                                     disabled={saving}
                                 >
                                     <Trash2Icon className='h-4 w-4 mr-2'/>
@@ -487,11 +488,21 @@ const SDpurchaseDetails = () => {
                                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                             <div className='space-y-2'>
                                                 <label className='label text-teal-700'>
-                                                    <span className='label-text'>Room ID</span>
+                                                    <span className='label-text'>Apartment No</span> {/* Updated from Room ID */}
                                                 </label>
-                                                <div className='p-3 bg-teal-50 rounded-lg shadow-sm'>
-                                                    <span className='font-bold text-teal-800'>{purchase.room_id}</span>
-                                                </div>
+                                                {isEditable ? (
+                                                    <input
+                                                        type='text'
+                                                        className='input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
+                                                        value={purchase.apartmentNo || ''} 
+                                                        onChange={(e) => handleInputChange('apartmentNo', e.target.value)} 
+                                                        disabled={saving}
+                                                    />
+                                                ) : (
+                                                    <div className='p-3 bg-teal-50 rounded-lg shadow-sm'>
+                                                        <span className='font-bold text-teal-800'>{purchase.apartmentNo || 'N/A'}</span> {/* Updated from room_id */}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className='space-y-2'>
@@ -690,7 +701,7 @@ const SDpurchaseDetails = () => {
                         <div className='flex gap-3'>
                             <button 
                                 onClick={handleDelete} 
-                                className='btn btn-error btn-lg bg-red-600 text-white hover:bg-red-700'
+                                className='btn btn-error btn-lg bg-red-600 text-white hover:bg-red-700 px-3 py-4 rounded-full flex items-center'
                                 disabled={saving}
                             >
                                 <Trash2Icon className='h-5 w-5 mr-2'/>
@@ -700,7 +711,7 @@ const SDpurchaseDetails = () => {
                                 <button 
                                     onClick={handleSave} 
                                     disabled={saving}
-                                    className='btn btn-primary btn-lg bg-teal-600 text-white hover:bg-teal-700'
+                                    className='btn btn-primary btn-lg bg-teal-600 text-white hover:bg-teal-700 px-3 py-4 rounded-full flex items-center'
                                 >
                                     {saving ? (
                                         <>

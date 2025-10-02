@@ -32,7 +32,31 @@ const SDpurchasesList = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Purchase Records</h1>
+                 <h1 className="text-3xl font-bold">Purchase Records</h1>
+                {/* Small Navbar */}
+                        <nav className="bg-teal-700 text-white p-2 mb-6 rounded-lg shadow-md">
+                          <ul className="flex justify-around">
+                            <li>
+                              <Link
+                                to="/purchases"
+                                className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+                              >
+                                Purchase Apartment Details
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                to="/notes" // Assuming this is the current page or laundry section
+                                className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+                                style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} // Active state highlight
+                              >
+                                Buyer Appoinments 
+                              </Link>
+                            </li>
+                          </ul>
+                        </nav>
+
+               
                 <Link to="/purchases/create" className="btn btn-primary">
                     Create New Purchase
                 </Link>

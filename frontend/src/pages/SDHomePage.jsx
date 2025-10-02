@@ -40,6 +40,28 @@ const SDHomePage = () => {
       <Navbar />
 
       {/* Hero Section */}
+       {/* Small Navbar */}
+                              <nav className="bg-teal-700 text-white p-2 mb-6 rounded-lg shadow-md">
+                                <ul className="flex justify-around">
+                                  <li>
+                                    <Link
+                                      to="/purchases"
+                                      className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+                                    >
+                                      Purchase Apartment Details
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/notes" // Assuming this is the current page or laundry section
+                                      className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+                                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} // Active state highlight
+                                    >
+                                      Buyer Appoinments 
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </nav>
       
 
       <div className="max-w-7xl mx-auto p-4 mt-6">
