@@ -71,13 +71,13 @@ function AdminServiceRequests() {
   };
 
   return (
-    <div className="max-w-8xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md font-sans-serif">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="max-w-8xl mx-auto p-6 bg-white rounded-2xl shadow-md font-sans-serif">
+      <h2 className="text-2xl font-bold mb-6 text-center ">
         📋 All Service Requests
       </h2>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300">
+      <div className="overflow-x-auto ">
+        <table className="w-full border border-gray-300 ">
           <thead>
             <tr className="bg-gray-100">
               <th className="p-2 border">Apt No</th>

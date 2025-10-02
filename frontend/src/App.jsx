@@ -121,7 +121,7 @@ const App = () =>{
                 
 
                
-                <Route path="/admin-view" element={<GKAdminViewServices />} />
+                {/*<Route path="/admin-view" element={<GKAdminViewServices />} /> */}
                 
                 
                 
