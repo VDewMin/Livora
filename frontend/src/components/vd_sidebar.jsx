@@ -29,6 +29,7 @@ const roleRoutes = {
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
     "resident-management": "admin/residentlist"
+    
   },
   Resident: {
     dashboard: "/resident/dashboard",

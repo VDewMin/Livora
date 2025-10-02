@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const UserDashboard = () => {
+const ResidentDashboard = () => {
   const [stats, setStats] = useState({
     totalBookings: 12,
     activeServices: 3,
@@ -225,4 +225,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default ResidentDashboard;
