@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import technicians from "../components/GKTechnician"; //Import technician data
+import technicians from "../components/GKTechnician"; // Import technician data
 
 function AdminServiceRequests() {
   const [requests, setRequests] = useState([]);
@@ -72,14 +72,16 @@ function AdminServiceRequests() {
 
   return (
     <div className="max-w-8xl mx-auto p-6 bg-white rounded-2xl shadow-md font-sans-serif">
-      <h2 className="text-2xl font-bold mb-6 text-center ">
+      {/* Fixed Page Header */}
+      <h2 className="text-2xl font-bold mb-6 sticky top-0 bg-white z-20 shadow-sm p-2">
         📋 All Service Requests
       </h2>
 
-      <div className="overflow-x-auto ">
-        <table className="w-full border border-gray-300 ">
-          <thead>
-            <tr className="bg-gray-100">
+      {/* Scrollable Table with Sticky Header */}
+      <div className="overflow-x-auto max-h-[70vh]">
+        <table className="w-full border border-gray-300">
+          <thead className="sticky top-0 bg-gray-100 z-10">
+            <tr>
               <th className="p-2 border">Apt No</th>
               <th className="p-2 border">Contact No</th>
               <th className="p-2 border">Email</th>
@@ -111,23 +113,14 @@ function AdminServiceRequests() {
                     <td className="p-2 border">{req.description || "-"}</td>
 
                     {/* File column */}
-                    <td className="p-3 border">
-                      {fileSrc && req.fileUrl.contentType.startsWith("image/") ? (
-                        <img
-                          src={fileSrc}
-                          alt="Uploaded"
-                          className="w-32 h-20 object-cover rounded-md cursor-pointer hover:opacity-80"
+                    <td className="p-3 border text-center">
+                      {fileSrc ? (
+                        <button
                           onClick={() => setPreviewImage(fileSrc)}
-                        />
-                      ) : fileSrc ? (
-                        <a
-                          href={fileSrc}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 underline"
+                          className="text-blue-600 hover:text-blue-800"
                         >
-                          View File
-                        </a>
+                          View
+                        </button>
                       ) : (
                         "No file"
                       )}
@@ -163,7 +156,7 @@ function AdminServiceRequests() {
                     <td className="p-2 border">
                       {req.status === "Pending" ? (
                         <div className="flex flex-col gap-2">
-                          {/* Searchable Dropdown */}
+                          {/* Dropdown */}
                           <select
                             value={techInputs[req._id] || ""}
                             onChange={(e) =>

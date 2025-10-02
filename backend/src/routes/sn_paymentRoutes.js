@@ -27,7 +27,7 @@ router.post("/verify-offline", vertifyOfflinePayment);
 
 router.post("/reject-offline", rejectOfflinePayment);
 
-router.get("/charges/:id", getResidentMonthlyCharges);
+router.get("/resident/:id/charges", getResidentMonthlyCharges);
 
 router.get("/resident-status", getAllResidentsMonthlyCharges);
 

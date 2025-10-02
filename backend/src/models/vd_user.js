@@ -9,6 +9,15 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phoneNo: { type: String, required: true, unique: true },
+  secondaryPhoneNo: { type: String },   // NEW
+  recoveryEmail: { type: String },      // NEW
+  dateOfBirth: { type: Date },          // NEW
+  emergencyContactName: { type: String },     // NEW
+  emergencyContactNumber: { type: String },   // NEW
+  familyMembers: { type: Number },       // NEW
+  medicalConditions: { type: String },        // NEW
+  job: { type: String },                      // NEW
+
   password: { type: String, required: true },
   role: { type: String, enum: ["Admin", "Resident", "Staff"], default: "Resident" },
 
@@ -30,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
 
   resetPasswordToken: { type: String, default: null },
-  resetPasswordExpires: { type: Date, default: null},
+  resetPasswordExpires: { type: Date, default: null },
   
   passwordChangedAt: { type: Date },
 
@@ -41,6 +50,7 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+// Auto-generate userId with prefix based on role
 userSchema.pre("save", async function (next) {
   try {
     if (!this.userId) {
@@ -50,7 +60,6 @@ userSchema.pre("save", async function (next) {
       else if (this.role === "Admin") prefix = "A";
       else prefix = "U"; // fallback
 
-      // find or create counter for this role
       let counter = await Counter.findOne({ name: prefix });
       if (!counter) {
         counter = await Counter.create({ name: prefix, seq: 0 });
@@ -67,7 +76,6 @@ userSchema.pre("save", async function (next) {
     next(err);
   }
 });
-
 
 const User = mongoose.model("User", userSchema);
 export default User;

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export default function ResidentTable({ residents: propResidents }) {
   const [residents, setResidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All"); // ✅ Dropdown state
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     if (propResidents) {
@@ -19,17 +19,53 @@ export default function ResidentTable({ residents: propResidents }) {
           "http://localhost:5001/api/payments/residents/current-month-charges"
         );
         console.log("Residents data:", res.data);
-        setResidents(res.data || []);
+
+        // ✅ Use backend data if available
+        if (res.data && res.data.length > 0) {
+          setResidents(res.data);
+        } else {
+          // ✅ Backend returned empty → fallback
+          toast("No data found, showing defaults");
+          setResidents([
+            {
+              residentName: "Default Rent",
+              apartmentNo: "N/A",
+              monthlyPayment: 1000,
+              status: "Unpaid",
+            },
+            {
+              residentName: "Default Laundry",
+              apartmentNo: "N/A",
+              monthlyPayment: 100,
+              status: "Unpaid",
+            },
+          ]);
+        }
       } catch (error) {
         console.error("Error fetching residents:", error);
-        toast.error("Failed to load residents data");
+        toast.error("Failed to load residents data. Showing defaults.");
+        // ✅ Backend failed → fallback
+        setResidents([
+          {
+            residentName: "Default Rent",
+            apartmentNo: "N/A",
+            monthlyPayment: 1000,
+            status: "Unpaid",
+          },
+          {
+            residentName: "Default Laundry",
+            apartmentNo: "N/A",
+            monthlyPayment: 100,
+            status: "Unpaid",
+          },
+        ]);
       }
     };
 
     fetchResidents();
   }, [propResidents]);
 
-  // ✅ Filter by search + dropdown status
+  // ✅ Apply filters
   const filteredResidents = residents.filter((r) => {
     const name = (r.residentName ?? "").toLowerCase();
     const unit = (r.apartmentNo ?? "").toLowerCase();
@@ -46,7 +82,7 @@ export default function ResidentTable({ residents: propResidents }) {
 
   return (
     <div className="p-4">
-      {/* Search + Dropdown Filter */}
+      {/* Search + Dropdown */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
         <input
           type="text"
@@ -55,8 +91,6 @@ export default function ResidentTable({ residents: propResidents }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border border-gray-300 rounded px-3 py-1 md:w-1/3"
         />
-
-        {/* Dropdown Filter */}
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -93,7 +127,7 @@ export default function ResidentTable({ residents: propResidents }) {
                     {r.monthlyPayment ?? 0}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {r.status}
+                    {r.status || "N/A"}
                   </td>
                 </tr>
               ))
