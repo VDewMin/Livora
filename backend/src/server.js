@@ -4,6 +4,7 @@ import cors from "cors";
 import sn_paymentRoutes from "./routes/sn_paymentRoutes.js";
 import sn_expenseRoutes from "./routes/sn_expenseRoutes.js"
 import usersRoutes from "./routes/vd_usersRoutes.js";
+import adminRoutes from "./routes/vd_adminRoutes.js";
 import parcelRoutes from "./routes/ks_parcelRoutes.js"
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import announcementRoutes from "./routes/GKAnnouncementRouter.js";
@@ -33,6 +34,7 @@ app.use(
 app.use(express.json());  
 
 app.use("/api/users", usersRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/parcels", parcelRoutes);
 app.use("/api/payments", sn_paymentRoutes)
 app.use("/api/expenses", sn_expenseRoutes)
