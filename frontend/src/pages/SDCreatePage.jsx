@@ -31,7 +31,7 @@ const SDCreatePage = () => {
       });
 
       toast.success("Note created successfully");
-      navigate("/notes");
+      navigate("/landing");
     } catch (error) {
       console.log("Error creating note:", error);
       toast.error("Something went wrong");

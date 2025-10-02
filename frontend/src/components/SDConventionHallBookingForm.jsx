@@ -224,21 +224,25 @@ const SDConventionHallBookingForm = () => {
                 </div>
 
                 {/* Form Actions */}
-                <div className="card-actions justify-end gap-4 mt-6">
-                  <Link to="/convention-hall-home" className="btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all">
-                    Cancel
-                  </Link>
-                  <button type="submit" className="btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all transform hover:scale-105" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <span className="loading loading-spinner"></span>
-                        Creating Booking...
-                      </>
-                    ) : (
-                      'Book Hall'
-                    )}
-                  </button>
-                </div>
+                <div className="card-actions flex justify-end gap-10 mt-6">
+  <Link to="/convention-hall-home" className="btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all px-2 py-3 rounded-full flex items-center">
+    Cancel
+  </Link>
+  <button
+    type="submit"
+    className="btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all hover:scale-75 border-0 px-4 py-3 rounded-full flex items-center"
+    disabled={loading}
+  >
+    {loading ? (
+      <>
+        <span className="loading loading-spinner"></span>
+        Creating Booking...
+      </>
+    ) : (
+      'Book Hall'
+    )}
+  </button>
+</div>
               </form>
             </div>
           </div>
