@@ -62,6 +62,7 @@ import SDLandingPage from "./pages/SDLandingPage.jsx";
 import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
+import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
 const App = () =>{
     return(
         <div className="p-4">
@@ -150,7 +151,7 @@ const App = () =>{
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-
+                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
 
 
  

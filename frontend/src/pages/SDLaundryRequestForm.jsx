@@ -56,7 +56,7 @@ const SDLaundryRequestForm = () => {
         // Omit total_cost, let server calculate if needed
       });
       toast.success('Request submitted successfully!');
-      navigate(`/laundry/details/${response.data.schedule_id}`); // Use relative path
+      navigate(`/laundry/staff`); // Use relative path
     } catch (error) {
       console.error('Error submitting request:', error.response?.data || error.message);
       toast.error(`Failed to submit request: ${error.response?.data?.message || 'Unknown error'}`);

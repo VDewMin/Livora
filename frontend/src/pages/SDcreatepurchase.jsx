@@ -205,7 +205,7 @@ const SDcreatepurchase = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                                         <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                                            <span className="label-text">Buyer Name *</span>
+                                            <span className="label-text">Buyer Name </span>
                                         </label>
                                         <input
                                             type="text"
@@ -225,7 +225,7 @@ const SDcreatepurchase = () => {
 
                                     <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                                         <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                                            <span className="label-text">Buyer ID *</span>
+                                            <span className="label-text">Buyer ID </span>
                                         </label>
                                         <input
                                             type="text"
@@ -291,7 +291,7 @@ const SDcreatepurchase = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                                         <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                                            <span className="label-text">Room ID *</span>
+                                            <span className="label-text">Room No</span>
                                         </label>
                                         <input
                                             type="text"
