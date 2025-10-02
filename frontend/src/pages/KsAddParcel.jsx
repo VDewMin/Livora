@@ -13,6 +13,7 @@ import { useNavigate } from "react-router";
 import api from "../lib/axios.js";
 import Sidebar from "../components/vd_sidebar.jsx"; 
 import { useAuth } from "../context/vd_AuthContext";
+import {getLocalDateTimeString} from "../lib/utils.js"
 
 const KsAddParcel = () => {
   const { user } = useAuth(); 
@@ -24,8 +25,9 @@ const KsAddParcel = () => {
   const [locId, setLocId] = useState("");
   const [status, setStatus] = useState("Pending");
   const [arrivalDateTime, setArrivalDateTime] = useState(() => {
-    const now = new Date();
-    return now.toISOString().slice(0, 16);
+    //const now = new Date();
+    //return now.toISOString().slice(0, 16);
+    return getLocalDateTimeString();
   });
   const [receivedByStaff, setReceivedByStaff] = useState("");
   const [collectedDateTime, setCollectedDateTime] = useState("");
