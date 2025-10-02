@@ -47,6 +47,13 @@ const KsAddParcel = () => {
   const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
+
+      if (!/^L([1-9]|[1-4][0-9]|50)$/.test(locId)) {
+        toast.error("Location ID must be between L1 and L50");
+        setLoading(false);
+        return;
+      }
+
       try {
         await api.post("/parcels", {
           residentName,
@@ -147,7 +154,7 @@ const KsAddParcel = () => {
                       }
                     }}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., A-101"
+                    placeholder="e.g.: R501/P501"
                   />
                 </div>
                 <div>
@@ -201,7 +208,7 @@ const KsAddParcel = () => {
                     value={courierService}
                     onChange={(e) => setCourierService(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., DHL, FedEx"
+                    placeholder="eg: SITREK"
                   />
                 </div>
               </div>
@@ -217,7 +224,7 @@ const KsAddParcel = () => {
                   onChange={(e) => setParcelDescription(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
                   rows="3"
-                  placeholder="Brief description of the parcel contents"
+                  placeholder="Brief description of the parcel"
                 />
               </div>
             </div>
@@ -243,8 +250,9 @@ const KsAddParcel = () => {
                     value={locId}
                     onChange={(e) => setLocId(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Storage location"
+                    placeholder="eg: L1/L2/L3"
                     required
+                    
                   />
                 </div>
                 <div>

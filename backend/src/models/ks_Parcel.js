@@ -41,6 +41,7 @@ const parcelSchema = new mongoose.Schema({
     locId:{
       type: String,
       required: true,
+      //match: [/^L([1-9]|[1-4][0-9]|50)$/, "Invalid Location ID. Must be L1 to L50"],
     },
 
     status: {

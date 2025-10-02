@@ -8,7 +8,7 @@ import User from "../models/vd_user.js"
 
 export const getAllParcels = async(req, res) => {
     try {
-        const parcels = await Parcel.find()
+        const parcels = await Parcel.find().sort({ createdAt: -1 });
         res.status(200).json(parcels)
 
     } catch (error) {
@@ -94,14 +94,14 @@ export const createParcels = async (req, res) => {
       }
 
       
-      const toAddress = recipientEmail || process.env.TEST_FALLBACK_EMAIL || "kaveeshasandeepani027@gmail.com";
+      const toAddress = recipientEmail;
 
       if (!toAddress) {
         console.warn("No recipient email found for parcel:", savedParcel.parcelId);
       } else {
         const { verifyUrl: verifyHref } = savedParcel.qr || {};
         const mailOptions = {
-          from: process.env.EMAIL_USER,
+          from: `"LIVORA" <${process.env.EMAIL_USER}>`,
           to: toAddress,
           subject: "Parcel arrival notification with QR",
           html: `
