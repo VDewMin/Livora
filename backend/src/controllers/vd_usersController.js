@@ -46,64 +46,117 @@ export const getUserById = async(req, res) => {
 }
 
 
-export const createUser = async(req, res) => {
+export const createUser = async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      recoveryEmail,
+      phoneNo,
+      secondaryPhoneNo,
+      password,
+      role,
+      apartmentNo,
+      residentType,
+      staffType,
+      dob,
+      job,
+      emergencyContactName,
+      emergencyContactNumber,
+      familyMembers,
+      medicalConditions,
+    } = req.body;
 
-    try{
-        const {firstName, lastName, email, phoneNo, password, role, apartmentNo, residentType, staffType} = req.body
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      recoveryEmail,
+      phoneNo,
+      secondaryPhoneNo,
+      password: hashedPassword,
+      role,
+      dob,
+      job,
+      emergencyContactName,
+      emergencyContactNumber,
+      familyMembers,
+      medicalConditions,
+      ...(role === "Resident" && { apartmentNo, residentType }),
+      ...(role === "Staff" && { staffType }),
+    });
 
-        const newUser = new User({
-            firstName, 
-            lastName, 
-            email, 
-            phoneNo, 
-            password: hashedPassword, 
-            role, 
-            ...(role === "Resident" && { apartmentNo, residentType }),
-            ...(role === "Staff" && { staffType }),
-        });
+    const savedUser = await newUser.save();
+    res.status(201).json({ savedUser });
+  } catch (error) {
+    console.error("Error in createUser controller", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-        const savedUser = await newUser.save();
-        res.status(201).json({savedUser});
-    } catch (error) {
 
-        console.error("Error in createUser controller", error);
-        res.status(500).json({message: "Internal server error"});
+export const updateUser = async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      recoveryEmail,
+      phoneNo,
+      secondaryPhoneNo,
+      password,
+      role,
+      apartmentNo,
+      residentType,
+      staffType,
+      dob,
+      job,
+      emergencyContactName,
+      emergencyContactNumber,
+      familyMembers,
+      medicalConditions,
+    } = req.body;
+
+    const updateData = {
+      firstName,
+      lastName,
+      email,
+      recoveryEmail,
+      phoneNo,
+      secondaryPhoneNo,
+      role,
+      dob,
+      job,
+      emergencyContactName,
+      emergencyContactNumber,
+      familyMembers,
+      medicalConditions,
+      ...(role === "Resident" && { apartmentNo, residentType, }),
+      ...(role === "Staff" && { staffType }),
+    };
+
+    if (password) {
+      updateData.password = await bcrypt.hash(password, saltRounds);
     }
-}
 
-export const updateUser = async(req, res) => {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
 
-    try {
-        const {firstName, lastName, email, phoneNo, password, role, apartmentNo, residentType, staffType,} = req.body;
+    if (!updatedUser) return res.status(404).json({ message: "User not found" });
 
-        const updateData = {
-            firstName,
-            lastName,
-            email,
-            phoneNo,
-            password,
-            role,
-            ...(role === "Resident" && { apartmentNo, residentType }),
-            ...(role === "Staff" && { staffType }),
-        };
+    res.status(200).json({ updatedUser });
+  } catch (error) {
+    console.error("Error in updateUser controller", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-        const updatedUser = await User.findByIdAndUpdate(
-            req.params.id, 
-            updateData, 
-            {new:true}
-        );
-
-        if(!updatedUser) return res.status(404).json({message:"Note not found"});
-        res.status(200).json({updatedUser});
-        
-    } catch (error) {
-        
-        console.error("Error in updateUser controller", error);
-        res.status(500).json({message: "Internal server error"});
-    }
-}
 
 export const deleteUser = async(req, res) => {
 
