@@ -125,17 +125,18 @@ const SN_AdminBillingDashboard = () => {
   };
 
   // ---------- Fetch Resident Payments ----------
-  const fetchResidentPayments = async () => {
-    try {
-      const res = await fetch(
-        `${API_URL}/payments/resident-status?month=${selectedMonth.month}&year=${selectedMonth.year}`
-      );
-      const data = await res.json();
-      setResidentPayments(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Error fetching resident payments:", err);
-    }
-  };
+const fetchResidentPayments = async () => {
+  try {
+    const res = await fetch(
+      `${API_URL}/payments/resident-status?month=${selectedMonth.month}&year=${selectedMonth.year}`
+    );
+    const data = await res.json();
+    setResidentPayments(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Error fetching resident payments:", err);
+  }
+};
+
 
   // ---------- On Month Change ----------
   const handleMonthChange = (e) => {
@@ -395,6 +396,7 @@ const SN_AdminBillingDashboard = () => {
         {activeTab === "residents" && (
           <ResidentTable residents={residentPayments} />
         )}
+
 
         {activeTab === "pendingPayments" && (
           <div className="bg-white p-6 rounded-2xl shadow">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
 import html2pdf from 'html2pdf.js'; // Import html2pdf
+import { Trash2Icon, EditIcon } from 'lucide-react';
 
 const SDLaundryDetails = () => {
   const { schedule_id } = useParams();
@@ -40,6 +41,20 @@ const SDLaundryDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete request ${schedule_id}?`)) return;
+    try {
+      console.log('axiosInstance base URL:', axiosInstance.defaults.baseURL); // Log base URL
+      console.log('Sending DELETE request to:', `/laundry/schedule/${schedule_id}`); // Debug log
+      await axiosInstance.delete(`/laundry/schedule/${schedule_id}`);
+      toast.success('Request deleted successfully');
+      navigate('/laundry/staff');
+    } catch (error) {
+      console.error('DELETE Error:', error.response?.data || error.message); // Detailed error log
+      toast.error(`Failed to delete request: ${error.response?.data?.message || 'Server error'}`);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -67,7 +82,6 @@ const SDLaundryDetails = () => {
           <p><strong>Service Type:</strong> {request.service_type}</p>
           <p><strong>Time Duration:</strong> {request.time_duration} hours</p>
           <p><strong>Total Cost (LKR):</strong> {request.total_cost.toLocaleString()}</p>
-          <p><strong>Status:</strong> {request.status}</p>
           <p><strong>Created At:</strong> {new Date(request.created_at).toLocaleString()}</p>
           <p><strong>Completed At:</strong> {request.completion_date ? new Date(request.completion_date).toLocaleString() : 'N/A'}</p>
         </div>
@@ -75,7 +89,13 @@ const SDLaundryDetails = () => {
           <button onClick={generatePDF} className="btn btn-primary">
             Generate PDF
           </button>
-          <button onClick={() => navigate('/')} className="btn btn-secondary">
+          <Link to={`/laundry/edit/${schedule_id}`} className="btn btn-info text-white hover:bg-blue-700 transition-all">
+            <EditIcon className="h-5 w-5 mr-2" /> Edit
+          </Link>
+          <button onClick={handleDelete} className="btn btn-error text-white hover:bg-red-700 transition-all">
+            <Trash2Icon className="h-5 w-5 mr-2" /> Delete
+          </button>
+          <button onClick={() => navigate('/laundry/staff')} className="btn btn-secondary">
             Back to Home
           </button>
         </div>

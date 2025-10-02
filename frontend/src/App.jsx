@@ -1,10 +1,8 @@
-import toast from "react-hot-toast";
-import React from "react";
 import {Route, Routes } from "react-router";
+
 import KsViewParcels from "./pages/KsViewParcels.jsx"
 import KsAddParcel from "./pages/KsAddParcel.jsx";
 import KsParcelDetail from "./pages/KsParcelDetail.jsx"
-
 
 import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
@@ -34,6 +32,8 @@ import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
 import DashboardLayout from "./components/vd_dashboardLayout.jsx";
 import UserProfile from "./pages/vd_userProfile.jsx";
+import UpdateUser from "./pages/vd_updateUser.jsx";
+
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
@@ -62,6 +62,8 @@ import SDLandingPage from "./pages/SDLandingPage.jsx";
 import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
+import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
+
 const App = () =>{
     return(
         <div className="p-4">
@@ -89,13 +91,16 @@ const App = () =>{
                     
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>}/>
-                    <Route path="/residentlist" element={<ProtectedRoute allowedRoles={["Admin"]}><ResidentList/></ProtectedRoute>}/>
+                    <Route path="/admin/residentlist" element={<ProtectedRoute allowedRoles={["Admin"]}><ResidentList/></ProtectedRoute>}/>
                     <Route path="/admin/stafflist" element={<ProtectedRoute allowedRoles={["Admin"]}><StaffList/></ProtectedRoute>}/>
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
                     <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
                     <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
+
+
                     
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
@@ -110,10 +115,7 @@ const App = () =>{
 
                 <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
                 <Route path="/verify-otp/:userId" element={<GuestRoute><VerifyOtp /></GuestRoute>} />
-                <Route path="/register" element={<Register />} />
                 <Route path="/profile/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}/>
-                <Route path="/residentlist" element={<ResidentList/>}/>
-                <Route path="/stafflist" element={<StaffList/>}/>
                 <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                 <Route path="/profile-settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
 
@@ -124,7 +126,7 @@ const App = () =>{
                 
 
                
-                <Route path="/admin-view" element={<GKAdminViewServices />} />
+                {/*<Route path="/admin-view" element={<GKAdminViewServices />} /> */}
                 
                 
                 
@@ -153,7 +155,7 @@ const App = () =>{
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-
+                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
 
 
  

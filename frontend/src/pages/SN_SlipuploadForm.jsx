@@ -56,7 +56,6 @@ const OfflineSlipForm = () => {
       console.error(error);
       toast.error("Something went wrong");
     } finally {
-      // Redirect after 2 seconds so toast is visible
       setTimeout(() => navigate("/resident/billing"), 2000);
     }
   };
@@ -66,50 +65,58 @@ const OfflineSlipForm = () => {
       <h2 className="text-2xl font-bold mb-4 text-center">Upload Payment Slip</h2>
 
       <form onSubmit={handleSubmit}>
+        <label className="block mb-1 font-medium">Apartment No</label>
         <input
           type="text"
           value={data.apartmentNo}
           readOnly
           className="w-full mb-3 p-2 border rounded bg-gray-100"
-          placeholder="Apartment No"
         />
+
+        <label className="block mb-1 font-medium">Resident Name</label>
         <input
           type="text"
           value={data.residentName}
           readOnly
           className="w-full mb-3 p-2 border rounded bg-gray-100"
-          placeholder="Resident Name"
         />
+
+        <label className="block mb-1 font-medium">Phone Number</label>
         <input
           type="text"
           value={data.phoneNumber}
           readOnly
           className="w-full mb-3 p-2 border rounded bg-gray-100"
-          placeholder="Phone Number"
         />
+
+        <label className="block mb-1 font-medium">Rent Amount</label>
         <input
           type="number"
           value={data.amountRent}
           readOnly
           className="w-full mb-3 p-2 border rounded bg-gray-100"
-          placeholder="Rent Amount"
         />
+
+        <label className="block mb-1 font-medium">Laundry Amount</label>
         <input
           type="number"
           value={data.amountLaundry}
           readOnly
           className="w-full mb-3 p-2 border rounded bg-gray-100"
-          placeholder="Laundry Amount"
         />
+
         <p className="mb-3 font-semibold">
           Total: Rs. {Number(data.amountRent) + Number(data.amountLaundry)}
         </p>
+
+        <label className="block mb-1 font-medium">Upload Slip (PNG/JPG)</label>
         <input
           type="file"
           accept="image/png, image/jpeg"
           onChange={handleFileChange}
           className="w-full mb-3 p-2 border rounded"
         />
+
         {preview && (
           <img
             src={preview}
@@ -117,6 +124,7 @@ const OfflineSlipForm = () => {
             className="w-40 h-40 object-cover rounded mb-3"
           />
         )}
+
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"

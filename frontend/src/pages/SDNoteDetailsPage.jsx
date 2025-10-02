@@ -1,27 +1,21 @@
 import { Link, LoaderIcon } from 'lucide-react';
-import React, { use } from 'react'
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router';
-import { useParams } from 'react-router';
-import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ArrowLeftIcon, Trash2Icon } from 'lucide-react';
 import api from '../lib/axios.js';
 
-
-
 const SDNoteDetailsPage = () => {
-
-  const[note, setNote] = useState(null);
-  const[loading, setLoading] = useState(true);
-  const[saving, setSaving] = useState(false);
+  const [note, setNote] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();
-
-  const {id} = useParams();
+  const { id } = useParams();
 
   useEffect(() => {
-    const fetchNote = async() => {
+    const fetchNote = async () => {
       try { 
         const response = await api.get(`/notes/${id}`);
         setNote(response.data);
@@ -31,13 +25,12 @@ const SDNoteDetailsPage = () => {
       } finally {
         setLoading(false);
       }
-
     }; 
     fetchNote();
   }, [id]);
 
-  const handDelete = async() => {
-    if(!window.confirm("Are you sure you want to delete this note?")) 
+  const handDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this note?")) 
       return;
     try {
       await api.delete(`/notes/${id}`);
@@ -47,11 +40,11 @@ const SDNoteDetailsPage = () => {
       console.log("Error deleting note: ", error);
       toast.error("Failed to delete note");
     }
-    
-  }
-  const handleSave = async() => {
-    if(!note.title.trim() || !note.content.trim()|| !note.email.trim()) {
-      toast.error("Title and content are required");
+  };
+
+  const handleSave = async () => {
+    if (!note.title.trim() || !note.content.trim() || !note.email.trim()) {
+      toast.error("Title, content, and email are required");
       return;
     }
 
@@ -74,98 +67,87 @@ const SDNoteDetailsPage = () => {
     } 
   };
 
-
-  if(loading) {
-    return <div className='min-h-screen flex items-center justify-center'>
-      <LoaderIcon className='text-primary animate-spin'/>
-    </div>
+  if (loading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-teal-100 to-indigo-200'>
+        <LoaderIcon className='h-12 w-12 text-teal-600 animate-spin' />
+      </div>
+    );
   }
 
+  return (
+    <div className='min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200'>
+      <div className='container mx-auto px-4 py-10'>
+        <div className='max-w-2xl mx-auto'>
+          <div className='flex items-center justify-between mb-8 bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500 transform transition-all hover:scale-102'>
+            <Link to="/notes" className='btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all'>
+              <ArrowLeftIcon className='h-6 w-6 mr-2' />
+              Back to Notes
+            </Link>
+            <button onClick={handDelete} className='btn btn-error btn-sm text-white bg-red-600 hover:bg-red-700 transition-all'>
+              <Trash2Icon className='h-5 w-5 mr-2' /> Delete Note
+            </button>
+          </div>
 
-
-
-
-
-  return <div className='min-h-screen bg-base-200'>
-    <div className='container mx-auto px-3 py-8'>
-      <div className='max-w-2xl mx-auto '>
-        <div className='flex items-center justify-between mb-6'>
-        <Link to="/notes" className='btn btn-ghost'>
-         <ArrowLeftIcon className='h-5 w-5'/>
-            Back to home
-               </Link>
-        <button onClick={handDelete} className='btn btn-error btn-sm mb-4 ml-4 float-right'>
-          <Trash2Icon className='size-4 mr-2'/> Delete Note
-        </button> 
-        </div>
-
-        <div className='card bg-base-100 '>
-          <div className='card-body'>
-            <div className='form-control mb-4'>
-                <label className='label'>
-                  <span className='label-text'>Name</span>
+          <div className='card bg-white shadow-xl rounded-lg overflow-hidden border border-teal-200'>
+            <div className='card-body p-6'>
+              <div className='form-control mb-6'>
+                <label className='label text-teal-700'>
+                  <span className='label-text font-semibold'>Title</span>
                 </label>
-                <input type="text" 
-                className='input input-bordered' 
-                value={note?.title}
-                onChange={(e) => setNote({...note, title: e.target.value})}
+                <input
+                  type="text" 
+                  className='input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
+                  value={note?.title || ''}
+                  onChange={(e) => setNote({...note, title: e.target.value})}
                 />
-                  </div>
+              </div>
 
-            <div className='form-control mb-4'>
-                <label className='label'>
-                  <span className='label-text'>Content</span>
+              <div className='form-control mb-6'>
+                <label className='label text-teal-700'>
+                  <span className='label-text font-semibold'>Content</span>
                 </label>
                 <textarea 
-                className='textarea textarea-bordered h-24' 
-                placeholder='Note content'
-                value={note?.content}
-                onChange={(e) => setNote({...note, content: e.target.value})}
+                  className='textarea textarea-bordered h-32 w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
+                  placeholder='Note content'
+                  value={note?.content || ''}
+                  onChange={(e) => setNote({...note, content: e.target.value})}
                 ></textarea>  
-                  </div>
+              </div>
 
-
-                  <div className='form-control mb-4'>
-                <label className='label'>
-                  <span className='label-text'>Phone Number</span>
+              <div className='form-control mb-6'>
+                <label className='label text-teal-700'>
+                  <span className='label-text font-semibold'>Phone Number</span>
                 </label>
                 <textarea 
-                className='textarea textarea-bordered h-24' 
-                value={note?.phone_no}
-                onChange={(e) => setNote({...note, phone_no: e.target.value})}
+                  className='textarea textarea-bordered h-24 w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
+                  value={note?.phone_no || ''}
+                  onChange={(e) => setNote({...note, phone_no: e.target.value})}
                 ></textarea>  
-                  </div>
+              </div>
 
-                  <div className='form-control mb-4'>
-                <label className='label'>
-                  <span className='label-text'>Email</span>
+              <div className='form-control mb-8'>
+                <label className='label text-teal-700'>
+                  <span className='label-text font-semibold'>Email</span>
                 </label>
                 <textarea 
-                className='textarea textarea-bordered h-24' 
-                value={note?.email}
-                onChange={(e) => setNote({...note, email: e.target.value})}
+                  className='textarea textarea-bordered h-24 w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
+                  value={note?.email || ''}
+                  onChange={(e) => setNote({...note, email: e.target.value})}
                 ></textarea>  
-                  </div>
+              </div>
 
-
-                  <div className='card-actions justify-end'>
-                  <button className='btn btn-primary' disabled={saving} onClick={handleSave}>
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>
-
-                </div> 
-
+              <div className='card-actions justify-end'>
+                <button className='btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all' disabled={saving} onClick={handleSave}>
+                  {saving ? <span className='flex items-center'><LoaderIcon className='h-5 w-5 animate-spin mr-2' /> Saving...</span> : "Save Changes"}
+                </button>
+              </div>
             </div>
-
-
+          </div>
         </div>
-
+      </div>
     </div>
-  </div>
-</div>   
-
-
-  
+  );
 };
 
-export default SDNoteDetailsPage 
+export default SDNoteDetailsPage;
