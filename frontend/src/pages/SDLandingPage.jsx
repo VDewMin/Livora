@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import mainbuilding from '../assets/main-building.jpg'; // Example image import
+import opening from '../assets/opening.jpg'; // Example image import
+import bedroom from '../assets/bed-room.jpg'; // Example image import
+import kitchen from '../assets/kitchen.jpg';
+import livingroom from '../assets/living-room.jpg';
 const SDLandingPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -27,8 +31,12 @@ const SDLandingPage = () => {
           <div className="w-full h-64 bg-gray-300 mb-4">
 
             {/* Photo Spot: Building Exterior */}
+            <img
+              src={mainbuilding}
+              alt="Main Building"
+              className="w-full h-full object-cover"
+            />
             
-            <p className="text-center pt-20 text-gray-600">Place building exterior photo here</p>
           </div>
         </div>
       </section>
@@ -42,7 +50,12 @@ const SDLandingPage = () => {
           </p>
           <div className="w-1/2 h-48 bg-gray-300 mx-auto mb-4">
             {/* Photo Spot: Community Area */}
-            <p className="text-center pt-16 text-gray-600">Place community area photo here</p>
+
+            <img
+              src ={opening}
+              alt="Community Area"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>
@@ -57,15 +70,29 @@ const SDLandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="w-full h-40 bg-gray-300">
               {/* Photo Spot: Bedroom */}
-              <p className="text-center pt-12 text-gray-600">Place bedroom photo here</p>
+              <img
+
+                src={bedroom}
+                alt="Bedroom"
+                className="w-full h-full object-cover"
+              />
+
             </div>
             <div className="w-full h-40 bg-gray-300">
               {/* Photo Spot: Kitchen */}
-              <p className="text-center pt-12 text-gray-600">Place kitchen photo here</p>
+              <img
+                src={kitchen}
+                alt="Kitchen"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="w-full h-40 bg-gray-300">
               {/* Photo Spot: Living Room */}
-              <p className="text-center pt-12 text-gray-600">Place living room photo here</p>
+              <img
+                src={livingroom}
+                alt="Living Room"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>

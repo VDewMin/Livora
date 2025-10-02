@@ -1,5 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import legacyPhoto from '../assets/historical.jpg'; // Placeholder image import
+import foundingPhoto from '../assets/founding.jpeg'; // Placeholder image import
+import awardsPhoto from '../assets/awards.jpeg'; // Placeholder image import
+import Gathering from '../assets/gathering.jpg'; // Placeholder image import
+import Community from '../assets/commiunity-awards.jpg'; // Placeholder image import
+import future from '../assets/future.jpg'; // Placeholder image import
+
 
 const SDAboutUsPage = () => {
   return (
@@ -27,8 +34,10 @@ const SDAboutUsPage = () => {
             Since 1995, Pearl Residencies has been a cornerstone of luxury living in Colombo, building a legacy of excellence and community.
           </p>
           <div className="w-full h-64 bg-gray-300 mx-auto overflow-hidden">
+           
+            {/* Photo Spot: Historical Legacy Photo */}
             <img
-              src="https://via.placeholder.com/800x400?text=Legacy+Photo"
+              src={legacyPhoto}
               alt="Historical view of Pearl Residencies"
               className="w-full h-full object-cover"
             />
@@ -52,7 +61,13 @@ const SDAboutUsPage = () => {
                 <p className="text-gray-600">Pearl Residencies was established, marking the beginning of luxury apartment living.</p>
                 <div className="w-32 h-20 bg-gray-300 mt-2">
                   {/* Photo Spot: Founding Ceremony */}
-                  <p className="text-center pt-6 text-gray-600">Place founding photo here</p>
+                  <img
+                    src={foundingPhoto}
+                    alt="Founding ceremony of Pearl Residencies"
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Photo Spot: Founding Ceremony */}
+                  {/* Replace with: <img src={foundingPhoto} alt="Founding ceremony" /> */}
                 </div>
               </div>
             </div>
@@ -65,7 +80,12 @@ const SDAboutUsPage = () => {
                 <p className="text-gray-600">Received the Colombo Excellence Award for Best Residential Development.</p>
                 <div className="w-32 h-20 bg-gray-300 mt-2">
                   {/* Photo Spot: Award Ceremony */}
-                  <p className="text-center pt-6 text-gray-600">Place award photo here</p>
+                  <img
+                    src={awardsPhoto}
+                    alt="Award ceremony at Pearl Residencies"
+                    className="w-full h-full object-cover"
+                  />
+
                 </div>
               </div>
             </div>
@@ -78,7 +98,11 @@ const SDAboutUsPage = () => {
                 <p className="text-gray-600">Grew to accommodate over 500 families with new amenities.</p>
                 <div className="w-32 h-20 bg-gray-300 mt-2">
                   {/* Photo Spot: Expansion Photo */}
-                  <p className="text-center pt-6 text-gray-600">Place expansion photo here</p>
+                  <img 
+                    src={Gathering}
+                    alt="Community gathering at Pearl Residencies"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
@@ -104,10 +128,10 @@ const SDAboutUsPage = () => {
               <p className="text-gray-600 mt-2">Recognized by the Ministry of Environment in 2020 for green initiatives.</p>
             </div>
           </div>
-          <div className="w-1/2 h-48 bg-gray-300 mx-auto mt-6 overflow-hidden">
+          <div className="w-1/2 h-58 bg-gray-300 mx-auto mt-6 overflow-hidden">
             <img
-              src="https://via.placeholder.com/400x200?text=Certificate+Photo"
-              alt="Certificates and approvals display"
+              src ={Community}
+              alt="Certificates display"
               className="w-full h-full object-cover"
             />
             {/* Photo Spot: Certificates Display */}
@@ -136,9 +160,9 @@ const SDAboutUsPage = () => {
           <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
             By 2030, we aim to expand to 1000 units, introduce smart home technology, and achieve carbon neutrality, setting new standards in luxury living.
           </p>
-          <div className="w-1/2 h-48 bg-gray-300 mx-auto overflow-hidden">
+          <div className="w-1/2 h-49 bg-gray-300 mx-auto overflow-hidden">
             <img
-              src="https://via.placeholder.com/400x200?text=Future+Vision"
+              src={future}
               alt="Future vision of Pearl Residencies"
               className="w-full h-full object-cover"
             />

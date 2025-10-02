@@ -11,7 +11,10 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
-  PackageCheck
+  ScanLine,
+  PackagePlus,
+  Building2,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -25,6 +28,7 @@ const roleRoutes = {
     booking: "/admin/booking",
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
+    "resident-management": "admin/residentlist"
   },
   Resident: {
     dashboard: "/resident/dashboard",
@@ -48,6 +52,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   const location = useLocation();
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
 
   const handleLogoutClick = () => setShowLogoutConfirm(true);
 
@@ -62,15 +68,18 @@ const Sidebar = ({ activeItem, onItemClick }) => {
  const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"] },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
-  { id: "booking", label: "Booking", icon: Album, roles: ["Resident"] },
+  { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
   { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
   { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
-  { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
-  { id: "staff-management", label: "Manage Staff", icon: UserCog, roles: ["Admin"] },
+  //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+  { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
+  { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
-  { id: "add-parcel", label: "Add Parcel", icon: Package, roles: ["Security"]},
-  { id: "parcel-pickup-verification", label: "Qr Verification", icon: PackageCheck, roles:["Security"]},
+  { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
+  { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+
 ];
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
@@ -134,37 +143,49 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
         {/* Settings Section */}
         <div className="pt-4">
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-900">
-                    <Settings className="mr-3 h-5 w-5" />
-                    Settings
-                    <ChevronRight className="ml-auto h-4 w-4" />
-            </div>
-            <div className="ml-6 space-y-1">
+          {/* Clickable settings row */}
+          <button
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Settings className="mr-3 h-5 w-5" />
+            Settings
+            <ChevronRight
+              className={`ml-auto h-4 w-4 transform transition-transform duration-200 ${
+                isSettingsOpen ? "rotate-90" : ""
+              }`}
+            />
+          </button>
+
+          {/* Submenu only when expanded */}
+          {isSettingsOpen && (
+            <div className="ml-6 mt-1 space-y-1">
               {settingsSubmenu.map((item) => {
                 const route = item.route ? item.route(user) : null;
-              return( 
-              <button
-                key={item.id}
-                onClick={() => {
-                  if (item.route) {
-                    navigate(item.route(user)); // navigate using the logged-in user's id
-                  } else {
-                    onItemClick(item.id); // fallback
-                  }
-                }}
-                className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  route && location.pathname === route
-                    ? "bg-blue-50 text-blue-600 font-medium"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                {item.label}
-              </button>
-              );
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      if (item.route) {
+                        navigate(item.route(user));
+                      } else {
+                        onItemClick(item.id);
+                      }
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      route && location.pathname === route
+                        ? "bg-blue-50 text-blue-600 font-medium"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
               })}
             </div>
-
+           )}
         </div>
+
       </nav>
 
       {/* Bottom Section */}

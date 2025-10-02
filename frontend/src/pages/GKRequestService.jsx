@@ -17,7 +17,7 @@ function GKServiceRequest() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  //Load user details after login
+  // Load user details after login
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -34,10 +34,19 @@ function GKServiceRequest() {
 
   // Handle input changes for fields that user can edit
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, files, value } = e.target;
 
     if (name === "fileUrl") {
-      setFile(files[0]);
+      if (files && files[0]) {
+        const fileType = files[0].type; // check MIME type
+        if (fileType !== "image/png") {
+          toast.error("Only PNG images are allowed!");
+          e.target.value = null; // reset input
+          setFile(null);
+          return;
+        }
+        setFile(files[0]);
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -113,15 +122,15 @@ function GKServiceRequest() {
           />
         </div>
 
-         {/* Contact No */}
+        {/* Contact No */}
         <div>
           <label className="block font-semibold mb-1">Contact No</label>
           <input
             type="text"
             name="contactNo"
             value={formData.contactNo}
-             onChange={handleChange}
-             required
+            onChange={handleChange}
+            required
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
@@ -158,11 +167,10 @@ function GKServiceRequest() {
 
         {/* File Upload */}
         <div>
-          <label className="block font-semibold mb-1">Upload Image or Video</label>
+          <label className="block font-semibold mb-1">Upload PNG Image</label>
           <input
             type="file"
             name="fileUrl"
-            accept=".jpg,.jpeg,.png,.mp4,.mov"
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
           />

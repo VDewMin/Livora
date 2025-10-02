@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import phoneIcon from '../assets/TELEFONE.jpeg'; // Placeholder image import
+import emailIcon from '../assets/gmail.jpeg'; 
+import locationIcon from '../assets/location.jpeg';
 
 const SDContactUsPage = () => {
   return (
@@ -38,7 +41,12 @@ const SDContactUsPage = () => {
             <div className="bg-teal-50 p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center">
               <div className="w-12 h-12 bg-gray-300 mr-4 flex items-center justify-center">
                 {/* Icon Placeholder: Phone */}
-                <span className="text-gray-600">📞</span>
+                
+                <img
+                  src ={phoneIcon}
+                  alt="Phone Icon"
+                  className="w-full h-full object-cover"
+                />
                 {/* Replace with: <img src={phoneIcon} alt="Phone Icon" className="w-full h-full" /> */}
               </div>
               <div>
@@ -52,7 +60,11 @@ const SDContactUsPage = () => {
             <div className="bg-teal-50 p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center">
               <div className="w-12 h-12 bg-gray-300 mr-4 flex items-center justify-center">
                 {/* Icon Placeholder: Email */}
-                <span className="text-gray-600">📧</span>
+                <img
+                  src ={emailIcon}
+                  alt="Email Icon"
+                  className="w-full h-full object-cover"
+                />
                 {/* Replace with: <img src={emailIcon} alt="Email Icon" className="w-full h-full" /> */}
               </div>
               <div>
@@ -66,7 +78,11 @@ const SDContactUsPage = () => {
             <div className="bg-teal-50 p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center">
               <div className="w-12 h-12 bg-gray-300 mr-4 flex items-center justify-center">
                 {/* Icon Placeholder: Location */}
-                <span className="text-gray-600">📍</span>
+                <img
+                  src ={locationIcon}
+                  alt="Location Icon"
+                  className="w-full h-full object-cover"
+                />
                 {/* Replace with: <img src={locationIcon} alt="Location Icon" className="w-full h-full" /> */}
               </div>
               <div>
@@ -79,15 +95,26 @@ const SDContactUsPage = () => {
             <div className="bg-teal-50 p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center col-span-1 md:col-span-2 lg:col-span-3">
               <div className="w-12 h-12 bg-gray-300 mr-4 flex items-center justify-center">
                 {/* Icon Placeholder: Social Media */}
-                <span className="text-gray-600">🌐</span>
                 {/* Replace with: <img src={socialIcon} alt="Social Media Icon" className="w-full h-full" /> */}
               </div>
               <div className="grid grid-cols-2 gap-4 w-full">
-                <a href="#" className="text-teal-600 hover:text-teal-800">Facebook</a>
-                <a href="#" className="text-teal-600 hover:text-teal-800">Twitter</a>
-                <a href="#" className="text-teal-600 hover:text-teal-800">Instagram</a>
-                <a href="#" className="text-teal-600 hover:text-teal-800">LinkedIn</a>
-              </div>
+  <a href="#" className="flex items-center text-teal-600 hover:text-teal-800 hover:bg-teal-100 p-2 rounded transition-colors">
+    <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook icon" className="w-6 h-6 mr-2" />
+    Facebook
+  </a>
+  <a href="#" className="flex items-center text-teal-600 hover:text-teal-800 hover:bg-teal-100 p-2 rounded transition-colors">
+    <img src="https://cdn.simpleicons.org/twitter/1DA1F2" alt="Twitter icon" className="w-6 h-6 mr-2" />
+    Twitter
+  </a>
+  <a href="#" className="flex items-center text-teal-600 hover:text-teal-800 hover:bg-teal-100 p-2 rounded transition-colors">
+    <img src="https://cdn.simpleicons.org/instagram/E1306C" alt="Instagram icon" className="w-6 h-6 mr-2" />
+    Instagram
+  </a>
+  <a href="#" className="flex items-center text-teal-600 hover:text-teal-800 hover:bg-teal-100 p-2 rounded transition-colors">
+    <img src="https://cdn.simpleicons.org/linkedin/0077B5" alt="LinkedIn icon" className="w-6 h-6 mr-2" />
+    LinkedIn
+  </a>
+</div>
             </div>
           </div>
         </div>
