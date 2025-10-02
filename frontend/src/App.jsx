@@ -34,7 +34,8 @@ import ResetPassword from "./pages/vd_resetPassword.jsx";
 import DashboardLayout from "./components/vd_dashboardLayout.jsx";
 import UserProfile from "./pages/vd_userProfile.jsx";
 import UpdateUser from "./pages/vd_updateUser.jsx";
-
+import ResidentDashboard from "./pages/vd_residentDashboard.jsx";
+import AdminDashboard from "./pages/vd_adminDashboard.jsx";
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
@@ -101,7 +102,8 @@ const App = () =>{
                     <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
                     <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
                     <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
-
+                    <Route path="/resident/dashboard" element={<ProtectedRoute allowedRoles={["Resident"]}><ResidentDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>} />
 
                     
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
@@ -111,7 +113,7 @@ const App = () =>{
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
 
-
+                    
                 </Route>
                 
 
