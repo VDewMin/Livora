@@ -76,26 +76,34 @@ const UserProfile = () => {
     };
 
 
-    const handleDeleteProfilePicture = async () => {
-        if (!window.confirm("Are you sure?")) return;
+    const handleDeleteProfilePicture = async (userId) => {
+        
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Delete Profile Picture',
+            message: 'Are you sure you want to delete this picture?',
+            onConfirm: async () => {
+                try {
+                    const res = await axiosInstance.delete(`/users/${user.userId}/profile-picture`);
+                    setUser(res.data);
 
-        try {
-            const res = await axiosInstance.delete(`/users/${user.userId}/profile-picture`);
-            setUser(res.data);
+                    if (
+                        (authUser?._id && authUser?._id === res.data?._id) ||
+                        (authUser?.userId && authUser?.userId === res.data?.userId) ||
+                        (authUser?.email && authUser?.email === res.data?.email)
+                    ) {
+                        updateUser({ ...res.data, profilePicture: res.data.profilePicture });
+                    }
 
-            if (
-                (authUser?._id && authUser?._id === res.data?._id) ||
-                (authUser?.userId && authUser?.userId === res.data?.userId) ||
-                (authUser?.email && authUser?.email === res.data?.email)
-            ) {
-                updateUser({ ...res.data, profilePicture: res.data.profilePicture });
+                    toast.success("Profile picture deleted");
+                    setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                } catch (error) {
+                    console.log("Error deleting profile picture", error);
+                    toast.error("Failed to delete profile picture");
+                    setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                }
             }
-
-            toast.success("Profile picture deleted");
-        } catch (error) {
-            console.log("Error deleting profile picture", error);
-            toast.error("Failed to delete profile picture");
-        }
+        })
     };
 
     const handleInputChange = (field, value) => {
@@ -305,7 +313,7 @@ const UserProfile = () => {
                             </label>
                             {user.profilePicture && (
                                 <button
-                                    onClick={handleDeleteProfilePicture}
+                                    onClick={() => handleDeleteProfilePicture(user.userId)}
                                     className="absolute -top-1 -right-1 w-8 h-8 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 cursor-pointer transition-colors"
                                     title="Delete profile picture"
                                 >

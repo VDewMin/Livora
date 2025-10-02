@@ -1,5 +1,3 @@
-import toast from "react-hot-toast";
-import React from "react";
 import {Route, Routes } from "react-router";
 
 import KsViewParcels from "./pages/KsViewParcels.jsx"
@@ -35,6 +33,8 @@ import ForgotPassword from "./pages/vd_forgotPassword.jsx";
 import ResetPassword from "./pages/vd_resetPassword.jsx";
 import DashboardLayout from "./components/vd_dashboardLayout.jsx";
 import UserProfile from "./pages/vd_userProfile.jsx";
+import UpdateUser from "./pages/vd_updateUser.jsx";
+
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
@@ -62,6 +62,7 @@ import SDLandingPage from "./pages/SDLandingPage.jsx";
 import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
+
 const App = () =>{
     return(
         <div className="p-4">
@@ -96,6 +97,9 @@ const App = () =>{
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
                     <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
                     <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
+
+
                     
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
