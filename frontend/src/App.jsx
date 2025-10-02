@@ -64,6 +64,7 @@ import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
+import UserDashboard from "./pages/vd_residentDashboard.jsx";
 
 const App = () =>{
     return(
@@ -111,7 +112,7 @@ const App = () =>{
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
 
-
+                    <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["Resident"]}><UserDashboard /></ProtectedRoute>} />
                 </Route>
                 
 
