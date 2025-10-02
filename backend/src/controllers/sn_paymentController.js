@@ -3,6 +3,8 @@ import OnlinePayment from "../models/sn_onlinePayment.js";
 import OfflinePayment from "../models/sn_offlinePayment.js";
 import User from "../models/vd_user.js";
 import OTP from "../models/sn_otp.js";
+import Purchase from "../models/SDpurchase.js";  
+import LaundryRequest from "../models/SDLaundryRequest.js"; 
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import dotenv from "dotenv";
@@ -409,6 +411,7 @@ export const getPaymentsByResident = async (req, res) => {
 };
 
 
+
 // Get Resident Charges with Monthly Payment Check
 export const getResidentMonthlyCharges = async (req, res) => {
   try {
@@ -442,37 +445,58 @@ export const getResidentMonthlyCharges = async (req, res) => {
   }
 };
 
-// Get all residents with selected month payment status
+
+// ---------------- Get all residents with selected month payment status ----------------
 export const getAllResidentsMonthlyCharges = async (req, res) => {
   try {
-    // ✅ Read month & year from query (fallback to current month if missing)
     const { month, year } = req.query;
     const now = new Date();
 
     const selectedYear = year ? Number(year) : now.getFullYear();
-    const selectedMonth = month ? Number(month) - 1 : now.getMonth(); // JS months are 0-based
+    const selectedMonth = month ? Number(month) - 1 : now.getMonth();
 
-    // ✅ Build start & end of month range
     const startDate = new Date(Date.UTC(selectedYear, selectedMonth, 1, 0, 0, 0));
     const endDate = new Date(Date.UTC(selectedYear, selectedMonth + 1, 0, 23, 59, 59));
 
-    // ✅ Fetch all residents
     const residents = await User.find({ role: "Resident" }).lean();
 
-    // ✅ Map residents with their payment status for the selected month
     const result = await Promise.all(
       residents.map(async (r) => {
+        // ✅ Check payments
         const payment = await Payment.findOne({
           residentId: r.userId,
           paymentDate: { $gte: startDate, $lte: endDate },
         }).lean();
 
+        // ✅ Rent from Purchase (with fallback)
+        let rent = 1000;
+        const purchase = await Purchase.findOne({ room_id: r.apartmentNo });
+        if (purchase && purchase.price) rent = purchase.price;
+
+        // ✅ Sum Laundry Requests (with fallback)
+        let laundry = 100;
+        const laundryAgg = await LaundryRequest.aggregate([
+          {
+            $match: {
+              resident_id: r.userId,
+              status: "completed",
+              created_at: { $gte: startDate, $lte: endDate },
+            },
+          },
+          { $group: { _id: null, total: { $sum: "$total_cost" } } },
+        ]);
+
+        if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
+
         return {
           residentId: r.userId,
           residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
           apartmentNo: r.apartmentNo ?? "",
-          monthlyPayment: payment?.amount ?? r.monthlyRent ?? 0,
-          status: payment?.status ?? "Unpaid", // default to unpaid
+          rent,
+          laundry,
+          others: 0,
+          total: rent + laundry,
+          status: payment?.status ?? "Unpaid",
         };
       })
     );

@@ -5,12 +5,13 @@ import api from '../lib/axios';
 import { Link, useNavigate } from 'react-router';
 import { useParams } from 'react-router';
 import React from 'react';
+import { getLocalDateTimeString } from '../lib/utils';
 
 const KsParcelDetail = () => {
   const [parcel, setParcel] = useState(null);
   const [collectedDateTime, setCollectedDateTime] = useState(() => {
     const now = new Date();
-    return now.toISOString().slice(0,16); // format for datetime-local
+    return now.toISOString().slice(0,16); 
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -21,8 +22,7 @@ const KsParcelDetail = () => {
 
   const formatDateTimeLocal = (dateString) => {
   if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toISOString().slice(0,16); // "YYYY-MM-DDTHH:mm"
+  return getLocalDateTimeString(new Date(dateString));
   };
 
 
@@ -162,6 +162,7 @@ const KsParcelDetail = () => {
                 setParcel({ ...parcel, locId: e.target.value })
               }
               className="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300"
+              readOnly
             />
           </div>
         </div>

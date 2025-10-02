@@ -19,6 +19,11 @@ export const AuthProvider = ({children}) => {
         setUser((prev) => ({
             ...prev,
             ...newUserData,
+            // Force cache-bust for avatar consumers when profile picture changes
+            avatarVersion:
+                newUserData && Object.prototype.hasOwnProperty.call(newUserData, "profilePicture")
+                    ? Date.now()
+                    : prev?.avatarVersion,
             updatedAt: new Date().toISOString(),
         }));
     };
