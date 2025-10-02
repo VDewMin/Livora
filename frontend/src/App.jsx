@@ -63,6 +63,7 @@ import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
+import SDpurchasesList from "./pages/SDpurchasesList";
 const App = () =>{
     return(
         <div className="p-4">
@@ -129,27 +130,30 @@ const App = () =>{
                 
                 
                 
-               <Route path='/notes' element={<HomePage/>} />
+               <Route path='/notes' element={<ProtectedRoute allowedRoles={["Admin"]}><HomePage/></ProtectedRoute>}/>
                <Route path='/create' element={<CreatePage/>} />
                <Route path='/note/:id' element={<NoteDetailsPage/>} />
                
-               <Route path="/purchases" element={<PurchasesList />} />
+               <Route path="/purchases" element={<SDpurchasesList/> }/>
                <Route path="/purchases/create" element={<SDcreatepurchase />} />
-               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} /> 
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
 
                 <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
                 <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
-                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
+                </Route>
+                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings/>}/>
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
                <Route path="/admin/convention-hall-booking/:id" element={<SDAdminConventionHallBookingsDetails />} />
-               </Route>
+               
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
-                <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
                 </Route>
+                <Route path="/laundry/staff" element={<SDLaundryStaffView/>}/>
+                
                 <Route path="/landing" element={<SDLandingPage />} />
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
