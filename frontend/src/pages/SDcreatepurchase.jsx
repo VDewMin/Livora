@@ -68,9 +68,9 @@ const SDcreatepurchase = () => {
             if (name === 'lease_duration' && newData.room_type === 'rent') {
                 let rent = '';
                 switch (value) {
-                    case '6_months': rent = '200'; break;
-                    case '12_months': rent = '150'; break;
-                    case '24_months': rent = '100'; break;
+                    case '6_months': rent = '20000'; break;
+                    case '12_months': rent = '15000'; break;
+                    case '24_months': rent = '10000'; break;
                     default: rent = ''; // Custom or empty
                 }
                 newData.monthly_rent = rent;

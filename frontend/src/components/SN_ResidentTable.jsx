@@ -20,23 +20,23 @@ export default function ResidentTable({ residents: propResidents }) {
         );
         console.log("Residents data:", res.data);
 
-        // ✅ Use backend data if available
         if (res.data && res.data.length > 0) {
           setResidents(res.data);
         } else {
-          // ✅ Backend returned empty → fallback
           toast("No data found, showing defaults");
           setResidents([
             {
               residentName: "Default Rent",
               apartmentNo: "N/A",
               monthlyPayment: 1000,
+              paidAmount: 0,
               status: "Unpaid",
             },
             {
               residentName: "Default Laundry",
               apartmentNo: "N/A",
               monthlyPayment: 100,
+              paidAmount: 0,
               status: "Unpaid",
             },
           ]);
@@ -44,18 +44,19 @@ export default function ResidentTable({ residents: propResidents }) {
       } catch (error) {
         console.error("Error fetching residents:", error);
         toast.error("Failed to load residents data. Showing defaults.");
-        // ✅ Backend failed → fallback
         setResidents([
           {
             residentName: "Default Rent",
             apartmentNo: "N/A",
             monthlyPayment: 1000,
+            paidAmount: 0,
             status: "Unpaid",
           },
           {
             residentName: "Default Laundry",
             apartmentNo: "N/A",
             monthlyPayment: 100,
+            paidAmount: 0,
             status: "Unpaid",
           },
         ]);
@@ -65,7 +66,7 @@ export default function ResidentTable({ residents: propResidents }) {
     fetchResidents();
   }, [propResidents]);
 
-  // ✅ Apply filters
+  // Filter residents by search & status
   const filteredResidents = residents.filter((r) => {
     const name = (r.residentName ?? "").toLowerCase();
     const unit = (r.apartmentNo ?? "").toLowerCase();
@@ -82,7 +83,7 @@ export default function ResidentTable({ residents: propResidents }) {
 
   return (
     <div className="p-4">
-      {/* Search + Dropdown */}
+      {/* Search + Status Filter */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
         <input
           type="text"
@@ -102,7 +103,7 @@ export default function ResidentTable({ residents: propResidents }) {
         </select>
       </div>
 
-      {/* Table */}
+      {/* Resident Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead>
@@ -124,7 +125,7 @@ export default function ResidentTable({ residents: propResidents }) {
                     {r.apartmentNo || "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {r.monthlyPayment ?? 0}
+                    {r.paidAmount ?? 0} / {r.monthlyPayment ?? 0}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {r.status || "N/A"}

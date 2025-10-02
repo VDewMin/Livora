@@ -151,7 +151,7 @@ const App = () =>{
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
                 <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
                 </Route>
-                <Route path="/landing" element={<SDLandingPage />} />
+                <Route path="/" element={<SDLandingPage />} />
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
