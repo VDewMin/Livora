@@ -1,17 +1,53 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../lib/axios";
 import { useNavigate } from "react-router-dom"; 
+import ConfirmDialog from "../components/vd_confirmDialog";
+import toast from "react-hot-toast";
 
 const StaffList = () => {
   const [staff, setStaff] = useState([]);
   const navigate = useNavigate(); 
 
+  const [confirmDialog, setConfirmDialog] = useState({
+          isOpen: false,
+          title: '',
+          message: '',
+          onConfirm: () => {}
+  });
+
   useEffect(() => {
-    axiosInstance
-      .get("/users?role=Staff") // backend should filter by role
-      .then((res) => setStaff(res.data))
+  axiosInstance
+      .get("/users") // <- remove extra /users
+      .then((res) => {
+        const staffOnly = res.data.filter(u => u.role === "Staff");
+        setStaff(staffOnly);
+      })
       .catch((err) => console.error("Error fetching staff:", err));
   }, []);
+
+
+  const handleDelete = async (id) => {
+
+    
+    setConfirmDialog({
+            isOpen: true,
+            title: 'Delete User',
+            message: 'Are you sure you want to delete this user?',
+            onConfirm: async () => {
+                 try {
+                  await axiosInstance.delete(`/users/${id}`);
+                  toast.success("User deleted successfully!");
+                  // update UI
+                  setStaff(staff.filter((u) => u._id !== id));
+                } catch (error) {
+                  console.error(error);
+                  toast.error("Failed to delete user");
+                }
+                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+            }
+    });
+
+  };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -54,13 +90,17 @@ const StaffList = () => {
                   <td className="border px-4 py-2">{st.staffType}</td>
                   <td className="border px-4 py-2">
                     <div className="flex gap-2">
-                      <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        Edit
+                       <button 
+                        onClick={() => navigate(`/admin/update-user/${st._id}`)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                          Edit
                       </button>
-                      <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center gap-1">
+                      <button 
+                       onClick={() => handleDelete(st._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 flex items-center gap-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -115,7 +155,17 @@ const StaffList = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+                  isOpen={confirmDialog.isOpen}
+                  title={confirmDialog.title}
+                  message={confirmDialog.message}
+                  onConfirm={confirmDialog.onConfirm}
+                  onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
+
+    
   );
 };
 

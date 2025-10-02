@@ -11,7 +11,7 @@ router.get("/resident/:apartmentNo", getResidentByApartment);
 router.get("/:id", authMiddleware, getUserById)
 router.post("/", createUser);
 router.put("/:id", authMiddleware ,updateUser);
-router.delete("/:id", deleteUser);
+router.delete("/:id", authMiddleware, deleteUser);
 
 router.post("/login", loginUser);
 router.post("/verify-otp", verifyOtp);

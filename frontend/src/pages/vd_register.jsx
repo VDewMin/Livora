@@ -117,11 +117,14 @@ const Register = () => {
       return;
     }
 
-    if (!apartmentRegex.test(formData.apartmentNo)) {
-      toast.error("Apartment No must be like P201, P304, or P06.");
-      setLoading(false);
-      return;
+    if (formData.role === "Resident") {
+      if (!apartmentRegex.test(formData.apartmentNo)) {
+        toast.error("Apartment No must be like P201, P304, or P06.");
+        setLoading(false);
+        return;
+      }
     }
+
 
     try {
       const res = await axiosInstance.post(
