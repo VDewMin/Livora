@@ -142,7 +142,7 @@ function GKViewServices() {
         {/* Download all processing services */}
         <button
           onClick={handleDownloadAllProcessingPDF}
-          className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+          className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           <FaFilePdf size={18} /> Download pdf
         </button>
