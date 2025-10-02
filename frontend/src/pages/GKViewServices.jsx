@@ -170,12 +170,13 @@ function GKViewServices() {
                       {s.status || "Pending"}
                     </td>
                     <td className="p-3 border flex gap-2">
+                      {s.status === "Pending" && (
                       <button
                         onClick={() => navigate(`/update-service/${s._id}`)}
                         className="text-blue-600 hover:text-blue-800 p-2"
                       >
                         <FaEdit size={18} />
-                      </button>
+                      </button> )}
                       <button
                         onClick={() => navigate(`/delete-service/${s._id}`)}
                         className="text-red-600 hover:text-red-800 p-2"
