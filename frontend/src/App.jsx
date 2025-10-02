@@ -11,6 +11,7 @@ import GKViewServices from './pages/GKViewServices.jsx'
 import GKUpdateService from './pages/GKUpdateService.jsx'
 import GKDeleteService from './pages/GKDeleteService.jsx'
 import GKRequestService from './pages/GKRequestService.jsx';
+import AdminAnnouncements from './pages/GKAdminAnnouncement.jsx';
 import Checkout from "./pages/SN_Checkout.jsx";
 import Success from "./pages/SN_Success.jsx";
 import Cancel from "./pages/SN_Cancel.jsx";
@@ -74,6 +75,7 @@ const App = () =>{
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
                     <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
+                    <Route path="/send-announcements" element={<ProtectedRoute allowedRoles={["Admin"]}>< AdminAnnouncements/></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
