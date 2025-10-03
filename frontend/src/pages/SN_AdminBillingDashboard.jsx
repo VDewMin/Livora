@@ -124,18 +124,17 @@ const SN_AdminBillingDashboard = () => {
   };
 
   // ---------- Fetch Resident Payments ----------
-const fetchResidentPayments = async () => {
-  try {
-    const res = await fetch(
-      `${API_URL}/payments/resident-status?month=${selectedMonth.month}&year=${selectedMonth.year}`
-    );
-    const data = await res.json();
-    setResidentPayments(Array.isArray(data) ? data : []);
-  } catch (err) {
-    console.error("Error fetching resident payments:", err);
-  }
-};
-
+  const fetchResidentPayments = async () => {
+    try {
+      const res = await fetch(
+        `${API_URL}/payments/resident-status?month=${selectedMonth.month}&year=${selectedMonth.year}`
+      );
+      const data = await res.json();
+      setResidentPayments(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching resident payments:", err);
+    }
+  };
 
   // ---------- On Month Change ----------
   const handleMonthChange = (e) => {
@@ -195,7 +194,6 @@ const fetchResidentPayments = async () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      
       <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-4 text-gray-900">
           Billing & Finance
@@ -227,13 +225,30 @@ const fetchResidentPayments = async () => {
             ))}
           </div>
 
+          {/* Month Selector or Static Month */}
           <div>
-            <input
-              type="month"
-              value={`${selectedMonth.year}-${selectedMonth.month}`}
-              onChange={handleMonthChange}
-              className="border px-3 py-2 rounded shadow-sm"
-            />
+              {activeTab === "residents" ? (
+                // 🟢 Static current month (unchangeable)
+                (() => {
+                  const now = new Date();
+                  const monthName = now.toLocaleString("default", { month: "long" });
+                  const year = now.getFullYear();
+                  return (
+                    <span className="px-3 py-2 rounded bg-gray-100 text-gray-700 font-medium">
+                      {monthName} {year}
+                    </span>
+                  );
+                })()
+              ) : (
+                // 🟢 Show month picker on all other tabs
+                <input
+                  type="month"
+                  value={`${selectedMonth.year}-${selectedMonth.month}`}
+                  onChange={handleMonthChange}
+                  className="border px-3 py-2 rounded shadow-sm"
+                />
+              )}
+
           </div>
         </div>
 
@@ -396,59 +411,57 @@ const fetchResidentPayments = async () => {
           <ResidentTable residents={residentPayments} />
         )}
 
-
         {activeTab === "pendingPayments" && (
-  <div className="bg-white p-6 rounded-2xl shadow">
-    <h2 className="text-lg font-semibold mb-4">
-      Pending Offline Payments
-    </h2>
-    {offlinePending.length > 0 ? (
-      <table className="min-w-full border text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 w-[12%]">Payment ID</th>
-            <th className="border p-2 w-[10%]">Apartment No</th>
-            <th className="border p-2 w-[20%]">Resident Name</th>
-            <th className="border p-2 w-[15%]">Amount</th>
-            <th className="border p-2 w-[13%]">Status</th>
-            <th className="border p-2 w-[15%]">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {offlinePending.map((p) => (
-            <tr
-              key={p.paymentId || p._id}
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => setSelectedPaymentId(p.paymentId)}
-            >
-              <td className="border px-4 py-2">{p.paymentId}</td>
-              <td className="border px-4 py-2">{p.apartmentNo ?? "—"}</td>
-              <td className="border px-4 py-2">{p.residentName ?? "—"}</td>
-              <td className="border px-4 py-2 font-semibold">
-                Rs. {Number(p.totalAmount || 0).toLocaleString()}
-              </td>
-              <td className="border px-4 py-2">
-                <span className="font-medium text-yellow-600">
-                  {p.status}
-                </span>
-              </td>
-              <td className="border px-4 py-2">
-                {p.paymentDate
-                  ? new Date(p.paymentDate).toLocaleDateString()
-                  : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p className="text-gray-500 text-center">
-        No pending offline payments
-      </p>
-    )}
-  </div>
-)}
-
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <h2 className="text-lg font-semibold mb-4">
+              Pending Offline Payments
+            </h2>
+            {offlinePending.length > 0 ? (
+              <table className="min-w-full border text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2 w-[12%]">Payment ID</th>
+                    <th className="border p-2 w-[10%]">Apartment No</th>
+                    <th className="border p-2 w-[20%]">Resident Name</th>
+                    <th className="border p-2 w-[15%]">Amount</th>
+                    <th className="border p-2 w-[13%]">Status</th>
+                    <th className="border p-2 w-[15%]">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {offlinePending.map((p) => (
+                    <tr
+                      key={p.paymentId || p._id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedPaymentId(p.paymentId)}
+                    >
+                      <td className="border px-4 py-2">{p.paymentId}</td>
+                      <td className="border px-4 py-2">{p.apartmentNo ?? "—"}</td>
+                      <td className="border px-4 py-2">{p.residentName ?? "—"}</td>
+                      <td className="border px-4 py-2 font-semibold">
+                        Rs. {Number(p.totalAmount || 0).toLocaleString()}
+                      </td>
+                      <td className="border px-4 py-2">
+                        <span className="font-medium text-yellow-600">
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="border px-4 py-2">
+                        {p.paymentDate
+                          ? new Date(p.paymentDate).toLocaleDateString()
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-gray-500 text-center">
+                No pending offline payments
+              </p>
+            )}
+          </div>
+        )}
 
         {activeTab === "receipts" && (
           <div className="bg-white p-6 rounded-2xl shadow">

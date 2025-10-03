@@ -125,7 +125,7 @@ export default function ResidentTable({ residents: propResidents }) {
                     {r.apartmentNo || "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {r.paidAmount ?? 0} / {r.monthlyPayment ?? 0}
+                     {r.monthlyPayment ?? 0}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {r.status || "N/A"}

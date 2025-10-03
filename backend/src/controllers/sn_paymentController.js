@@ -252,7 +252,7 @@ export const createOfflinePayment = async (req , res) => {
             residentName,
             phoneNumber,
             paymentType: "Offline",
-            totalAmount: total,
+            totalAmount,
             status: "Pending"
         });
         await newPayment.save();
@@ -266,7 +266,7 @@ export const createOfflinePayment = async (req , res) => {
         phoneNumber,
         amountRent:rent,
         amountLaundry:laundry,
-        totalAmount: total,   
+        totalAmount,   
         paymentDate: new Date(),
         slipFile: slipFile ? {data: slipFile.buffer , contentType: slipFile.mimetype} : null,
         status: "Pending"
@@ -301,7 +301,7 @@ export const vertifyOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    const resident = await Resident.findOne({ residentId: payment.residentId });
+    const resident = await Payment.findOne({ residentId: payment.residentId });
     if (resident) {
       const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
       resident.lastPaidMonth = currentMonth;
@@ -476,75 +476,88 @@ export const getResidentMonthlyCharges = async (req, res) => {
   }
 };
 
+  export const getAllResidentsMonthlyCharges = async (req, res) => {
+    try {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-export const getAllResidentsMonthlyCharges = async (req, res) => {
-  try {
-    const { month, year } = req.query;
-    const now = new Date();
+      // 1️⃣ Fetch all residents
+      const residents = await User.find({ role: "Resident" }).lean();
 
-    const selectedYear = year ? Number(year) : now.getFullYear();
-    const selectedMonth = month ? Number(month) - 1 : now.getMonth();
+      // 2️⃣ Fetch all purchases (monthly rent)
+      const purchases = await Purchase.find({
+        room_id: { $in: residents.map(r => r.apartmentNo) },
+      }).lean();
 
-    const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0);
-    const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
+      // Map apartmentNo -> monthly_rent
+      const purchaseMap = {};
+      purchases.forEach(p => {
+        purchaseMap[p.room_id] = p.monthly_rent || 1000;
+      });
 
-    // 1️⃣ Fetch all residents
-    const residents = await User.find({ role: "Resident" }).lean();
+      // 3️⃣ Fetch all laundry requests for current month
+      const laundryRequests = await LaundryRequest.find({
+        resident_id: { $in: residents.map(r => r.userId) },
+        status: "completed",
+        created_at: { $gte: startDate, $lt: endDate },
+      }).lean();
 
-    const result = await Promise.all(
-      residents.map(async (r) => {
-        // 2️⃣ Rent from Purchase
-        let rent = 1000;
-        const purchase = await Purchase.findOne({ room_id: r.apartmentNo });
-        if (purchase && purchase.monthly_rent) rent = purchase.monthly_rent;
+      // Map residentId -> totalLaundry
+      const laundryMap = {};
+      laundryRequests.forEach(l => {
+        laundryMap[l.resident_id] = (laundryMap[l.resident_id] || 0) + l.total_cost;
+      });
 
-        // 3️⃣ Laundry sum (only completed)
-        let laundry = 0;
-        const laundryAgg = await LaundryRequest.aggregate([
-          {
-            $match: {
-              resident_id: r.userId,
-              status: "completed",
-              created_at: { $gte: startDate, $lte: endDate },
-            },
-          },
-          { $group: { _id: null, total: { $sum: "$total_cost" } } },
-        ]);
-        if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
+      // 4️⃣ Fetch all payments for current month
+      const payments = await Payment.find({
+        $or: [
+          { residentId: { $in: residents.map(r => r.userId) } },
+          { apartmentNo: { $in: residents.map(r => r.apartmentNo) } },
+        ],
+        status: "Completed",
+        paymentDate: { $gte: startDate, $lt: endDate },
+      }).lean();
+      console.log(payments);
 
+      // Map residentId -> totalPaid
+      const paymentMap = {};
+      payments.forEach(p => {
+        // Find the residentId for this payment
+        const residentKey = p.residentId || residents.find(r => r.apartmentNo === p.apartmentNo)?.userId;
+        if (residentKey) {
+          paymentMap[residentKey] = (paymentMap[residentKey] || 0) + p.totalAmount;
+          console.log(residentKey)
+          console.log(p.totalAmount)
+        }
+      });
+      
+
+      // 5️⃣ Build final result
+      const result = residents.map(r => {
+        const rent = purchaseMap[r.apartmentNo] || 0;
+        console.log(rent)
+        const laundry = laundryMap[r.userId] || 0;
+        console.log(laundry)
         const totalDue = rent + laundry;
-
-        // 4️⃣ Sum of completed payments for the month
-        const paymentAgg = await Payment.aggregate([
-          {
-            $match: {
-              residentId: r.userId,
-              status: "Completed",
-              paymentDate: { $gte: startDate, $lte: endDate },
-            },
-          },
-          { $group: { _id: null, totalPaid: { $sum: "$totalAmount" } } },
-        ]);
-        const totalPaid = paymentAgg.length ? paymentAgg[0].totalPaid : 0;
-
-        // 5️⃣ Determine status
-        const status = totalPaid >= totalDue ? "Paid" : "Unpaid";
+        console.log(totalDue)
+        const totalPaid = paymentMap[r.userId] || 0;
+        console.log(totalPaid)
+        const status = totalPaid != totalDue ? "Paid" : "Unpaid";
 
         return {
           residentId: r.userId,
           residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
-          apartmentNo: r.apartmentNo ?? "",
+          apartmentNo: r.apartmentNo || "",
           monthlyPayment: totalDue,
           paidAmount: totalPaid,
           status,
         };
-      })
-    );
+      });
 
-    res.json(result);
-  } catch (err) {
-    console.error("Error fetching all residents monthly charges:", err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
+      res.json(result);
+    } catch (err) {
+      console.error("Error fetching resident charges:", err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
