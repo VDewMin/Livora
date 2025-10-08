@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, deleteUser, getAllUsers, getUserById, updateUser, loginUser,verifyOtp,forgotPassword, resetPassword, getResidentByApartment, changePassword, updateProfilePicture, deleteProfilePicture, getResidentDashboardStats, toggleTwoFactor, send2FAOtp } from "../controllers/vd_usersController.js";
+import { createUser, deleteUser, getAllUsers, getUserById, updateUser, loginUser,verifyOtp,forgotPassword, forgotPasswordUnauthenticated, checkEmailExists, resetPassword, getResidentByApartment, changePassword, updateProfilePicture, deleteProfilePicture, getResidentDashboardStats, toggleTwoFactor, send2FAOtp } from "../controllers/vd_usersController.js";
 import { authMiddleware } from "../middleware/auth.js";
 import upload from "../middleware/vd_profilePicUpload.js";
 import { getProfilePicture } from "../controllers/vd_usersController.js";
@@ -15,7 +15,9 @@ router.delete("/:id", authMiddleware, deleteUser);
 
 router.post("/login", loginUser);
 router.post("/verify-otp", verifyOtp);
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", authMiddleware, forgotPassword);
+router.post("/forgot-password-unauthenticated", forgotPasswordUnauthenticated);
+router.post("/check-email", checkEmailExists);
 router.post("/reset-password", resetPassword);
 router.post("/change-password", changePassword);
 

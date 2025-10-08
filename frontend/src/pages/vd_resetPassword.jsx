@@ -1,5 +1,5 @@
 // src/pages/vd_resetPassword.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
@@ -9,8 +9,15 @@ export default function ResetPassword() {
   const { token } = useParams();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  // If user is logged in, show a message and option to logout first
+  useEffect(() => {
+    if (user && token) {
+      toast.info("You are currently logged in. Please logout first to reset your password.");
+    }
+  }, [user, token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +28,8 @@ export default function ResetPassword() {
       await axiosInstance.post("/users/reset-password", { token, password });
       toast.success("Password reset successful — please log in");
 
-      logout();
+      // Clear auth state without redirecting
+      logout(false);
         
       navigate("/login");
     } catch (err) {

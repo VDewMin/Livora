@@ -333,13 +333,10 @@ export const getResidentByApartment = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
     try {
-        const { email } = req.body;
-        if(!email) return res.status(400).json({message: "Email required"});
-
-        const user = await User.findOne({ email });
+        // Get user from authenticated token (req.user is set by authMiddleware)
+        const user = await User.findById(req.user._id);
         if (!user) {
-        // For security, you may still return 200 so attackers can't enumerate emails.
-        return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const rawToken = crypto.randomBytes(32).toString("hex");
@@ -358,16 +355,107 @@ export const forgotPassword = async (req, res) => {
             from:`"LIVORA" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: "Password reset for your account",
-            text: `You requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.`,
-            html: `<p>You requested a password reset. Click <a href="${resetLink}">here</a> (or paste in browser):</p><p>${resetLink}</p><p>This link is valid for 15 minutes.</p>`
+            text: `Hello ${user.firstName},\n\nYou requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.\n\nIf you didn't request this, please ignore this email.\n\n- Livora Team`,
+            html: `
+                <h2>Password Reset Request</h2>
+                <p>Hello <strong>${user.firstName}</strong>,</p>
+                <p>You requested a password reset for your Livora account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a>
+                </div>
+                <p>Or copy and paste this link in your browser:</p>
+                <p style="word-break: break-all; color: #6b7280;">${resetLink}</p>
+                <p><strong>This link is valid for 15 minutes.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email.</p>
+                <p>– Livora Team</p>
+            `
         });
 
-        return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
-
+        return res.status(200).json({ 
+            message: "Password reset link has been sent to your email",
+            email: user.email // Return the email for confirmation
+        });
 
     } catch (err) {
         console.error("forgotPassword error:", err);
         return res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const checkEmailExists = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email required" });
+
+        const user = await User.findOne({ email });
+        
+        return res.status(200).json({ 
+            exists: !!user,
+            message: user ? "Email found" : "Email not found"
+        });
+
+    } catch (err) {
+        console.error("checkEmailExists error:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const forgotPasswordUnauthenticated = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email required" });
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Email not found in our system" });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + RESET_TOKEN_EXPIRY_MS;
+
+        await user.save();
+
+        const transporter = createTransporter();
+
+        const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
+
+        await transporter.sendMail({
+            from:`"LIVORA" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: "Password reset for your account",
+            text: `Hello ${user.firstName},\n\nYou requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.\n\nIf you didn't request this, please ignore this email.\n\n- Livora Team`,
+            html: `
+                <h2>Password Reset Request</h2>
+                <p>Hello <strong>${user.firstName}</strong>,</p>
+                <p>You requested a password reset for your Livora account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a>
+                </div>
+                <p>Or copy and paste this link in your browser:</p>
+                <p style="word-break: break-all; color: #6b7280;">${resetLink}</p>
+                <p><strong>This link is valid for 15 minutes.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email.</p>
+                <p>– Livora Team</p>
+            `
+        });
+
+        return res.status(200).json({ 
+            message: "Password reset link has been sent to your email",
+            email: user.email
+        });
+
+    } catch (err) {
+        console.error("forgotPasswordUnauthenticated error:", err);
+        console.error("Full error details:", err);
+        return res.status(500).json({ 
+            message: "Server error", 
+            details: err.message 
+        });
     }
 };
 
