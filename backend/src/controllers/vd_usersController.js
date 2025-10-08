@@ -213,43 +213,45 @@ export const deleteUser = async(req, res) => {
 }
 
 export const loginUser = async (req, res) => {
-    try{
-        const { email, password} = req.body;
+  try {
+    const { email, password } = req.body;
 
-        //check if user exists
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({message: "Invalid email or password"});
-        }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
-        //password check
-        const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.status(400).json({message: "Invalid email or password"});
-        }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
-        //Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY};
+    if (user.twoFactorEnabled) {
+      // Generate OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY };
 
-        //send otp via email
-        const transporter = createTransporter();
+      const transporter = createTransporter();
+      await transporter.sendMail({
+        from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+        to: user.email,
+        subject: "Your OTP code",
+        text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+      });
 
-        await transporter.sendMail({
-            from: `"LIVORA" <${process.env.EMAIL_USER}>`,
-            to: user.email,
-            subject: "Your OTP code",
-            text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
-        });
-        res.json({ message: "OTP sent to email", userId: user._id });
-
-
-
-    } catch (err) {
-        console.error("Login error:", err);
-        res.status(500).json({message: "Server error"});
+      return res.json({ message: "OTP sent to email", userId: user._id, twoFactorEnabled: true });
+    } else {
+      // Skip OTP and issue JWT directly
+      const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
+      return res.json({
+        message: "Login successful",
+        user,
+        token,
+        twoFactorEnabled: false,
+      });
     }
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 export const verifyOtp = async(req, res) => {
         try{
@@ -461,6 +463,77 @@ export const changePassword = async (req, res) => {
       success: false,
       message: "Internal server error",
     });
+  }
+};
+
+export const send2FAOtp = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id); // req.user is set by authMiddleware
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY };
+
+    // Send OTP via email
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Your 2FA Setup OTP Code",
+      text: `Your OTP code for setting up two-factor authentication is ${otp}. It will expire in 5 minutes.`,
+      html: `
+        <h2>Two-Factor Authentication Setup</h2>
+        <p>Hello ${user.firstName},</p>
+        <p>Your OTP code for setting up two-factor authentication is:</p>
+        <h3 style="color: #2563eb; font-size: 24px; letter-spacing: 2px;">${otp}</h3>
+        <p>This code will expire in 5 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p>– Livora Team</p>
+      `
+    });
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (err) {
+    console.error("Send 2FA OTP error:", err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+export const toggleTwoFactor = async (req, res) => {
+  const { enabled, otp } = req.body; // true or false, and optional OTP for verification
+  try {
+    const user = await User.findById(req.user._id); // req.user is set by authMiddleware
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // If enabling 2FA, verify OTP first
+    if (enabled && otp) {
+      const record = otpStore[user._id];
+      if (!record) return res.status(400).json({ message: "No OTP found" });
+
+      if (Date.now() > record.expiresAt) {
+        delete otpStore[user._id];
+        return res.status(400).json({ message: "OTP expired" });
+      }
+
+      if (record.otp !== otp) {
+        return res.status(400).json({ message: "Invalid OTP" });
+      }
+
+      // OTP is valid, clean up
+      delete otpStore[user._id];
+    }
+
+    user.twoFactorEnabled = enabled;
+    await user.save();
+
+    res.json({ 
+      message: `Two-factor authentication ${enabled ? "enabled" : "disabled"}`, 
+      twoFactorEnabled: enabled 
+    });
+  } catch (err) {
+    console.error("Toggle 2FA error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

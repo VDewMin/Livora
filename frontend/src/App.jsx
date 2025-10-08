@@ -36,6 +36,9 @@ import UserProfile from "./pages/vd_userProfile.jsx";
 import UpdateUser from "./pages/vd_updateUser.jsx";
 import ResidentDashboard from "./pages/vd_residentDashboard.jsx";
 import AdminDashboard from "./pages/vd_adminDashboard.jsx";
+import FeedbackForm from "./pages/vd_feedbackForm.jsx";
+import FeedbackList from "./pages/vd_feedbackList.jsx";
+
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
 import ChangePassword from "./pages/vd_changePassword.jsx";
@@ -65,6 +68,7 @@ import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
+import SecurityPrivacy from "./pages/vd_securityAndPrivacy.jsx";
 
 const App = () =>{
     return(
@@ -104,8 +108,10 @@ const App = () =>{
                     <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
                     <Route path="/resident/dashboard/:userId" element={<ProtectedRoute allowedRoles={["Resident"]}><ResidentDashboard /></ProtectedRoute>} />
                     <Route path="/admin/dashboard/" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>} />
-
-                    
+                    <Route path="/resident/feedback" element={<ProtectedRoute allowedRoles={["Resident"]}><FeedbackForm /></ProtectedRoute>}/>
+                    <Route path="/admin/feedback" element={<ProtectedRoute allowedRoles={["Admin"]}><FeedbackList /></ProtectedRoute>} />
+                    <Route path="/resident/feedback" element={<ProtectedRoute allowedRoles={["Resident"]}><FeedbackForm /></ProtectedRoute>} />
+                    <Route path="/security-privacy/:userId" element={<ProtectedRoute><SecurityPrivacy /></ProtectedRoute>} />
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />

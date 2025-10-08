@@ -18,24 +18,31 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
       // Send login request to backend
       const res = await axiosInstance.post("/users/login", formData, {
         headers: {"Content-Type": "application/json"},
       });
-      
-      navigate(`/verify-otp/${res.data.userId}`);
 
-      toast.success("OTP sent to your email");
+      // Check if two-factor authentication is enabled
+      if (res.data.twoFactorEnabled) {
+        navigate(`/verify-otp/${res.data.userId}`);
+        toast.success("OTP sent to your email");
+      } else {
+        // Direct login without OTP
+        login(res.data.user, res.data.token);
+        navigate(`/profile/${res.data.user._id}`);
+        toast.success("Login successful");
+      }
 
-      
     } catch (err) {
-        console.error("Login failed:", err.response?.data || err);
-        toast.error(err.response?.data?.message || "Invalid email or password");
+      console.error("Login failed:", err.response?.data || err);
+      toast.error(err.response?.data?.message || "Invalid email or password");
     }
   };
+
 
   const handleForgotPassword = () => {
     navigate("/forgot-password");

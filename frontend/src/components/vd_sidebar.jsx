@@ -4,9 +4,7 @@ import {
   Album,
   Package,
   CreditCard,
-  MessagesSquare,
   UserCog,
-  BarChart3,
   Settings,
   HelpCircle,
   LogOut,
@@ -15,6 +13,7 @@ import {
   PackagePlus,
   Building2,
   Users,
+  MessageSquareHeart
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -28,7 +27,8 @@ const roleRoutes = {
     booking: "/admin/booking",
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
-    "resident-management": "admin/residentlist"
+    "resident-management": "admin/residentlist",
+    feedback: "/admin/feedback"
     
   },
   Resident: {
@@ -37,6 +37,7 @@ const roleRoutes = {
     services: "/resident/user-view",
     booking: "/resident/booking",
     billing: "/resident/billing",
+    feedback: "/resident/feedback",
   },
   Security: {
     dashboard: "/securityDashboard",
@@ -72,7 +73,6 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
   { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
-  { id: "feedback", label: "Feedback", icon: MessagesSquare, roles: ["Resident"] },
   //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
   { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
@@ -80,6 +80,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+  { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
+
 
 ];
   const effectiveRole =
@@ -103,7 +105,6 @@ const Sidebar = ({ activeItem, onItemClick }) => {
     { id: "account-information", label: "Account Information", route: (user) => `/profile/${user._id}` },
     { id: "change-password", label: "Change Password", route: (user) => `/change-password/${user._id}` },
     { id: "notification", label: "Notification", route: (user) => `/notifications/${user._id}` },
-    { id: "personalization", label: "Personalization", route: (user) => `/personalization/${user._id}` },
     { id: "security-privacy", label: "Security & Privacy", route: (user) => `/security-privacy/${user._id}` },
   ];
 
