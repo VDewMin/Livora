@@ -80,11 +80,11 @@ const SDNoteDetailsPage = () => {
       <div className='container mx-auto px-4 py-10'>
         <div className='max-w-2xl mx-auto'>
           <div className='flex items-center justify-between mb-8 bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500 transform transition-all hover:scale-102'>
-            <Link to="/notes" className='btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all'>
-              <ArrowLeftIcon className='h-6 w-6 mr-2' />
+            <Link to="/notes" className='btn btn-ghost text-teal-700 hover:bg-teal-100 transition-all px-3 py-4 rounded-full flex items-center'>
+              <ArrowLeftIcon className='h-10 w-6 mr-2' />
               Back to Notes
             </Link>
-            <button onClick={handDelete} className='btn btn-error btn-sm text-white bg-red-600 hover:bg-red-700 transition-all'>
+            <button onClick={handDelete} className='btn btn-error btn-sm text-white bg-red-600 hover:bg-red-700 transition-all px-3 py-4 rounded-full flex items-center'>
               <Trash2Icon className='h-5 w-5 mr-2' /> Delete Note
             </button>
           </div>
@@ -138,7 +138,7 @@ const SDNoteDetailsPage = () => {
               </div>
 
               <div className='card-actions justify-end'>
-                <button className='btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all' disabled={saving} onClick={handleSave}>
+                <button className='btn btn-primary bg-teal-600 text-white hover:bg-teal-700 transition-all px-3 py-4 rounded-full' disabled={saving} onClick={handleSave}>
                   {saving ? <span className='flex items-center'><LoaderIcon className='h-5 w-5 animate-spin mr-2' /> Saving...</span> : "Save Changes"}
                 </button>
               </div>

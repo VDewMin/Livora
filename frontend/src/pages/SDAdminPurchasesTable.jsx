@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Edit3Icon, Trash2Icon } from 'lucide-react';
 import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 const SDAdminPurchasesTable = () => {
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
   useEffect(() => {
     const fetchPurchases = async () => {
@@ -50,6 +51,11 @@ const SDAdminPurchasesTable = () => {
     }
   };
 
+  // Filter purchases based on room_id search term
+  const filteredPurchases = purchases.filter(purchase =>
+    purchase.room_id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return <div className="text-center py-10">Loading...</div>;
   }
@@ -57,6 +63,20 @@ const SDAdminPurchasesTable = () => {
   return (
     <div className="max-w-7xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Admin Purchase Overview</h2>
+      {/* Search Bar */}
+      <div className="mb-6">
+        <label htmlFor="searchRoomId" className="block text-sm font-medium text-teal-700 mb-2">
+          Search by Room ID
+        </label>
+        <input
+          type="text"
+          id="searchRoomId"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Enter Room ID"
+          className="input input-bordered w-full max-w-xs border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+        />
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
           <thead>
@@ -72,7 +92,7 @@ const SDAdminPurchasesTable = () => {
             </tr>
           </thead>
           <tbody>
-            {purchases.map((purchase) => (
+            {filteredPurchases.map((purchase) => (
               <tr key={purchase._id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{purchase.room_id}</td>
                 <td className="py-2 px-4 border-b">{purchase.buyer_Name}</td>
@@ -96,7 +116,7 @@ const SDAdminPurchasesTable = () => {
           </tbody>
         </table>
       </div>
-      {purchases.length === 0 && <p className="text-center py-4">No purchases found.</p>}
+      {filteredPurchases.length === 0 && <p className="text-center py-4">No purchases found.</p>}
     </div>
   );
 };

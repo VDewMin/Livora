@@ -24,12 +24,14 @@ const roleRoutes = {
     dashboard: "/admin/dashboard/",
     deliveries: "/admin/deliveries",
     services: "/admin/admin-view",
-    booking: "/admin/booking",
+    booking: "/admin/convention-hall-bookings",
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
     "resident-management": "admin/residentlist",
-    feedback: "/admin/feedback"
+    feedback: "/admin/feedback",
     
+    //"resident-management": "admin/residentlist",
+    apartments: "/purchases",
   },
   Resident: {
     dashboard: `/resident/dashboard/userId`,

@@ -19,7 +19,7 @@ function GKUpdateService() {
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Convert file buffer to base64
+  // Convert file buffer to base64 for preview
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
     try {
@@ -36,36 +36,36 @@ function GKUpdateService() {
     }
   };
 
+  // Fetch service data
   useEffect(() => {
+    const fetchService = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        toast.error("You are not logged in.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const res = await axios.get(`http://localhost:5001/api/services/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const { fileUrl, ...otherFields } = res.data;
+        setFormData(otherFields);
+
+        if (fileUrl) setPreview(getFileSrc(fileUrl));
+      } catch (err) {
+        console.error("Error fetching service", err);
+        toast.error("Failed to load service");
+      }
+    };
+
     fetchService();
     // eslint-disable-next-line
-  }, []);
+  }, [id]);
 
-  const fetchService = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      toast.error("You are not logged in.");
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const res = await axios.get(`http://localhost:5001/api/services/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const { fileUrl, ...otherFields } = res.data;
-      setFormData(otherFields);
-
-      if (fileUrl) {
-        setPreview(getFileSrc(fileUrl));
-      }
-    } catch (err) {
-      console.error("Error fetching service", err);
-      toast.error("Failed to load service");
-    }
-  };
-
+  // Handle form field changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -82,21 +82,10 @@ function GKUpdateService() {
       }
     }
 
-    if (name === "contactEmail") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        setErrors({ ...errors, contactEmail: "Please enter a valid email address" });
-      } else {
-        setErrors({ ...errors, contactEmail: "" });
-      }
-      setFormData({ ...formData, [name]: value });
-      return;
-    }
-
     if (name === "fileUrl") {
       if (files && files[0]) {
         const selectedFile = files[0];
-        // ✅ Only allow PNG images
+        // Only allow PNG images
         if (selectedFile.type !== "image/png") {
           toast.error("Only PNG images are allowed!");
           e.target.value = null;
@@ -112,13 +101,9 @@ function GKUpdateService() {
     }
   };
 
+  // Submit updated service
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (formData.contactNo.length !== 10) {
-      setErrors({ ...errors, contactNo: "Contact number must be exactly 10 digits" });
-      return;
-    }
 
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -129,9 +114,13 @@ function GKUpdateService() {
 
     try {
       const form = new FormData();
-      Object.keys(formData).forEach((key) => {
-        form.append(key, formData[key]);
-      });
+
+      // Append only editable fields
+      form.append("contactNo", formData.contactNo);
+      form.append("contactEmail", formData.contactEmail);
+      form.append("serviceType", formData.serviceType);
+      form.append("description", formData.description);
+
       if (file) form.append("fileUrl", file);
 
       await axios.put(`http://localhost:5001/api/services/${id}`, form, {
@@ -145,7 +134,7 @@ function GKUpdateService() {
       navigate("/resident/user-view");
     } catch (err) {
       console.error("Error updating service", err);
-      toast.error("Failed to update service");
+      toast.error(err.response?.data?.message || "Failed to update service");
     }
   };
 
@@ -195,10 +184,9 @@ function GKUpdateService() {
           type="text"
           name="contactEmail"
           value={formData.contactEmail}
-          readOnly
+          onChange={handleChange}
           className="w-full border px-3 py-2 rounded bg-gray-100"
         />
-        {errors.contactEmail && <p className="text-red-600 text-sm">{errors.contactEmail}</p>}
 
         {/* Service Type */}
         <label className="block font-semibold mb-1">Service Type</label>

@@ -83,16 +83,15 @@ export async function updateServices(req, res) {
   try {
     const { aptNo, serviceId, contactNo, contactEmail, serviceType, description } = req.body;
 
+    // Build update data
     const updateData = {
-      aptNo,
-      serviceId,
       contactNo,
       contactEmail,
       serviceType,
       description,
     };
 
-    // If a new file is uploaded, update the fileUrl field
+    // Include file only if uploaded
     if (req.file) {
       updateData.fileUrl = {
         data: req.file.buffer,
@@ -100,11 +99,8 @@ export async function updateServices(req, res) {
       };
     }
 
-    const updated = await GKServiceRequest.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    // Update service by ID
+    const updated = await GKServiceRequest.findByIdAndUpdate(req.params.id,updateData,{ new: true });
 
     if (!updated) {
       return res.status(404).json({ message: "Service not found" });
@@ -112,10 +108,11 @@ export async function updateServices(req, res) {
 
     res.status(200).json(updated);
   } catch (error) {
-    console.error(" Error in updateServices:", error);
+    console.error("Error in updateServices:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
 
 
 import fs from "fs";

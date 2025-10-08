@@ -15,6 +15,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
 
   const receiptRef = useRef(); // ref for PDF capture
 
+
   useEffect(() => {
     const fetchPayment = async () => {
       try {

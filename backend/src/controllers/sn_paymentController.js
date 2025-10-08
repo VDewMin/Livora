@@ -45,6 +45,7 @@ const sendOfflineVertifyEmail = async (email,res) => {
   });
 };*/
 
+
 // ---------------- Online Payment with Stripe + OTP ----------------
 export const createOnlinePaymentWithOTP = async (req, res) => {
   try {
@@ -53,7 +54,10 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
     if (!residentId || !phoneNumber || !email || !apartmentNo || !residentName) return res.status(400).json({ message: "residentId, phoneNumber and email are required" });
 
     const paymentId = generatePaymentId();
-    const totalAmount = Number(amountRent) + Number(amountLaundry);
+    const rent = Number(String(amountRent).replace(/[^0-9.-]+/g, "")) || 0;
+    const laundry = Number(String(amountLaundry).replace(/[^0-9.-]+/g, "")) || 0;
+    const totalAmount = rent + laundry;
+
     const paymentDate = new Date();
 
     // Parent Payment
@@ -95,8 +99,8 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
       apartmentNo,
       residentName,
       phoneNumber,
-      amountRent,
-      amountLaundry,
+      amountRent:rent,
+      amountLaundry:laundry,
       totalAmount,
       transactionId: session.id,
       status: "Pending",
@@ -123,7 +127,10 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in createOnlinePaymentWithOTP:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({
+      message: error.message,
+      details: error.raw ? error.raw : error
+    });
   }
 };
 
@@ -233,7 +240,9 @@ export const createOfflinePayment = async (req , res) => {
         const slipFile = req.file;
 
         const paymentId = generatePaymentId();
-        const total = Number(amountRent) + Number(amountLaundry);
+        const rent = Number(String(amountRent).replace(/[^0-9.-]+/g, "")) || 0;
+        const laundry = Number(String(amountLaundry).replace(/[^0-9.-]+/g, "")) || 0;
+        const totalAmount = rent + laundry;
 
 
         const newPayment = new Payment({
@@ -255,8 +264,8 @@ export const createOfflinePayment = async (req , res) => {
         apartmentNo,
         residentName,
         phoneNumber,
-        amountRent,
-        amountLaundry,
+        amountRent:rent,
+        amountLaundry:laundry,
         totalAmount: total,   
         paymentDate: new Date(),
         slipFile: slipFile ? {data: slipFile.buffer , contentType: slipFile.mimetype} : null,
@@ -411,32 +420,54 @@ export const getPaymentsByResident = async (req, res) => {
 };
 
 
-
-// Get Resident Charges with Monthly Payment Check
 export const getResidentMonthlyCharges = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // this must be Mongoose _id
 
-    const resident = await User.findOne({ residentId: id });
-    if (!resident) return res.status(404).json({ message: "Resident not found" });
+    // Find resident by _id
+    const resident = await User.findById(id);
+    if (!resident) {
+      console.log("No user found in DB for this ID:", id);
+      return res.status(404).json({ message: "Resident not found" });
+    }
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // Check if resident paid this month
+    // Check if a payment is already completed this month
     const payment = await Payment.findOne({
-      residentId: id,
+      residentId: id, 
       status: "Completed",
-      paymentDate: {
-        $gte: new Date(`${currentMonth}-01T00:00:00Z`),
-        $lte: new Date(`${currentMonth}-31T23:59:59Z`),
-      },
+      paymentDate: { $gte: startDate, $lte: endDate },
     });
 
+    let rent = 1000;
+    const purchase = await Purchase.findOne({ room_id: resident.apartmentNo });
+    if (purchase && (purchase.monthly_rent)) {
+      rent = purchase.monthly_rent;
+    }
+
+    let laundry = 0;
+    const laundryAgg = await LaundryRequest.aggregate([
+      {
+        $match: {
+          resident_id: resident.userId, 
+          status: "pending",
+          created_at: { $gte: startDate, $lte: endDate },
+        },
+      },
+      { $group: { _id: null, total: { $sum: "$total_cost" } } },
+    ]);
+    if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
+
+    const others = 0;
+
     return res.json({
-      rent: resident.monthlyRent,
-      laundry: resident.laundryFee,
-      others: 0,
-      total: resident.monthlyRent + resident.laundryFee,
+      rent,
+      laundry,
+      others,
+      total: rent + laundry + others,
       isPaid: !!payment,
     });
   } catch (err) {
@@ -446,7 +477,6 @@ export const getResidentMonthlyCharges = async (req, res) => {
 };
 
 
-// ---------------- Get all residents with selected month payment status ----------------
 export const getAllResidentsMonthlyCharges = async (req, res) => {
   try {
     const { month, year } = req.query;
@@ -455,26 +485,21 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
     const selectedYear = year ? Number(year) : now.getFullYear();
     const selectedMonth = month ? Number(month) - 1 : now.getMonth();
 
-    const startDate = new Date(Date.UTC(selectedYear, selectedMonth, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(selectedYear, selectedMonth + 1, 0, 23, 59, 59));
+    const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0);
+    const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
 
+    // 1️⃣ Fetch all residents
     const residents = await User.find({ role: "Resident" }).lean();
 
     const result = await Promise.all(
       residents.map(async (r) => {
-        // ✅ Check payments
-        const payment = await Payment.findOne({
-          residentId: r.userId,
-          paymentDate: { $gte: startDate, $lte: endDate },
-        }).lean();
-
-        // ✅ Rent from Purchase (with fallback)
+        // 2️⃣ Rent from Purchase
         let rent = 1000;
         const purchase = await Purchase.findOne({ room_id: r.apartmentNo });
-        if (purchase && purchase.price) rent = purchase.price;
+        if (purchase && purchase.monthly_rent) rent = purchase.monthly_rent;
 
-        // ✅ Sum Laundry Requests (with fallback)
-        let laundry = 100;
+        // 3️⃣ Laundry sum (only completed)
+        let laundry = 0;
         const laundryAgg = await LaundryRequest.aggregate([
           {
             $match: {
@@ -485,25 +510,41 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
           },
           { $group: { _id: null, total: { $sum: "$total_cost" } } },
         ]);
-
         if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
+
+        const totalDue = rent + laundry;
+
+        // 4️⃣ Sum of completed payments for the month
+        const paymentAgg = await Payment.aggregate([
+          {
+            $match: {
+              residentId: r.userId,
+              status: "Completed",
+              paymentDate: { $gte: startDate, $lte: endDate },
+            },
+          },
+          { $group: { _id: null, totalPaid: { $sum: "$totalAmount" } } },
+        ]);
+        const totalPaid = paymentAgg.length ? paymentAgg[0].totalPaid : 0;
+
+        // 5️⃣ Determine status
+        const status = totalPaid >= totalDue ? "Paid" : "Unpaid";
 
         return {
           residentId: r.userId,
           residentName: `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim(),
           apartmentNo: r.apartmentNo ?? "",
-          rent,
-          laundry,
-          others: 0,
-          total: rent + laundry,
-          status: payment?.status ?? "Unpaid",
+          monthlyPayment: totalDue,
+          paidAmount: totalPaid,
+          status,
         };
       })
     );
 
     res.json(result);
   } catch (err) {
-    console.error("Error fetching resident monthly charges:", err);
+    console.error("Error fetching all residents monthly charges:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+

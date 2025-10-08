@@ -69,6 +69,7 @@ import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
 import SecurityPrivacy from "./pages/vd_securityAndPrivacy.jsx";
+import SDpurchasesList from "./pages/SDpurchasesList";
 
 const App = () =>{
     return(
@@ -120,6 +121,15 @@ const App = () =>{
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
 
                     
+
+                    <Route path='/notes' element={<ProtectedRoute allowedRoles={["Admin"]}><HomePage/></ProtectedRoute>}/>
+                    <Route path="/admin/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminPurchasesTable/></ProtectedRoute>}/>
+                    <Route path="/admin/convention-hall-bookings" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookings/></ProtectedRoute>}/>
+                  <Route path="/admin/convention-hall-booking/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookingsDetails/></ProtectedRoute>}/>
+                  <Route path="/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDpurchasesList/></ProtectedRoute>}/>
+                  <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Admin"]}><SDLaundryStaffView/></ProtectedRoute>}/>
+
+
                 </Route>
                 
 
@@ -140,27 +150,27 @@ const App = () =>{
                 
                 
                 
-               <Route path='/notes' element={<HomePage/>} />
                <Route path='/create' element={<CreatePage/>} />
                <Route path='/note/:id' element={<NoteDetailsPage/>} />
                
-               <Route path="/purchases" element={<PurchasesList />} />
                <Route path="/purchases/create" element={<SDcreatepurchase />} />
-               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+              
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
 
                 <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
                 <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
-                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
-               <Route path="/admin/convention-hall-booking/:id" element={<SDAdminConventionHallBookingsDetails />} />
-               </Route>
+                </Route>
+                
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
+               
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
-                <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
                 </Route>
+                <Route path="/" element={<SDLandingPage />} />
+                
                 <Route path="/landing" element={<SDLandingPage />} />
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
