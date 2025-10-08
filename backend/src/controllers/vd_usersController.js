@@ -3,6 +3,9 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createTransporter } from "../utils/vd_email.js";
+import GKServiceRequest from "../models/GKServiceRequest.js";
+import Parcel from "../models/ks_Parcel.js";
+import Payment from "../models/sn_payment.js";
 
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
@@ -60,7 +63,7 @@ export const createUser = async (req, res) => {
       apartmentNo,
       residentType,
       staffType,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -68,6 +71,7 @@ export const createUser = async (req, res) => {
       medicalConditions,
     } = req.body;
 
+    const plainPassword = password;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User({
@@ -79,7 +83,7 @@ export const createUser = async (req, res) => {
       secondaryPhoneNo,
       password: hashedPassword,
       role,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -89,7 +93,44 @@ export const createUser = async (req, res) => {
       ...(role === "Staff" && { staffType }),
     });
 
+    if (dateOfBirth) {
+      User.dateOfBirth = new Date(dateOfBirth + "T00:00:00Z");
+    }
+
     const savedUser = await newUser.save();
+
+    // send welcome email with credentials
+    try {
+      const transporter = createTransporter();
+      await transporter.sendMail({
+        from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Welcome to Livora - Your Account Details",
+        text: `Hello ${firstName},
+
+            Your account has been created successfully.
+
+            Username: ${email}
+            Password: ${plainPassword}
+
+            You can now log in to your account.
+
+            - Livora Team`,
+                    html: `
+                      <h2>Welcome to Livora!</h2>
+                      <p>Hello <strong>${firstName}</strong>,</p>
+                      <p>Your account has been created successfully.</p>
+                      <p><strong>Username:</strong> ${email}</p>
+                      <p><strong>Password:</strong> ${plainPassword}</p>
+                      <br/>
+                      <p>You can now log in to your account.</p>
+                      <p>– Livora Team</p>
+                    `,
+            });
+    } catch (mailErr) {
+      console.error("Failed to send welcome email:", mailErr);
+    }
+
     res.status(201).json({ savedUser });
   } catch (error) {
     console.error("Error in createUser controller", error);
@@ -112,7 +153,7 @@ export const updateUser = async (req, res) => {
       apartmentNo,
       residentType,
       staffType,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -128,7 +169,7 @@ export const updateUser = async (req, res) => {
       phoneNo,
       secondaryPhoneNo,
       role,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -312,7 +353,7 @@ export const forgotPassword = async (req, res) => {
         const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
 
         await transporter.sendMail({
-            from:`"Smart System" <${process.env.EMAIL_USER}>`,
+            from:`"LIVORA" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: "Password reset for your account",
             text: `You requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.`,
@@ -353,7 +394,7 @@ export const resetPassword = async (req, res) => {
         try {
             const transporter = createTransporter();
             await transporter.sendMail({
-                from: `"Smart System" <${process.env.EMAIL_USER}>`,
+                from: `"LIVORA " <${process.env.EMAIL_USER}>`,
                 to: user.email,
                 subject: "Your password has been changed",
                 text: `Your password was successfully changed. If you did not do this, contact support immediately.`,    
@@ -487,5 +528,47 @@ export const deleteProfilePicture = async (req, res) => {
   } catch (error) {
     console.error("Error deleting profile picture:", error);
     return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get resident dashboard statistics
+export const getResidentDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user._id; // from auth middleware
+    
+    // Get total feedbacks (completed service requests by this resident)
+    const totalFeedbacks = await GKServiceRequest.countDocuments({
+      userId: userId,
+      status: "Completed"
+    });
+    
+    // Get active services (pending or processing service requests)
+    const activeServices = await GKServiceRequest.countDocuments({
+      userId: userId,
+      status: { $in: ["Pending", "Processing"] }
+    });
+    
+    // Get pending deliveries (parcels with pending status for this resident's apartment)
+    const user = await User.findById(userId).select('apartmentNo');
+    const pendingDeliveries = user ? await Parcel.countDocuments({
+      apartment_number: user.apartmentNo,
+      status: "pending"
+    }) : 0;
+    
+    // Get unpaid bills (pending payments for this resident)
+    const unpaidBills = await Payment.countDocuments({
+      residentId: user?.userId,
+      status: "Pending"
+    });
+    
+    res.status(200).json({
+      totalFeedbacks,
+      activeServices,
+      pendingDeliveries,
+      unpaidBills
+    });
+  } catch (error) {
+    console.error("Error in getResidentDashboardStats:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

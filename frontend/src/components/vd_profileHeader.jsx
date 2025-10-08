@@ -41,7 +41,15 @@ const ProfileHeader = () => {
     [`/security-privacy/${user?._id}`]: "Security & Privacy",
   };
 
-  const currentTitle = pageTitles[location.pathname] || "Account Information";
+  const normalizedPath = location.pathname.replace(/\/$/, "");
+  let currentTitle = pageTitles[normalizedPath];
+
+  if (!currentTitle && normalizedPath.startsWith("/resident/dashboard/")) {
+    currentTitle = "Dashboard";
+  }
+  if (!currentTitle) {
+    currentTitle = "Account Information";
+  }
 
   useEffect(() => {
     fetchAnnouncements();

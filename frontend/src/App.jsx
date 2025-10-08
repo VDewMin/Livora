@@ -99,11 +99,11 @@ const App = () =>{
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
-                    <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
-                    <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    <Route path="/account/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
+                    <Route path="/account/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
                     <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
-                    <Route path="/resident/dashboard" element={<ProtectedRoute allowedRoles={["Resident"]}><ResidentDashboard /></ProtectedRoute>} />
-                    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/resident/dashboard/:userId" element={<ProtectedRoute allowedRoles={["Resident"]}><ResidentDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/dashboard/" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>} />
 
                     
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
