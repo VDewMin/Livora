@@ -128,7 +128,7 @@ const SDConventionHallBookingForm = () => {
                     <input
                       type="text"
                       name="apartment_room_number"
-                      placeholder="e.g., A101"
+                      placeholder="e.g., P101 "
                       className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all ${errors.apartment_room_number ? 'input-error' : ''}`}
                       value={formData.apartment_room_number}
                       onChange={handleInputChange}

@@ -69,9 +69,9 @@ const SDcreatepurchase = () => {
       if (name === 'lease_duration' && newData.room_type === 'rent') {
         let rent = '';
         switch (value) {
-          case '6_months': rent = '20000'; break;
-          case '12_months': rent = '15000'; break;
-          case '24_months': rent = '12000'; break; // Corrected from 10000 to 12000
+          case '6_months': rent = 'LKR 20000'; break;
+          case '12_months': rent = 'LKR 15000'; break;
+          case '24_months': rent = 'LKR 12000'; break; // Corrected from 10000 to 12000
           default: rent = '';
         }
         newData.monthly_rent = rent;
@@ -93,7 +93,7 @@ const SDcreatepurchase = () => {
         }
       }
 
-      // Clear error when user starts typing
+      
       if (errors[name]) {
         setErrors((prev) => ({ ...prev, [name]: '' }));
       }
@@ -146,7 +146,7 @@ const SDcreatepurchase = () => {
         payload.monthly_rent = Number(formData.monthly_rent) || 0;
       }
 
-      console.log('Submitting payload:', payload); // Verify payload
+      console.log('Submitting payload:', payload); // Verify
       console.log('room_type:', formData.room_type);
       console.log('All rental fields:', {
         lease_duration: formData.lease_duration,
@@ -157,8 +157,8 @@ const SDcreatepurchase = () => {
       });
       console.log('Full payload:', payload);
 
-      const response = await api.post('/purchases', payload); // Capture response
-      console.log('Server response:', response.data); // Log server response
+      const response = await api.post('/purchases', payload); 
+      console.log('Server response:', response.data); 
 
       const successMessage = formData.room_type === 'rent'
         ? 'Rental agreement created successfully'
@@ -250,7 +250,7 @@ const SDcreatepurchase = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                     <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                      <span className="label-text">Email Address *</span>
+                      <span className="label-text">Email Address </span>
                     </label>
                     <input
                       type="email"
@@ -270,7 +270,7 @@ const SDcreatepurchase = () => {
 
                   <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                     <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                      <span className="label-text">Phone Number *</span>
+                      <span className="label-text">Phone Number </span>
                     </label>
                     <input
                       type="tel"
@@ -314,7 +314,7 @@ const SDcreatepurchase = () => {
 
                   <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                     <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                      <span className="label-text">Agreement Type *</span>
+                      <span className="label-text">Agreement Type </span>
                     </label>
                     <select
                       name="room_type"
@@ -427,7 +427,7 @@ const SDcreatepurchase = () => {
                         />
                         <label className="label">
                           <span className="label-text-alt text-base-content/60 text-xs">
-                            Auto-set: 200 LKR (6m), 150 LKR (12m), 120 LKR (24m)
+                            Auto-set: 20000 LKR (6m), 15000 LKR (12m), 12000 LKR (24m)
                           </span>
                         </label>
                       </div>
@@ -462,7 +462,7 @@ const SDcreatepurchase = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                     <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                      <span className="label-text">Total Price/Deposit *</span>
+                      <span className="label-text">Total Price/Deposit </span>
                     </label>
                     <input
                       type="number"
@@ -484,7 +484,7 @@ const SDcreatepurchase = () => {
 
                   <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                     <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                      <span className="label-text">Agreement Date *</span>
+                      <span className="label-text">Agreement Date </span>
                     </label>
                     <input
                       type="date"
@@ -506,7 +506,7 @@ const SDcreatepurchase = () => {
                 {/* Additional Notes Section */}
                 <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                   <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                    <span className="label-text">Additional Notes *</span>
+                    <span className="label-text">Additional Notes </span>
                   </label>
                   <textarea
                     name="content"
@@ -528,10 +528,10 @@ const SDcreatepurchase = () => {
                 </div>
 
                 {/* Form Actions */}
-                <div className="card-actions justify-end gap-4 mt-6 p-4">
+                <div className="card-actions justify-end gap-40 mt-6 p-4 items-center">
                   <button
                     type="submit"
-                    className="btn btn-primary text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 transition-all px-6 py-3 rounded-full flex items-center w-48"
+                    className="btn btn-primary text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 transition-all px-5 py-3 rounded-full flex items-center w-30 "
                     disabled={loading}
                   >
                     {loading ? (
