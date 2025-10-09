@@ -120,13 +120,19 @@ const SDLandingPage = () => {
       <footer className="bg-teal-600 text-white p-4 text-center">
         <div className="container mx-auto">
           <ul className="flex justify-center space-x-4 mb-2">
-            <li><a href="#home" className="hover:underline">Home</a></li>
-            <li><a href="#about" className="hover:underline">About</a></li>
-            <li><a href="#apartments" className="hover:underline">Apartments</a></li>
-            <li><a href="#contact" className="hover:underline">Contact</a></li>
+            <li><a href="/landing" className="hover:underline">Home</a></li>
+            <li><a href="/about" className="hover:underline">About</a></li>
+            <li><a href="/apartments" className="hover:underline">Apartments</a></li>
+            <li><a href="/contact" className="hover:underline">Contact</a></li>
           </ul>
           <p className="text-sm">Pearl Residencies © 2025 | Colombo, Sri Lanka</p>
-          <p className="text-sm">Follow us: [Social Media Icons Placeholder]</p>
+          <p className="text-sm">Follow us: 
+            <div className="inline-flex space-x-4 ml-2 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30 px-2 py-1 rounded">
+                              <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook icon" className="w-6 h-6 mr-2" />
+                              <img src="https://cdn.simpleicons.org/instagram/E1306C" alt="Instagram icon" className="w-6 h-6 mr-2" />
+                      </div>        
+
+          </p>
         </div>
       </footer>
     </div>

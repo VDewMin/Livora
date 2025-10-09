@@ -37,7 +37,7 @@ const roleRoutes = {
     dashboard: "/resident/dashboard",
     deliveries: "/resident/deliveries",
     services: "/resident/user-view",
-    booking: "/resident/booking",
+    booking: "/convention-hall-home",
     billing: "/resident/billing",
   },
   Security: {

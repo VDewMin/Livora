@@ -122,6 +122,7 @@ const App = () =>{
                   <Route path="/admin/convention-hall-booking/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookingsDetails/></ProtectedRoute>}/>
                   <Route path="/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDpurchasesList/></ProtectedRoute>}/>
                   <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Admin"]}><SDLaundryStaffView/></ProtectedRoute>}/>
+                
 
 
                 </Route>
@@ -162,6 +163,7 @@ const App = () =>{
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
+                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
                 </Route>
                 <Route path="/" element={<SDLandingPage />} />
                 
@@ -169,7 +171,6 @@ const App = () =>{
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
 
 
  

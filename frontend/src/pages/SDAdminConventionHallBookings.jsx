@@ -60,7 +60,7 @@ const SDAdminConventionHallBookings = () => {
             </li>
             <li>
               <Link
-                to="/laundry/request"
+                to="/laundry/staff" 
                 className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
               >
                 Laundry
