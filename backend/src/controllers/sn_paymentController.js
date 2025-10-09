@@ -181,10 +181,9 @@ export const validateOTPAndCompletePayment = async (req, res) => {
 
     await OTP.deleteOne({ email });
 
-    // 🟢 Update Resident Charges
     const resident = await User.findOne({ residentId: parentPayment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      const currentMonth = new Date().toISOString().slice(0, 7);
       resident.lastPaidMonth = currentMonth;
       await resident.save();
     }
@@ -200,7 +199,7 @@ export const validateOTPAndCompletePayment = async (req, res) => {
   }
 };
 
-// ---------------- Resend OTP ----------------
+//Resend OTP
 export const resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -232,7 +231,6 @@ export const resendOTP = async (req, res) => {
 
 
 //master + offline
-
 export const createOfflinePayment = async (req , res) => {
     try {
         //master
@@ -280,8 +278,6 @@ export const createOfflinePayment = async (req , res) => {
     
 };
 
-// ---------------- Offline Payment Handlers ----------------
-
 // admin verify
 export const vertifyOfflinePayment = async (req, res) => {
   try {
@@ -303,12 +299,12 @@ export const vertifyOfflinePayment = async (req, res) => {
 
     const resident = await Resident.findOne({ residentId: payment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      const currentMonth = new Date().toISOString().slice(0, 7);
       resident.lastPaidMonth = currentMonth;
       await resident.save();
     }
 
-    // Return updated list for frontend to remove it from pending
+    //pending->complete
     res.json({ paymentId, status: "Completed" });
   } catch (error) {
     console.error("Error in verifyOfflinePayment:", error);
@@ -335,7 +331,7 @@ export const rejectOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    // Return updated list for frontend to remove it from pending
+    //pending->rejected
     res.json({ paymentId, status: "Rejected" });
   } catch (error) {
     console.error("Error in rejectOfflinePayment:", error);
@@ -389,10 +385,9 @@ export const getAllPayment = async (req, res) => {
 
     let query = {};
     if (month && year) {
-      // Build date range for that month
       const start = new Date(`${year}-${month}-01T00:00:00.000Z`);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // next month start
+      end.setMonth(end.getMonth() + 1);
 
       query.paymentDate = { $gte: start, $lt: end };
     }
@@ -408,7 +403,7 @@ export const getAllPayment = async (req, res) => {
 //get payment by resident
 export const getPaymentsByResident = async (req, res) => {
   try {
-    const { id } = req.params; // residentId
+    const { id } = req.params;
     if (!id) return res.status(400).json({ message: "Resident ID required" });
 
     const payments = await Payment.find({ residentId: id }).sort({ createdAt: -1 });
@@ -422,9 +417,8 @@ export const getPaymentsByResident = async (req, res) => {
 
 export const getResidentMonthlyCharges = async (req, res) => {
   try {
-    const { id } = req.params; // this must be Mongoose _id
+    const { id } = req.params;
 
-    // Find resident by _id
     const resident = await User.findById(id);
     if (!resident) {
       console.log("No user found in DB for this ID:", id);
@@ -435,7 +429,6 @@ export const getResidentMonthlyCharges = async (req, res) => {
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // Check if a payment is already completed this month
     const payment = await Payment.findOne({
       residentId: id, 
       status: "Completed",
@@ -488,17 +481,17 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
     const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0);
     const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
 
-    // 1️⃣ Fetch all residents
+    //Fetch all residents
     const residents = await User.find({ role: "Resident" }).lean();
 
     const result = await Promise.all(
       residents.map(async (r) => {
-        // 2️⃣ Rent from Purchase
+        // Rent from Purchase
         let rent = 1000;
         const purchase = await Purchase.findOne({ room_id: r.apartmentNo });
         if (purchase && purchase.monthly_rent) rent = purchase.monthly_rent;
 
-        // 3️⃣ Laundry sum (only completed)
+        //Laundry sum (only completed)
         let laundry = 0;
         const laundryAgg = await LaundryRequest.aggregate([
           {
@@ -514,7 +507,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
 
         const totalDue = rent + laundry;
 
-        // 4️⃣ Sum of completed payments for the month
+        //Sum of completed payments for the month
         const paymentAgg = await Payment.aggregate([
           {
             $match: {
@@ -527,7 +520,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
         ]);
         const totalPaid = paymentAgg.length ? paymentAgg[0].totalPaid : 0;
 
-        // 5️⃣ Determine status
+        // Determine status
         const status = totalPaid >= totalDue ? "Paid" : "Unpaid";
 
         return {

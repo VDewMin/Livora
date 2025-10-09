@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SN_IncomeTab from "../components/SN_IncomeTab";
 import SN_ExpenseTab from "../components/SN_ExpenseManager";
 import SN_PaymentDetail from "../components/SN_PaymentDetail";
-import ResidentTable from "../components/SN_ResidentTable"; // ✅ new component
+import ResidentTable from "../components/SN_ResidentTable";
 import {
   BarChart,
   Bar,
@@ -42,7 +42,7 @@ const SN_AdminBillingDashboard = () => {
 
   const navigate = useNavigate();
 
-  // ---------- Fetch Income/Expenses ----------
+  //Fetch Income/Expenses
   const fetchIncomeData = async () => {
     try {
       const res = await fetch(
@@ -56,7 +56,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Payments ----------
+  //Fetch Payments
   const fetchPayments = async () => {
     try {
       const res = await fetch(
@@ -76,7 +76,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Expenses ----------
+  //Fetch Expenses
   const fetchExpenses = async () => {
     try {
       const res = await fetch(
@@ -90,7 +90,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Transactions ----------
+  //Fetch Transactions
   const fetchTransactions = async () => {
     const [paymentsData, expensesData] = await Promise.all([
       fetchPayments(),
@@ -123,7 +123,7 @@ const SN_AdminBillingDashboard = () => {
     setTransactions(allTx);
   };
 
-  // ---------- Fetch Resident Payments ----------
+  //Fetch Resident Payments
 const fetchResidentPayments = async () => {
   try {
     const res = await fetch(
@@ -136,22 +136,17 @@ const fetchResidentPayments = async () => {
   }
 };
 
-
-  // ---------- On Month Change ----------
   const handleMonthChange = (e) => {
     const [year, month] = e.target.value.split("-");
     setSelectedMonth({ month, year });
   };
 
-  // ---------- Effect ----------
   useEffect(() => {
     fetchIncomeData();
     fetchTransactions();
     fetchResidentPayments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
-  // ---------- When expenses update ----------
   const handleUpdateExpenses = (expensesArray) => {
     const total = (expensesArray || []).reduce(
       (acc, exp) => acc + Number(exp.amount || 0),
@@ -162,7 +157,7 @@ const fetchResidentPayments = async () => {
     fetchTransactions();
   };
 
-  // ---------- Chart Data ----------
+  //Chart Data
   const barData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpenses },

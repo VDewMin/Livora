@@ -99,7 +99,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     }
   };
 
-  // When an expense is deleted in ExpenseDetail
   const handleRemoveExpense = (id) => {
     setExpenses((prev) => prev.filter((e) => e._id !== id));
     onUpdateFinancials && onUpdateFinancials(expenses.filter((e) => e._id !== id));
@@ -108,7 +107,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
 
   return (
     <div className="p-6 relative">
-      {/* Expense Detail View */}
       {selectedExpenseId ? (
         <SN_ExpenseDetail
           expenseId={selectedExpenseId}
@@ -127,7 +125,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
             </button>
           </div>
 
-          {/* Expenses Table */}
           <table className="border w-full text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -157,7 +154,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
             </tbody>
           </table>
 
-          {/* Add Expense Modal */}
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-start pt-20 z-50">
               <div className="bg-white p-6 rounded-xl shadow-lg w-[400px]">

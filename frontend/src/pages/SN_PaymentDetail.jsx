@@ -1,7 +1,6 @@
-// src/pages/SN_AdminBillingDashboard.jsx
 import React, { useEffect, useState } from "react";
-import SN_IncomeTab from "../components/SN_IncomeTab";// your existing component
-import SN_ExpenseTab from "../components/SN_ExpenseManager";// create similar to PaymentDetail
+import SN_IncomeTab from "../components/SN_IncomeTab";
+import SN_ExpenseTab from "../components/SN_ExpenseManager";
 import {
   LayoutDashboard,
   Users,
@@ -19,7 +18,6 @@ const SN_AdminBillingDashboard = () => {
   const [selectedExpenseId, setSelectedExpenseId] = useState(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState(null);
 
-  // Fetch all expenses
   const fetchExpenses = async () => {
     try {
       const res = await fetch("http://localhost:5001/api/expenses");
@@ -30,7 +28,6 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // Fetch all payments
   const fetchPayments = async () => {
     try {
       const res = await fetch("http://localhost:5001/api/payments");
@@ -41,7 +38,6 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // Fetch Income (calculateIncome)
   const fetchIncome = async () => {
     try {
       const res = await fetch("http://localhost:5001/api/calculateIncome");
