@@ -18,8 +18,8 @@ const SDAboutUsPage = () => {
           <nav>
             <ul className="flex space-x-6">
               <li><Link to="/landing" className="hover:text-teal-200">Home</Link></li>
-              <li><Link to="/apartments" className="hover:text-teal-200">Apartments</Link></li>
               <li><Link to="/about" className="hover:text-teal-200">About</Link></li>
+              <li><Link to="/apartments" className="hover:text-teal-200">Apartments</Link></li>
               <li><Link to="/create" className="hover:text-teal-200">Contact</Link></li>
             </ul>
           </nav>
@@ -182,7 +182,12 @@ const SDAboutUsPage = () => {
             <li><Link to="/contact" className="hover:text-teal-200">Contact</Link></li>
           </ul>
           <p className="text-sm">Pearl Residencies © 2025 | 123 Main Street, Colombo, Sri Lanka</p>
-          <p className="text-sm mt-2">Follow us: [Facebook] [Twitter] [Instagram]</p>
+          <p className="text-sm mt-2">Follow us: 
+            <div className="inline-flex space-x-4 ml-2 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30 px-2 py-1 rounded">
+                              <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook icon" className="w-6 h-6 mr-2" />
+                              <img src="https://cdn.simpleicons.org/instagram/E1306C" alt="Instagram icon" className="w-6 h-6 mr-2" />
+                      </div>
+          </p>
         </div>
       </footer>
     </div>
