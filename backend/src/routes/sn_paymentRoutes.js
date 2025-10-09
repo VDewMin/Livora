@@ -1,16 +1,34 @@
 import express from "express";
-import {getAllPayment, createPayment , deletePayment , updatePayment , getPaymentbyID} from "../controllers/sn_paymentController.js"
+import multer from "multer";
+
+import {getAllPayment, createOnlinePaymentWithOTP , resendOTP , createOfflinePayment ,
+     vertifyOfflinePayment , getPaymentbyID , validateOTPAndCompletePayment , rejectOfflinePayment,
+      getPaymentsByResident, getResidentMonthlyCharges, getAllResidentsMonthlyCharges } from "../controllers/sn_paymentController.js"
 
 const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 router.get("/", getAllPayment);
 
-router.get("/:id", getPaymentbyID);
+router.get("/resident/:id", getPaymentsByResident);
 
-router.post("/", createPayment)
+router.post("/validate-otp", validateOTPAndCompletePayment);
 
-router.put("/:id", updatePayment)
+router.post("/checkout", createOnlinePaymentWithOTP);
 
-router.delete("/:id", deletePayment)
+router.post("/resend-otp", resendOTP);
+
+router.get("/payment/:id", getPaymentbyID);
+
+router.post("/offline", upload.single("slipFile"), createOfflinePayment);
+
+router.post("/verify-offline", vertifyOfflinePayment);
+
+router.post("/reject-offline", rejectOfflinePayment);
+
+router.get("/resident/:id/charges", getResidentMonthlyCharges);
+
+router.get("/resident-status", getAllResidentsMonthlyCharges);
 
 export default router;
