@@ -65,7 +65,6 @@ export const updateExpense = async (req, res) => {
     const { category, amount, paymentMethod, date, notes } = req.body;
     const attachment = req.file;
 
-    // Build update object dynamically
     const updateData = {
       category,
       amount,
@@ -74,7 +73,6 @@ export const updateExpense = async (req, res) => {
       notes,
     };
 
-    // If a new file was uploaded, replace the existing attachment
     if (attachment) {
       updateData.attachment = {
         data: attachment.buffer,
@@ -113,7 +111,7 @@ export const deleteExpense = async(req, res) => {
 
 export const calculateIncome = async (req, res) => {
   try {
-    const { month, year } = req.query; // e.g. /calculateIncome?month=09&year=2025
+    const { month, year } = req.query; 
 
     let startDate, endDate;
     if (month && year) {
@@ -124,7 +122,7 @@ export const calculateIncome = async (req, res) => {
 
     const paymentFilter = startDate
       ? { paymentDate: { $gte: startDate, $lt: endDate }, status: "Completed" } 
-      : { status: "Completed" }; // ✅ Only completed payments
+      : { status: "Completed" }; 
 
     const expenseFilter = startDate ? { date: { $gte: startDate, $lt: endDate } } : {};
 

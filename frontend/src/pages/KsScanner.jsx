@@ -67,7 +67,7 @@ const KsScanner = () => {
   useEffect(() => {
     if (!cameraId) return;
 
-    const config = { fps: 10, qrbox: { width: 500, height: 500 } };
+    const config = { fps: 10, qrbox: { width: 1000, height: 1000 } };
     const html5QrCode = new Html5Qrcode("reader", { verbose: false });
     html5QrcodeRef.current = html5QrCode;
 

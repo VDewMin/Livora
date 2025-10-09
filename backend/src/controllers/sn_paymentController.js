@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
-//OTP email
+
 const sendOTPEmail = async (email, otp) => {
   await transporter.sendMail({
     from: `"LIVORA" <${process.env.EMAIL_USER}`,
@@ -46,7 +46,7 @@ const sendOfflineVertifyEmail = async (email,res) => {
 };*/
 
 
-// ---------------- Online Payment with Stripe + OTP ----------------
+// Online Payment with Stripe + OTP
 export const createOnlinePaymentWithOTP = async (req, res) => {
   try {
     const { residentId, apartmentNo , residentName, phoneNumber, amountRent , amountLaundry , email } = req.body;
@@ -134,7 +134,7 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
   }
 };
 
-// ---------------- Validate OTP and Complete ----------------
+//Validate OTP
 export const validateOTPAndCompletePayment = async (req, res) => {
   try {
     const { email, otp, paymentId, forceFail } = req.body;
@@ -181,10 +181,10 @@ export const validateOTPAndCompletePayment = async (req, res) => {
 
     await OTP.deleteOne({ email });
 
-    // 🟢 Update Resident Charges
+    // Update Resident Charges
     const resident = await User.findOne({ residentId: parentPayment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      const currentMonth = new Date().toISOString().slice(0, 7); 
       resident.lastPaidMonth = currentMonth;
       await resident.save();
     }
@@ -200,7 +200,7 @@ export const validateOTPAndCompletePayment = async (req, res) => {
   }
 };
 
-// ---------------- Resend OTP ----------------
+//Resend OTP
 export const resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -210,7 +210,6 @@ export const resendOTP = async (req, res) => {
     const record = await OTP.findOne({ email });
     if (!record) return res.status(404).json({ message: "No OTP record found for this email" });
 
-    // Generate new OTP
     const newOtp = generateOTP();
     const createdAt = Date.now();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -220,7 +219,6 @@ export const resendOTP = async (req, res) => {
     record.expiresAt = expiresAt;
     await record.save();
 
-    // Send new OTP email
     await sendOTPEmail(email, newOtp);
 
     res.status(200).json({ message: "New OTP sent successfully" });
@@ -232,7 +230,6 @@ export const resendOTP = async (req, res) => {
 
 
 //master + offline
-
 export const createOfflinePayment = async (req , res) => {
     try {
         //master
@@ -280,8 +277,6 @@ export const createOfflinePayment = async (req , res) => {
     
 };
 
-// ---------------- Offline Payment Handlers ----------------
-
 // admin verify
 export const vertifyOfflinePayment = async (req, res) => {
   try {
@@ -308,7 +303,7 @@ export const vertifyOfflinePayment = async (req, res) => {
       await resident.save();
     }
 
-    // Return updated list for frontend to remove it from pending
+    //update frontend to complete
     res.json({ paymentId, status: "Completed" });
   } catch (error) {
     console.error("Error in verifyOfflinePayment:", error);
@@ -335,7 +330,7 @@ export const rejectOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    // Return updated list for frontend to remove it from pending
+    // update frontend to reject
     res.json({ paymentId, status: "Rejected" });
   } catch (error) {
     console.error("Error in rejectOfflinePayment:", error);
@@ -408,7 +403,7 @@ export const getAllPayment = async (req, res) => {
 //get payment by resident
 export const getPaymentsByResident = async (req, res) => {
   try {
-    const { id } = req.params; // residentId
+    const { id } = req.params;
     if (!id) return res.status(400).json({ message: "Resident ID required" });
 
     const payments = await Payment.find({ residentId: id }).sort({ createdAt: -1 });
@@ -419,12 +414,11 @@ export const getPaymentsByResident = async (req, res) => {
   }
 };
 
-
+//fetch monthly rent
 export const getResidentMonthlyCharges = async (req, res) => {
   try {
-    const { id } = req.params; // this must be Mongoose _id
+    const { id } = req.params; 
 
-    // Find resident by _id
     const resident = await User.findById(id);
     if (!resident) {
       console.log("No user found in DB for this ID:", id);
@@ -435,7 +429,6 @@ export const getResidentMonthlyCharges = async (req, res) => {
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // Check if a payment is already completed this month
     const payment = await Payment.findOne({
       residentId: id, 
       status: "Completed",
@@ -476,16 +469,17 @@ export const getResidentMonthlyCharges = async (req, res) => {
   }
 };
 
+//status
   export const getAllResidentsMonthlyCharges = async (req, res) => {
     try {
       const now = new Date();
       const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-      // 1️⃣ Fetch all residents
+      //etch all residents
       const residents = await User.find({ role: "Resident" }).lean();
 
-      // 2️⃣ Fetch all purchases (monthly rent)
+      //Fetch all purchases rent
       const purchases = await Purchase.find({
         room_id: { $in: residents.map(r => r.apartmentNo) },
       }).lean();
@@ -496,7 +490,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
         purchaseMap[p.room_id] = p.monthly_rent || 1000;
       });
 
-      // 3️⃣ Fetch all laundry requests for current month
+      // Fetch all laundry current month
       const laundryRequests = await LaundryRequest.find({
         resident_id: { $in: residents.map(r => r.userId) },
         status: "completed",
@@ -509,7 +503,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
         laundryMap[l.resident_id] = (laundryMap[l.resident_id] || 0) + l.total_cost;
       });
 
-      // 4️⃣ Fetch all payments for current month
+      // Fetch all payments for current month
       const payments = await Payment.find({
         $or: [
           { residentId: { $in: residents.map(r => r.userId) } },
@@ -533,7 +527,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
       });
       
 
-      // 5️⃣ Build final result
+      // compare
       const result = residents.map(r => {
         const rent = purchaseMap[r.apartmentNo] || 0;
         console.log(rent)

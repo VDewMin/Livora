@@ -157,7 +157,7 @@ const SN_ResidentBillingDashboard = () => {
       <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
         <div className="px-6 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Billing</h1>
+            {/*<h1 className="text-3xl font-bold text-gray-900">Monthly Payment</h1>*/}
             <p className="text-gray-600 mt-1">
               Apartment {user.apartmentNo} • {user.firstName} {user.lastName}
             </p>
