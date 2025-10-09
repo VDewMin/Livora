@@ -19,7 +19,7 @@ const SDLaundryEdit = () => {
     total_cost: '0.00', // For display only
   });
 
-  // Cost rates per service type (matching SDLaundryRequestForm)
+  
   const serviceRates = {
     silver: 100,  
     premium: 150, 
