@@ -12,7 +12,7 @@ function AdminAnnouncements() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5001/api/announcements", form);
+      await axios.post("http://localhost:5001/api/announcements/send", form);
       toast.success("Announcement sent to all residents!");
       setForm({ title: "", message: "" });
     } catch (err) {

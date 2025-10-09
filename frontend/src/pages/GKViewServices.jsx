@@ -59,7 +59,7 @@ function GKViewServices() {
     }
   };
 
-  // Download all Processing services as PDF table
+  // Download PDF 
   const handleDownloadAllProcessingPDF = () => {
     const processingServices = services.filter(s => s.status === "Processing");
     if (processingServices.length === 0) {
@@ -101,7 +101,6 @@ function GKViewServices() {
       theme: "striped",
     });
 
-    // Footer
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -125,7 +124,7 @@ function GKViewServices() {
 
   return (
     <div className="w-full max-w-7xl p-6 mt-0 bg-white rounded-2xl shadow-md font-sans-serif">
-      {/* Header */}
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">My Service Requests</h2>
 
@@ -139,7 +138,6 @@ function GKViewServices() {
           />
         </div>
 
-        {/* Download all processing services */}
         <button
           onClick={handleDownloadAllProcessingPDF}
           className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -155,7 +153,6 @@ function GKViewServices() {
         </button>
       </div>
 
-      {/* Table */}
       {loading ? (
         <p>Loading services...</p>
       ) : filteredServices.length === 0 ? (

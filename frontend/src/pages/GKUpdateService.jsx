@@ -15,11 +15,12 @@ function GKUpdateService() {
     serviceType: "",
     description: "",
   });
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Convert file buffer to base64 for preview
+  // Convert file buffer from backend to Base64 for preview
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
     try {
@@ -36,7 +37,7 @@ function GKUpdateService() {
     }
   };
 
-  // Fetch service data
+  // Fetch existing service details
   useEffect(() => {
     const fetchService = async () => {
       const token = localStorage.getItem("authToken");
@@ -53,25 +54,23 @@ function GKUpdateService() {
 
         const { fileUrl, ...otherFields } = res.data;
         setFormData(otherFields);
-
         if (fileUrl) setPreview(getFileSrc(fileUrl));
       } catch (err) {
-        console.error("Error fetching service", err);
-        toast.error("Failed to load service");
+        console.error("Error fetching service:", err);
+        toast.error("Failed to load service details");
       }
     };
 
     fetchService();
-    // eslint-disable-next-line
-  }, [id]);
+  }, [id, navigate]);
 
-  // Handle form field changes
+  // validation
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "contactNo") {
-      const contact = /^\d*$/;
-      if (!contact.test(value)) {
+      const onlyDigits = /^\d*$/;
+      if (!onlyDigits.test(value)) {
         setErrors({ ...errors, contactNo: "Only numbers are allowed" });
         return;
       } else if (value.length > 10) {
@@ -80,30 +79,66 @@ function GKUpdateService() {
       } else {
         setErrors({ ...errors, contactNo: "" });
       }
+      setFormData({ ...formData, contactNo: value });
+      return;
+    }
+
+    if (name === "contactEmail") {
+      setFormData({ ...formData, contactEmail: value });
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        setErrors({ ...errors, contactEmail: "Enter a valid email address" });
+      } else {
+        setErrors({ ...errors, contactEmail: "" });
+      }
+      return;
     }
 
     if (name === "fileUrl") {
       if (files && files[0]) {
         const selectedFile = files[0];
-        // Only allow PNG images
-        if (selectedFile.type !== "image/png") {
-          toast.error("Only PNG images are allowed!");
+        const fileType = selectedFile.type.toLowerCase();
+        const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+
+        if (!validTypes.includes(fileType)) {
+          toast.error("Only PNG and JPG images are allowed!");
           e.target.value = null;
           setFile(null);
           setPreview(null);
           return;
         }
+
+        if (selectedFile.size > 2 * 1024 * 1024) {
+          toast.error("File size must be less than 2MB!");
+          e.target.value = null;
+          setFile(null);
+          setPreview(null);
+          return;
+        }
+
         setFile(selectedFile);
         setPreview(URL.createObjectURL(selectedFile));
       }
-    } else {
-      setFormData({ ...formData, [name]: value });
+      return;
     }
+
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Submit updated service
+  //Submit updated service
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Field validation before submit
+    if (formData.contactNo.length !== 10) {
+      toast.error("Contact number must be exactly 10 digits!");
+      return;
+    }
+
+    if (errors.contactEmail) {
+      toast.error("Please enter a valid email address!");
+      return;
+    }
 
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -114,8 +149,6 @@ function GKUpdateService() {
 
     try {
       const form = new FormData();
-
-      // Append only editable fields
       form.append("contactNo", formData.contactNo);
       form.append("contactEmail", formData.contactEmail);
       form.append("serviceType", formData.serviceType);
@@ -130,10 +163,10 @@ function GKUpdateService() {
         },
       });
 
-      toast.success("Service updated successfully");
+      toast.success("Service updated successfully!", { position: "top-center" });
       navigate("/resident/user-view");
     } catch (err) {
-      console.error("Error updating service", err);
+      console.error("Error updating service:", err);
       toast.error(err.response?.data?.message || "Failed to update service");
     }
   };
@@ -143,7 +176,6 @@ function GKUpdateService() {
       <h2 className="text-xl font-bold mb-4 text-center">Update Service</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Apartment No & Service ID */}
         <div className="flex gap-4">
           <div className="w-1/2">
             <label className="block font-semibold mb-1">Apartment Number</label>
@@ -152,7 +184,7 @@ function GKUpdateService() {
               name="aptNo"
               value={formData.aptNo}
               readOnly
-              className="w-full border px-3 py-2 rounded bg-gray-100"
+              className="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
             />
           </div>
           <div className="w-1/2">
@@ -162,39 +194,37 @@ function GKUpdateService() {
               name="serviceId"
               value={formData.serviceId}
               readOnly
-              className="w-full border px-3 py-2 rounded bg-gray-100"
+              className="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
             />
           </div>
         </div>
 
-        {/* Contact No */}
         <label className="block font-semibold mb-1">Contact Number</label>
         <input
           type="text"
           name="contactNo"
           value={formData.contactNo}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded bg-gray-100"
+          maxLength={10}
+          className="w-full border px-3 py-2 rounded"
         />
         {errors.contactNo && <p className="text-red-600 text-sm">{errors.contactNo}</p>}
-
-        {/* Email */}
         <label className="block font-semibold mb-1">Contact Email</label>
         <input
-          type="text"
+          type="email"
           name="contactEmail"
           value={formData.contactEmail}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded bg-gray-100"
+          className="w-full border px-3 py-2 rounded"
         />
+        {errors.contactEmail && <p className="text-red-600 text-sm">{errors.contactEmail}</p>}
 
-        {/* Service Type */}
         <label className="block font-semibold mb-1">Service Type</label>
         <select
           name="serviceType"
           value={formData.serviceType}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded bg-gray-100"
+          className="w-full border px-3 py-2 rounded"
         >
           <option value="">-- Select Service Type --</option>
           <option value="Electrical">Electrical</option>
@@ -203,29 +233,27 @@ function GKUpdateService() {
           <option value="Other">Other</option>
         </select>
 
-        {/* Description */}
         <label className="block font-semibold mb-1">Description</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full border px-3 py-2 rounded bg-gray-100"
+          className="w-full border px-3 py-2 rounded"
         />
 
-        {/* File Upload */}
         <div>
-          <label className="block font-semibold mb-1">Upload PNG Image</label>
+          <label className="block font-semibold mb-1">Upload PNG/JPG Image</label>
           <input
             type="file"
             name="fileUrl"
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded bg-gray-100"
+            className="w-full border px-3 py-2 rounded"
           />
         </div>
 
-        {/* Preview */}
         {preview && (
           <div className="mt-4">
+            <p className="font-semibold text-sm mb-1">Image Preview:</p>
             <img src={preview} alt="Preview" className="rounded-lg border" />
           </div>
         )}
