@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Lock, Eye, EyeOff, Key, Smartphone, Bell, Database, UserX, Download, Trash2, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosInstance from "../lib/axios";
@@ -9,6 +9,18 @@ const SecurityPrivacy = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Load current 2FA status on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axiosInstance.get("/users/2fa-status");
+        setTwoFactorEnabled(res.data?.twoFactorEnabled || false);
+      } catch (e) {
+        // ignore silently; page can still function
+      }
+    })();
+  }, []);
+
   const handleEnable2FA = async () => {
     try {
       setLoading(true);
@@ -17,7 +29,7 @@ const SecurityPrivacy = () => {
       setShowOtpInput(true);
       toast.success("OTP sent to your email");
     } catch (err) {
-      toast.error("Failed to send OTP");
+      toast.error(err.response?.data?.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }

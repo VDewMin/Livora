@@ -12,6 +12,9 @@ export default function ResetPassword() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
   // If user is logged in, show a message and option to logout first
   useEffect(() => {
     if (user && token) {
@@ -23,6 +26,11 @@ export default function ResetPassword() {
     e.preventDefault();
     if (password.length < 6) return toast.error("Password too short");
     if (password !== confirm) return toast.error("Passwords do not match");
+    if (!passwordRegex.test(password)) {
+      toast.error("Password must be at least 8 characters, include uppercase, lowercase, number, and special character.");
+      setLoading(false);
+      return;
+    }
 
     try {
       await axiosInstance.post("/users/reset-password", { token, password });

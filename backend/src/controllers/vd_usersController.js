@@ -71,6 +71,13 @@ export const createUser = async (req, res) => {
       medicalConditions,
     } = req.body;
 
+    if (role === "Resident" && apartmentNo) {
+      const existingResident = await User.findOne({ apartmentNo });
+      if (existingResident) {
+        return res.status(400).json({ message: "Apartment number already registered." });
+      }
+    }
+
     const plainPassword = password;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -160,6 +167,13 @@ export const updateUser = async (req, res) => {
       familyMembers,
       medicalConditions,
     } = req.body;
+
+    if (role === "Resident" && apartmentNo) {
+      const existingResident = await User.findOne({ apartmentNo });
+      if (existingResident) {
+        return res.status(400).json({ message: "Apartment number already registered." });
+      }
+    }
 
     const updateData = {
       firstName,
@@ -622,6 +636,18 @@ export const toggleTwoFactor = async (req, res) => {
   } catch (err) {
     console.error("Toggle 2FA error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Return current 2FA status for the authenticated user
+export const getTwoFactorStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("twoFactorEnabled");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json({ twoFactorEnabled: !!user.twoFactorEnabled });
+  } catch (err) {
+    console.error("getTwoFactorStatus error:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
