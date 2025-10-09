@@ -1,19 +1,19 @@
-// src/components/SN_PaymentDetail.jsx
 import React, { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/vd_AuthContext";
 import html2pdf from "html2pdf.js";
 
 const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
-  const { user: authUser } = useAuth(); // get logged-in user info
-  const isAdmin = authUser?.role === "Admin"; // adjust based on your role field
+  const { user: authUser } = useAuth();
+  const isAdmin = authUser?.role === "Admin";
 
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [isImageOpen, setIsImageOpen] = useState(false);
 
-  const receiptRef = useRef(); // ref for PDF capture
+  const receiptRef = useRef();
+
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -61,7 +61,6 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   const handleDownloadPDF = () => {
     if (!receiptRef.current) return;
 
-    // Hide slip image before export
     const slipImages = receiptRef.current.querySelectorAll(".slip-img");
     slipImages.forEach((img) => (img.style.display = "none"));
 
@@ -78,7 +77,6 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       .from(receiptRef.current)
       .save()
       .finally(() => {
-        // Restore slip image visibility
         slipImages.forEach((img) => (img.style.display = ""));
       });
   };
@@ -86,7 +84,7 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
   if (loading) return <p className="text-center text-gray-600">Loading payment details...</p>;
   if (!payment) return <p className="text-center text-red-500">Payment not found.</p>;
 
-  // Only show Verify/Reject buttons if admin and offline payment is pending
+  //admin view verify reject
   const showAdminActions =
     isAdmin && payment.paymentType === "Offline" && payment.status === "Pending";
 

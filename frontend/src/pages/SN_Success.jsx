@@ -7,10 +7,10 @@ const Success = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/resident/billing"); // adjust the route if needed
-    }, 2500); // 10 seconds
+      navigate("/resident/billing"); 
+    }, 2500); 
 
-    return () => clearTimeout(timer); // cleanup
+    return () => clearTimeout(timer); 
   }, [navigate]);
 
   return (

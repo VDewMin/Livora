@@ -1,14 +1,26 @@
 // vd_profileSettings.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import UserProfile from '../pages/vd_userProfile';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
 const ProfileSettings = () => {
   const { userId } = useParams(); // get userId from route
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState('account-information');
+
+  // Sync active tab with ?tab=
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) setActiveItem(tab);
+  }, [location.search]);
 
   const handleItemClick = (item) => {
     setActiveItem(item);
+    const params = new URLSearchParams(location.search);
+    params.set('tab', item);
+    navigate({ search: params.toString() }, { replace: true });
   };
 
   const renderContent = () => {

@@ -3,6 +3,9 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createTransporter } from "../utils/vd_email.js";
+import GKServiceRequest from "../models/GKServiceRequest.js";
+import Parcel from "../models/ks_Parcel.js";
+import Payment from "../models/sn_payment.js";
 
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
@@ -60,7 +63,7 @@ export const createUser = async (req, res) => {
       apartmentNo,
       residentType,
       staffType,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -68,6 +71,14 @@ export const createUser = async (req, res) => {
       medicalConditions,
     } = req.body;
 
+    if (role === "Resident" && apartmentNo) {
+      const existingResident = await User.findOne({ apartmentNo });
+      if (existingResident) {
+        return res.status(400).json({ message: "Apartment number already registered." });
+      }
+    }
+
+    const plainPassword = password;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User({
@@ -79,7 +90,7 @@ export const createUser = async (req, res) => {
       secondaryPhoneNo,
       password: hashedPassword,
       role,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -89,7 +100,44 @@ export const createUser = async (req, res) => {
       ...(role === "Staff" && { staffType }),
     });
 
+    if (dateOfBirth) {
+      User.dateOfBirth = new Date(dateOfBirth + "T00:00:00Z");
+    }
+
     const savedUser = await newUser.save();
+
+    // send welcome email with credentials
+    try {
+      const transporter = createTransporter();
+      await transporter.sendMail({
+        from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Welcome to Livora - Your Account Details",
+        text: `Hello ${firstName},
+
+            Your account has been created successfully.
+
+            Username: ${email}
+            Password: ${plainPassword}
+
+            You can now log in to your account.
+
+            - Livora Team`,
+                    html: `
+                      <h2>Welcome to Livora!</h2>
+                      <p>Hello <strong>${firstName}</strong>,</p>
+                      <p>Your account has been created successfully.</p>
+                      <p><strong>Username:</strong> ${email}</p>
+                      <p><strong>Password:</strong> ${plainPassword}</p>
+                      <br/>
+                      <p>You can now log in to your account.</p>
+                      <p>– Livora Team</p>
+                    `,
+            });
+    } catch (mailErr) {
+      console.error("Failed to send welcome email:", mailErr);
+    }
+
     res.status(201).json({ savedUser });
   } catch (error) {
     console.error("Error in createUser controller", error);
@@ -112,13 +160,20 @@ export const updateUser = async (req, res) => {
       apartmentNo,
       residentType,
       staffType,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
       familyMembers,
       medicalConditions,
     } = req.body;
+
+    if (role === "Resident" && apartmentNo) {
+      const existingResident = await User.findOne({ apartmentNo });
+      if (existingResident) {
+        return res.status(400).json({ message: "Apartment number already registered." });
+      }
+    }
 
     const updateData = {
       firstName,
@@ -128,7 +183,7 @@ export const updateUser = async (req, res) => {
       phoneNo,
       secondaryPhoneNo,
       role,
-      dob,
+      dateOfBirth,
       job,
       emergencyContactName,
       emergencyContactNumber,
@@ -172,43 +227,45 @@ export const deleteUser = async(req, res) => {
 }
 
 export const loginUser = async (req, res) => {
-    try{
-        const { email, password} = req.body;
+  try {
+    const { email, password } = req.body;
 
-        //check if user exists
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({message: "Invalid email or password"});
-        }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid email or password" });
 
-        //password check
-        const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.status(400).json({message: "Invalid email or password"});
-        }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
 
-        //Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY};
+    if (user.twoFactorEnabled) {
+      // Generate OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY };
 
-        //send otp via email
-        const transporter = createTransporter();
+      const transporter = createTransporter();
+      await transporter.sendMail({
+        from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+        to: user.email,
+        subject: "Your OTP code",
+        text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+      });
 
-        await transporter.sendMail({
-            from: `"LIVORA" <${process.env.EMAIL_USER}>`,
-            to: user.email,
-            subject: "Your OTP code",
-            text: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
-        });
-        res.json({ message: "OTP sent to email", userId: user._id });
-
-
-
-    } catch (err) {
-        console.error("Login error:", err);
-        res.status(500).json({message: "Server error"});
+      return res.json({ message: "OTP sent to email", userId: user._id, twoFactorEnabled: true });
+    } else {
+      // Skip OTP and issue JWT directly
+      const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
+      return res.json({
+        message: "Login successful",
+        user,
+        token,
+        twoFactorEnabled: false,
+      });
     }
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 export const verifyOtp = async(req, res) => {
         try{
@@ -289,13 +346,10 @@ export const getResidentByApartment = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
     try {
-        const { email } = req.body;
-        if(!email) return res.status(400).json({message: "Email required"});
-
-        const user = await User.findOne({ email });
+        // Get user from authenticated token (req.user is set by authMiddleware)
+        const user = await User.findById(req.user._id);
         if (!user) {
-        // For security, you may still return 200 so attackers can't enumerate emails.
-        return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
+            return res.status(404).json({ message: "User not found" });
         }
 
         const rawToken = crypto.randomBytes(32).toString("hex");
@@ -311,19 +365,110 @@ export const forgotPassword = async (req, res) => {
         const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
 
         await transporter.sendMail({
-            from:`"Smart System" <${process.env.EMAIL_USER}>`,
+            from:`"LIVORA" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: "Password reset for your account",
-            text: `You requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.`,
-            html: `<p>You requested a password reset. Click <a href="${resetLink}">here</a> (or paste in browser):</p><p>${resetLink}</p><p>This link is valid for 15 minutes.</p>`
+            text: `Hello ${user.firstName},\n\nYou requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.\n\nIf you didn't request this, please ignore this email.\n\n- Livora Team`,
+            html: `
+                <h2>Password Reset Request</h2>
+                <p>Hello <strong>${user.firstName}</strong>,</p>
+                <p>You requested a password reset for your Livora account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a>
+                </div>
+                <p>Or copy and paste this link in your browser:</p>
+                <p style="word-break: break-all; color: #6b7280;">${resetLink}</p>
+                <p><strong>This link is valid for 15 minutes.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email.</p>
+                <p>– Livora Team</p>
+            `
         });
 
-        return res.status(200).json({ message: "If that email exists, a reset link has been sent." });
-
+        return res.status(200).json({ 
+            message: "Password reset link has been sent to your email",
+            email: user.email // Return the email for confirmation
+        });
 
     } catch (err) {
         console.error("forgotPassword error:", err);
         return res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const checkEmailExists = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email required" });
+
+        const user = await User.findOne({ email });
+        
+        return res.status(200).json({ 
+            exists: !!user,
+            message: user ? "Email found" : "Email not found"
+        });
+
+    } catch (err) {
+        console.error("checkEmailExists error:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const forgotPasswordUnauthenticated = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email required" });
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Email not found in our system" });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + RESET_TOKEN_EXPIRY_MS;
+
+        await user.save();
+
+        const transporter = createTransporter();
+
+        const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
+
+        await transporter.sendMail({
+            from:`"LIVORA" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: "Password reset for your account",
+            text: `Hello ${user.firstName},\n\nYou requested a password reset. Click this link (or paste in browser): ${resetLink}\n\nThis link is valid for 15 minutes.\n\nIf you didn't request this, please ignore this email.\n\n- Livora Team`,
+            html: `
+                <h2>Password Reset Request</h2>
+                <p>Hello <strong>${user.firstName}</strong>,</p>
+                <p>You requested a password reset for your Livora account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a>
+                </div>
+                <p>Or copy and paste this link in your browser:</p>
+                <p style="word-break: break-all; color: #6b7280;">${resetLink}</p>
+                <p><strong>This link is valid for 15 minutes.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email.</p>
+                <p>– Livora Team</p>
+            `
+        });
+
+        return res.status(200).json({ 
+            message: "Password reset link has been sent to your email",
+            email: user.email
+        });
+
+    } catch (err) {
+        console.error("forgotPasswordUnauthenticated error:", err);
+        console.error("Full error details:", err);
+        return res.status(500).json({ 
+            message: "Server error", 
+            details: err.message 
+        });
     }
 };
 
@@ -352,7 +497,7 @@ export const resetPassword = async (req, res) => {
         try {
             const transporter = createTransporter();
             await transporter.sendMail({
-                from: `"Smart System" <${process.env.EMAIL_USER}>`,
+                from: `"LIVORA " <${process.env.EMAIL_USER}>`,
                 to: user.email,
                 subject: "Your password has been changed",
                 text: `Your password was successfully changed. If you did not do this, contact support immediately.`,    
@@ -422,6 +567,89 @@ export const changePassword = async (req, res) => {
   }
 };
 
+export const send2FAOtp = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id); // req.user is set by authMiddleware
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore[user._id] = { otp, expiresAt: Date.now() + OTP_EXPIRY };
+
+    // Send OTP via email
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Your 2FA Setup OTP Code",
+      text: `Your OTP code for setting up two-factor authentication is ${otp}. It will expire in 5 minutes.`,
+      html: `
+        <h2>Two-Factor Authentication Setup</h2>
+        <p>Hello ${user.firstName},</p>
+        <p>Your OTP code for setting up two-factor authentication is:</p>
+        <h3 style="color: #2563eb; font-size: 24px; letter-spacing: 2px;">${otp}</h3>
+        <p>This code will expire in 5 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p>– Livora Team</p>
+      `
+    });
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (err) {
+    console.error("Send 2FA OTP error:", err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+export const toggleTwoFactor = async (req, res) => {
+  const { enabled, otp } = req.body; // true or false, and optional OTP for verification
+  try {
+    const user = await User.findById(req.user._id); // req.user is set by authMiddleware
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // If enabling 2FA, verify OTP first
+    if (enabled && otp) {
+      const record = otpStore[user._id];
+      if (!record) return res.status(400).json({ message: "No OTP found" });
+
+      if (Date.now() > record.expiresAt) {
+        delete otpStore[user._id];
+        return res.status(400).json({ message: "OTP expired" });
+      }
+
+      if (record.otp !== otp) {
+        return res.status(400).json({ message: "Invalid OTP" });
+      }
+
+      // OTP is valid, clean up
+      delete otpStore[user._id];
+    }
+
+    user.twoFactorEnabled = enabled;
+    await user.save();
+
+    res.json({ 
+      message: `Two-factor authentication ${enabled ? "enabled" : "disabled"}`, 
+      twoFactorEnabled: enabled 
+    });
+  } catch (err) {
+    console.error("Toggle 2FA error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Return current 2FA status for the authenticated user
+export const getTwoFactorStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("twoFactorEnabled");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.status(200).json({ twoFactorEnabled: !!user.twoFactorEnabled });
+  } catch (err) {
+    console.error("getTwoFactorStatus error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const updateProfilePicture = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -486,5 +714,47 @@ export const deleteProfilePicture = async (req, res) => {
   } catch (error) {
     console.error("Error deleting profile picture:", error);
     return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get resident dashboard statistics
+export const getResidentDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user._id; // from auth middleware
+    
+    // Get total feedbacks (completed service requests by this resident)
+    const totalFeedbacks = await GKServiceRequest.countDocuments({
+      userId: userId,
+      status: "Completed"
+    });
+    
+    // Get active services (pending or processing service requests)
+    const activeServices = await GKServiceRequest.countDocuments({
+      userId: userId,
+      status: { $in: ["Pending", "Processing"] }
+    });
+    
+    // Get pending deliveries (parcels with pending status for this resident's apartment)
+    const user = await User.findById(userId).select('apartmentNo');
+    const pendingDeliveries = user ? await Parcel.countDocuments({
+      apartment_number: user.apartmentNo,
+      status: "pending"
+    }) : 0;
+    
+    // Get unpaid bills (pending payments for this resident)
+    const unpaidBills = await Payment.countDocuments({
+      residentId: user?.userId,
+      status: "Pending"
+    });
+    
+    res.status(200).json({
+      totalFeedbacks,
+      activeServices,
+      pendingDeliveries,
+      unpaidBills
+    });
+  } catch (error) {
+    console.error("Error in getResidentDashboardStats:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

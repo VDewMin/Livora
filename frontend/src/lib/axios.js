@@ -16,8 +16,8 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        if(error.response && error.response.status === 401 || error.response.status === 403) {
-            
+        const status = error?.response?.status;
+        if(status === 401 || status === 403) {
             golbalLogout?.();
         }
         return Promise.reject(error);

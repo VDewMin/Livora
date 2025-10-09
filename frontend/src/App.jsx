@@ -34,6 +34,10 @@ import ResetPassword from "./pages/vd_resetPassword.jsx";
 import DashboardLayout from "./components/vd_dashboardLayout.jsx";
 import UserProfile from "./pages/vd_userProfile.jsx";
 import UpdateUser from "./pages/vd_updateUser.jsx";
+import ResidentDashboard from "./pages/vd_residentDashboard.jsx";
+import AdminDashboard from "./pages/vd_adminDashboard.jsx";
+import FeedbackForm from "./pages/vd_feedbackForm.jsx";
+import FeedbackList from "./pages/vd_feedbackList.jsx";
 
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
@@ -64,6 +68,8 @@ import SDApartmentPage from "./pages/SDApartmentPage.jsx";
 import SDAboutUsPage from "./pages/SDAboutUsPage.jsx";
 import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
+import SecurityPrivacy from "./pages/vd_securityAndPrivacy.jsx";
+import SDpurchasesList from "./pages/SDpurchasesList";
 
 const App = () =>{
     return(
@@ -77,7 +83,7 @@ const App = () =>{
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
                     <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
-                    <Route path="/send-announcements" element={<ProtectedRoute allowedRoles={["Admin"]}>< AdminAnnouncements/></ProtectedRoute>} />
+                    <Route path="/send-announcements" element={<ProtectedRoute allowedRoles={["Resident"]}>< AdminAnnouncements/></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -98,18 +104,31 @@ const App = () =>{
                     <Route path="/users/:userId" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/profile-settings" index element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
                     <Route path="/change-password/:userId" element={<ProtectedRoute><ChangePassword/></ProtectedRoute>}></Route>
-                    <Route path="/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
-                    <Route path="/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
+                    <Route path="/account/reset-password/:token" element={<ProtectedRoute><ResetPassword /></ProtectedRoute>} />
+                    <Route path="/account/forgot-password" element={<ProtectedRoute><ForgotPassword /></ProtectedRoute>} />
                     <Route path="/admin/update-user/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><UpdateUser /></ProtectedRoute>} />
-
-
-                    
+                    <Route path="/resident/dashboard/:userId" element={<ProtectedRoute allowedRoles={["Resident"]}><ResidentDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/dashboard/" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/resident/feedback" element={<ProtectedRoute allowedRoles={["Resident"]}><FeedbackForm /></ProtectedRoute>}/>
+                    <Route path="/admin/feedback" element={<ProtectedRoute allowedRoles={["Admin"]}><FeedbackList /></ProtectedRoute>} />
+                    <Route path="/resident/feedback" element={<ProtectedRoute allowedRoles={["Resident"]}><FeedbackForm /></ProtectedRoute>} />
+                    <Route path="/security-privacy/:userId" element={<ProtectedRoute><SecurityPrivacy /></ProtectedRoute>} />
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       
                     <Route path="/parcel/:id" element={<KsParcelDetail />} />
                     <Route path="/scanner" element={<KsScanner />} />
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
+
+                    
+
+                    <Route path='/notes' element={<ProtectedRoute allowedRoles={["Admin"]}><HomePage/></ProtectedRoute>}/>
+                    <Route path="/admin/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminPurchasesTable/></ProtectedRoute>}/>
+                    <Route path="/admin/convention-hall-bookings" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookings/></ProtectedRoute>}/>
+                  <Route path="/admin/convention-hall-booking/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookingsDetails/></ProtectedRoute>}/>
+                  <Route path="/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDpurchasesList/></ProtectedRoute>}/>
+                  <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Admin"]}><SDLaundryStaffView/></ProtectedRoute>}/>
+                
 
 
                 </Route>
@@ -132,32 +151,32 @@ const App = () =>{
                 
                 
                 
-               <Route path='/notes' element={<HomePage/>} />
                <Route path='/create' element={<CreatePage/>} />
                <Route path='/note/:id' element={<NoteDetailsPage/>} />
                
-               <Route path="/purchases" element={<PurchasesList />} />
                <Route path="/purchases/create" element={<SDcreatepurchase />} />
-               <Route path="/admin/purchases" element={<SDAdminPurchasesTable />} />
+              
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                <Route path="/purchases/:id" element={<SDpurchaseDetails />} />
 
                 <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
                 <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
-                <Route path="/admin/convention-hall-bookings" element={<SDAdminConventionHallBookings />} />
-               <Route path="/admin/convention-hall-booking/:id" element={<SDAdminConventionHallBookingsDetails />} />
-               </Route>
+                </Route>
+                
+               <Route path="/purchases/create" element={<SDcreatepurchase />} />
+               
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
-                <Route path="/laundry/staff" element={<SDLaundryStaffView />} />
+                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
                 </Route>
+                <Route path="/" element={<SDLandingPage />} />
+                
                 <Route path="/landing" element={<SDLandingPage />} />
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
 
 
  

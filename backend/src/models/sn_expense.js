@@ -58,17 +58,17 @@ const expenseShema = new mongoose.Schema ({
 
 expenseShema.pre("save", async function (next) {
   try {
-  
+    
     if (!this.expenseId) {
       let counter = await Counter.findOne({ name: "expense" });
       
       if (!counter) {
         counter = await Counter.create({ name: "expense", seq: 0 });
       }
-
+      
       counter.seq += 1;
       await counter.save();
-
+      
       this.expenseId = "E" + counter.seq.toString().padStart(3, "0");
     }
 

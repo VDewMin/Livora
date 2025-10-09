@@ -32,7 +32,7 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
                 {/* Purchase Header */}
                 <div className='flex justify-between items-start'>
                     <h3 className='card-title text-xl font-semibold text-teal-700'>
-                        {purchase.room_id} - {purchase.buyer_Name}
+                        {purchase.apartmentNo} - {purchase.buyer_Name}
                     </h3>
                     <span className='badge badge-success badge-sm text-white bg-green-500'>{purchase.room_type}</span>
                 </div>
@@ -40,10 +40,10 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
                 {/* Purchase Summary */}
                 <div className='space-y-2 mt-2'>
                     <p className='text-sm text-teal-600'>
-                        <strong className='font-medium'>Room:</strong> {purchase.room_id}
+                        <strong className='font-medium'>Room:</strong> {purchase.apartmentNo}
                     </p>
                     <p className='text-sm text-teal-800 line-clamp-2'>
-                        {purchase.content || `Purchase of ${purchase.room_type} apartment ${purchase.room_id}`}
+                        {purchase.content || `Purchase of ${purchase.room_type} apartment ${purchase.apartmentNo}`}
                     </p>
                 </div>
 
@@ -51,7 +51,7 @@ const SDpurchaseCard = ({ purchase, setPurchases }) => {
                 <div className='stats stats-horizontal stats-sm w-full mt-4 bg-teal-50 p-2 rounded'>
                     <div className='stat'>
                         <div className='stat-title text-xs text-teal-600'>Price</div>
-                        <div className='stat-value text-teal-800'>${purchase.price?.toLocaleString()}</div>
+                        <div className='stat-value text-teal-800'>LKR {purchase.price?.toLocaleString()}</div>
                     </div>
                     <div className='stat'>
                         <div className='stat-title text-xs text-teal-600'>Date</div>

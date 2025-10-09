@@ -40,8 +40,7 @@ const SDApartmentPage = () => {
               className="w-full h-full object-cover"
 
             />
-            {/* Photo Spot: Apartment Exterior */}
-            {/* Replace with: <img src={exteriorPhoto} alt="Apartment exterior" /> */}
+            
           </div>
         </div>
       </section>
@@ -60,56 +59,47 @@ const SDApartmentPage = () => {
                 className="w-40 h-30 mb-4"
 
               />
-              {/* Replace with: <img src={conventionLogo} alt="Convention Hall Logo" /> */}
               <h3 className="text-xl font-semibold text-teal-600">Convention Halls</h3>
               <p className="text-gray-600 mt-2">Spacious halls for events and gatherings.</p>
             </div>
 
-            {/* Service Maintainers */}
             <div className="bg-teal-50 p-6 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-2 flex flex-col items-center">
               <img
                 src={serviceLogo}
                 alt="Service Maintainers Logo"
                 className="w-40 h-30 mb-4"
               />
-              {/* Replace with: <img src={serviceLogo} alt="Service Maintainers Logo" /> */}
               <h3 className="text-xl font-semibold text-teal-600">Service Maintainers</h3>
               <p className="text-gray-600 mt-2">Dedicated team for repairs and upkeep.</p>
             </div>
 
-            {/* 24/7 Security */}
             <div className="bg-teal-50 p-6 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-2 flex flex-col items-center">
               <img
                 src={securityLogo}
                 alt="Security Logo"
                 className="w-40 h-30 mb-4"
               />
-              {/* Replace with: <img src={securityLogo} alt="Security Logo" /> */}
               <h3 className="text-xl font-semibold text-teal-600">24/7 Security</h3>
               <p className="text-gray-600 mt-2">Round-the-clock safety for residents.</p>
             </div>
 
-            {/* Laundry Service */}
             <div className="bg-teal-50 p-6 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-2 flex flex-col items-center">
               <img
                 src={laundry}
                 alt="Laundry Service Logo"
                 className="w-40 h-30 mb-4"
               />
-              {/* Replace with: <img src={laundryLogo} alt="Laundry Service Logo" /> */}
               <h3 className="text-xl font-semibold text-teal-600">Laundry Service</h3>
               <p className="text-gray-600 mt-2">Convenient on-site laundry options.</p>
             </div>
 
-            {/* Friendly Staff */}
             <div className="bg-teal-50 p-6 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-2 flex flex-col items-center">
               <img
                 src={staff}
                 alt="Friendly Staff Logo"
                 className="w-40 h-30 mb-4"
               />
-              {/* Replace with: <img src={staffLogo} alt="Friendly Staff Logo" /> */}
-              <h3 className="text-xl font-semibold text-teal-600">Friendly Staff</h3>
+             <h3 className="text-xl font-semibold text-teal-600">Friendly Staff</h3>
               <p className="text-gray-600 mt-2">Warm and helpful community support.</p>
             </div>
           </div>
@@ -131,8 +121,7 @@ const SDApartmentPage = () => {
                 className="w-full h-full object-cover"
 
               />
-              {/* Photo Spot: Interior View */}
-              {/* Replace with: <img src={interiorPhoto} alt="Apartment interior" /> */}
+             
             </div>
             <div className="w-full h-48 bg-gray-300 overflow-hidden">
               <img
@@ -140,8 +129,7 @@ const SDApartmentPage = () => {
                 alt="Apartment amenities"
                 className="w-full h-full object-cover"
               />
-              {/* Photo Spot: Amenities */}
-              {/* Replace with: <img src={amenitiesPhoto} alt="Apartment amenities" /> */}
+             
             </div>
           </div>
           <p className="text-gray-700 mt-6">Starting at LKR 75,000/month. Contact us for a tour!</p>
@@ -159,7 +147,12 @@ const SDApartmentPage = () => {
 
           </ul>
           <p className="text-sm">Pearl Residencies © 2025 | 123 Main Street, Colombo, Sri Lanka</p>
-          <p className="text-sm mt-2">Follow us: [Facebook] [Twitter] [Instagram]</p>
+          <p className="text-sm mt-2">Follow us: 
+            <div className="inline-flex space-x-4 ml-2 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-30 px-2 py-1 rounded">
+                              <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook icon" className="w-6 h-6 mr-2" />
+                              <img src="https://cdn.simpleicons.org/instagram/E1306C" alt="Instagram icon" className="w-6 h-6 mr-2" />
+                      </div>
+          </p>
         </div>
       </footer>
     </div>

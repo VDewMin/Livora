@@ -223,7 +223,10 @@ const ResidentList = () => {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">Date of Birth:</span>
-                    <p className="text-gray-900">{selectedResident.dateOfBirth || 'N/A'}</p>
+                    <p className="text-gray-900">{selectedResident.dateOfBirth
+                      ? selectedResident.dateOfBirth.split("T")[0]
+                      : "N/A"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">Job:</span>

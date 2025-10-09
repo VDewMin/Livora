@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 const SDLaundryRequestForm = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +20,8 @@ const SDLaundryRequestForm = () => {
     const numericWeight = Number(weight) || 0; // Default to 0 if invalid
     return numericWeight * baseRate;
   };
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,6 +69,10 @@ const SDLaundryRequestForm = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 py-10">
       <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+       
+      
+
+
         <h2 className="text-2xl font-bold text-teal-800 mb-4">Laundry Request</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

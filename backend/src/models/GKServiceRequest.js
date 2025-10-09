@@ -24,6 +24,7 @@ const GKServiceRequestSchema = new mongoose.Schema({
 
 GKServiceRequestSchema.pre("save", async function (next) {
   try {
+    
     if (!this.serviceId) {
       let counter = await Counter.findOne({ name: "service" });
       
@@ -34,6 +35,7 @@ GKServiceRequestSchema.pre("save", async function (next) {
       counter.seq += 1;
       await counter.save();
 
+    
       this.serviceId = "S" + counter.seq.toString().padStart(3, "0");
     }
 

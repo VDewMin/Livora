@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 // Purchase Schema
 const purchaseSchema = new mongoose.Schema({
    
-    room_id: { type: String, required: true },
+    apartmentNo: { type: String, required: true },
     buyer_Name: { type: String, required: true },
     buyer_id: { type: String, required: true },
     buyer_Email: { 

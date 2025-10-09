@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Corrected import
+import { Link } from 'react-router-dom';
 import axiosInstance from '../lib/axios.js';
-import { CalendarIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { CalendarIcon, Trash2Icon } from 'lucide-react'; // Updated to include Trash2Icon
 import toast from 'react-hot-toast';
 
 const SDAdminConventionHallBookings = () => {
@@ -23,15 +23,15 @@ const SDAdminConventionHallBookings = () => {
     fetchBookings();
   }, []);
 
-  const handleStatusUpdate = async (id, newStatus) => {
-    if (!window.confirm(`Confirm ${newStatus} this booking?`)) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm(`Are you sure you want to delete this booking?`)) return;
     try {
-      const response = await axiosInstance.put(`/convention-hall-bookings/${id}/status`, { status: newStatus });
-      setBookings(bookings.map(b => b._id === id ? response.data : b));
-      toast.success(`Booking ${newStatus} successfully`);
+      await axiosInstance.delete(`/convention-hall-bookings/${id}`);
+      setBookings(bookings.filter(b => b._id !== id));
+      toast.success('Booking deleted successfully');
     } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error(`Failed to ${newStatus} booking`);
+      console.error('Error deleting booking:', error);
+      toast.error('Failed to delete booking');
     }
   };
 
@@ -46,6 +46,29 @@ const SDAdminConventionHallBookings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 py-10">
       <div className="max-w-6xl mx-auto p-6">
+        {/* Small Navbar */}
+        <nav className="bg-teal-700 text-white p-2 mb-6 rounded-lg shadow-md">
+          <ul className="flex justify-around">
+            <li>
+              <Link
+                to="/admin/convention-hall-bookings"
+                className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} // Active state highlight
+              >
+                Convention Hall
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/laundry/staff" 
+                className="px-4 py-2 rounded hover:bg-teal-600 transition-all"
+              >
+                Laundry
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
         <h1 className="text-4xl font-bold text-teal-800 mb-8 text-center animate-fade-in">
           Admin Convention Hall Bookings
         </h1>
@@ -79,21 +102,13 @@ const SDAdminConventionHallBookings = () => {
                     </td>
                     <td className="py-3 px-4">
                       <button
-                        onClick={() => handleStatusUpdate(booking._id, 'accepted')}
-                        className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600"
-                        disabled={booking.status !== 'pending'}
+                        onClick={() => handleDelete(booking._id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600"
                       >
-                        <CheckCircleIcon className="inline mr-1" /> Accept
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(booking._id, 'rejected')}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        disabled={booking.status !== 'pending'}
-                      >
-                        <XCircleIcon className="inline mr-1" /> Reject
+                        <Trash2Icon className="inline mr-1" /> Delete
                       </button>
                       <Link
-                        to={`/admin/convention-hall-booking/${booking._id}`} // Updated route
+                        to={`/admin/convention-hall-booking/${booking._id}`}
                         className="ml-2 text-indigo-500 hover:text-indigo-700"
                       >
                         View Details

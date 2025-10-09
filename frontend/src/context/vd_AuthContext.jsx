@@ -52,12 +52,14 @@ export const AuthProvider = ({children}) => {
         setToken(authToken);
     };
 
-    const logout = () => {
+    const logout = (redirect = true) => {
         setUser(null);
         setToken(null);
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        if (redirect) {
+            window.location.href = "/login";
+        }
     };
 
     golbalLogout = logout;

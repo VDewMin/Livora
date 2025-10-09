@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
 
   password: { type: String, required: true },
   role: { type: String, enum: ["Admin", "Resident", "Staff"], default: "Resident" },
+  twoFactorEnabled: { type: Boolean, default: false },
 
   apartmentNo: { 
     type: String, 

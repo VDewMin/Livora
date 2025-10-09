@@ -16,6 +16,7 @@ function GKServiceRequest() {
 
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ contactNo: "" });
 
   // Load user details after login
   useEffect(() => {
@@ -33,29 +34,56 @@ function GKServiceRequest() {
     }
   }, []);
 
-  // Handle input changes for fields that user can edit
+  // Handle input changes for editable fields
   const handleChange = (e) => {
     const { name, files, value } = e.target;
 
+    if (name === "contactNo") {
+      const onlyDigits = /^\d*$/;
+
+      if (!onlyDigits.test(value)) {
+        toast.error("Only numbers are allowed");
+        return;
+      } else if (value.length > 10) {
+        toast.error("Contact number must be 10 digits");
+        return;
+      } else {
+        setErrors({ ...errors, contactNo: "" });
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
+    }
+
     if (name === "fileUrl") {
       if (files && files[0]) {
-        const fileType = files[0].type; // check MIME type
-        if (fileType !== "image/png") {
-          toast.error("Only PNG images are allowed!");
-          e.target.value = null; // reset input
+        const fileType = files[0].type.toLowerCase();
+        const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+
+        if (!validTypes.includes(fileType)) {
+          toast.error("Only PNG and JPG images are allowed!");
+          e.target.value = null; // reset file input
           setFile(null);
           return;
         }
+
         setFile(files[0]);
       }
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
     }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.contactNo || formData.contactNo.length !== 10) {
+      toast.error("Contact number must be exactly 10 digits!");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -99,7 +127,6 @@ function GKServiceRequest() {
       <h2 className="text-xl font-bold mb-6 text-center">Service Request</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Apartment No */}
         <div>
           <label className="block font-semibold mb-1">Apartment No</label>
           <input
@@ -111,7 +138,6 @@ function GKServiceRequest() {
           />
         </div>
 
-        {/* Contact Email */}
         <div>
           <label className="block font-semibold mb-1">Contact Email</label>
           <input
@@ -123,7 +149,6 @@ function GKServiceRequest() {
           />
         </div>
 
-        {/* Contact No */}
         <div>
           <label className="block font-semibold mb-1">Contact No</label>
           <input
@@ -131,11 +156,15 @@ function GKServiceRequest() {
             name="contactNo"
             value={formData.contactNo}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100"
+            required
+            maxLength={10}
+            className="w-full p-2 border border-gray-300 rounded-lg"
           />
+          {errors.contactNo && (
+            <p className="text-red-500 text-sm mt-1">{errors.contactNo}</p>
+          )}
         </div>
 
-        {/* Service Type */}
         <div>
           <label className="block font-semibold mb-1">Service Type</label>
           <select
@@ -153,7 +182,6 @@ function GKServiceRequest() {
           </select>
         </div>
 
-        {/* Description */}
         <div>
           <label className="block font-semibold mb-1">Description</label>
           <textarea
@@ -165,9 +193,8 @@ function GKServiceRequest() {
           />
         </div>
 
-        {/* File Upload */}
         <div>
-          <label className="block font-semibold mb-1">Upload PNG Image</label>
+          <label className="block font-semibold mb-1">Upload PNG/JPG Image</label>
           <input
             type="file"
             name="fileUrl"
@@ -176,7 +203,6 @@ function GKServiceRequest() {
           />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
