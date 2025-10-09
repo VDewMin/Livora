@@ -64,6 +64,9 @@ const SDLaundryStaffView = () => {
                 <Link to={`/laundry/details/${request.schedule_id}`} className="btn btn-info mt-2">
                   View Details
                 </Link>
+                <Link to ={`/laundry/edit/${request.schedule_id}`} className="btn btn-secondary mt-2 ml-2">
+                  Update
+                </Link>
               </div>
             ))}
           </div>

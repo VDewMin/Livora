@@ -21,9 +21,9 @@ const SDContactUsPage = () => {
     window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`, '_blank');
   };
 
-  // Function to open Google Maps with dummy location (Colombo, Sri Lanka)
+  // Function to open Google Maps 
   const handleOpenMap = () => {
-    const dummyLocation = '6.9271,79.8612'; // Approximate coordinates for Colombo
+    const dummyLocation = '6.9271,79.8612'; 
     window.open(`https://www.google.com/maps/search/?api=1&query=${dummyLocation}`, '_blank');
   };
 
@@ -36,8 +36,8 @@ const SDContactUsPage = () => {
           <nav>
             <ul className="flex space-x-6">
               <li><Link to="/landing" className="hover:text-teal-200">Home</Link></li>
-              <li><Link to="/apartments" className="hover:text-teal-200">Apartments</Link></li>
               <li><Link to="/about" className="hover:text-teal-200">About</Link></li>
+              <li><Link to="/apartments" className="hover:text-teal-200">Apartments</Link></li>
               <li><Link to="/contact" className="hover:text-teal-200">Contact</Link></li>
             </ul>
           </nav>
@@ -108,7 +108,7 @@ const SDContactUsPage = () => {
 
             {/* Social Media */}
             <div className="bg-teal-50 p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center col-span-1 md:col-span-2 lg:col-span-3">
-              <div className="w-12 h-12 bg-gray-300 mr-4 flex items-center justify-center">
+              <div className="w-12 h-12 mr-4 flex items-center justify-center">
                 {/* Icon Placeholder: Social Media */}
               </div>
               <div className="grid grid-cols-2 gap-4 w-full">
@@ -160,7 +160,7 @@ const SDContactUsPage = () => {
             <li><Link to="/contact" className="hover:text-teal-200">Contact</Link></li>
           </ul>
           <p className="text-sm">Pearl Residencies © 2025 | 123 Main Street, Colombo, Sri Lanka</p>
-          <p className="text-sm mt-2">Email: info@pearlresidencies.com | Phone: +94 112 345 678</p>
+          <p className="text-sm mt-2">Email: pearlresidencies@gmail.com | Phone: +94 112 345 678</p>
         </div>
       </footer>
     </div>

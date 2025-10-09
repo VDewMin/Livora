@@ -10,7 +10,7 @@ const SDLaundryDetails = () => {
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
-  const detailsRef = useRef(null); // Ref to target the details div for PDF
+  const detailsRef = useRef(null); 
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -45,12 +45,12 @@ const SDLaundryDetails = () => {
     if (!window.confirm(`Are you sure you want to delete request ${schedule_id}?`)) return;
     try {
       console.log('axiosInstance base URL:', axiosInstance.defaults.baseURL); // Log base URL
-      console.log('Sending DELETE request to:', `/laundry/schedule/${schedule_id}`); // Debug log
+      console.log('Sending DELETE request to:', `/laundry/schedule/${schedule_id}`); 
       await axiosInstance.delete(`/laundry/schedule/${schedule_id}`);
       toast.success('Request deleted successfully');
       navigate('/laundry/staff');
     } catch (error) {
-      console.error('DELETE Error:', error.response?.data || error.message); // Detailed error log
+      console.error('DELETE Error:', error.response?.data || error.message); 
       toast.error(`Failed to delete request: ${error.response?.data?.message || 'Server error'}`);
     }
   };
