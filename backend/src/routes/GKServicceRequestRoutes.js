@@ -31,7 +31,7 @@ router.get("/:id", authMiddleware, getServicesById);
 router.post("/", authMiddleware, upload.single("file"), createServices);
 
 // Update a service request (owner or admin only)
-router.put("/:id", authMiddleware, upload.single("file"), updateServices);
+router.put("/:id", authMiddleware, upload.single("fileUrl"), updateServices);
 
 // Delete a service request (owner or admin only)
 router.delete("/:id", authMiddleware, deleteServices);

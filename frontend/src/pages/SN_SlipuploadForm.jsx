@@ -27,7 +27,7 @@ const OfflineSlipForm = () => {
 
     if (!slip) {
       toast.error("Please upload a slip file (PNG/JPG)");
-      setTimeout(() => navigate("/resident/billing"), 2000); // redirect after 2s
+      setTimeout(() => navigate("/resident/billing"), 2000);
       return;
     }
 

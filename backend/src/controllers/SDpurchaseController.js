@@ -40,7 +40,7 @@ export async function getpurchasebyId(req, res) {
 // CREATE new purchase
 export async function createpurchase(req, res) {
     try {
-        const { room_id, buyer_Name, buyer_id, buyer_Email, buyer_Phone, room_type, price, purchase_date, content, 
+        const { apartmentNo, buyer_Name, buyer_id, buyer_Email, buyer_Phone, room_type, price, purchase_date, content, 
                 lease_duration, lease_start_date, lease_end_date, security_deposit, monthly_rent } = req.body;
 
         // Debug: Log all received fields
@@ -51,12 +51,12 @@ export async function createpurchase(req, res) {
 
       
         // Basic validation
-        if (!room_id || !buyer_Name || !buyer_id || !buyer_Email || !buyer_Phone || !room_type || !price || !purchase_date || !content) {
+        if (!apartmentNo || !buyer_Name || !buyer_id || !buyer_Email || !buyer_Phone || !room_type || !price || !purchase_date || !content) {
             return res.status(400).json({ message: "All required fields must be provided" });
         }
 
         const purchaseData = {
-            room_id,
+            apartmentNo,
             buyer_Name,
             buyer_id,
             buyer_Email,
@@ -117,10 +117,10 @@ export async function updatedpurchase(req, res) {
             });
         }
 
-        const { room_id, buyer_Name, buyer_id, buyer_Email, buyer_Phone, room_type, price, purchase_date, content } = req.body;
+        const { apartmentNo, buyer_Name, buyer_id, buyer_Email, buyer_Phone, room_type, price, purchase_date, content } = req.body;
 
         // Basic validation
-        if (!room_id || !buyer_Name || !buyer_id || !buyer_Email || !buyer_Phone || !room_type || !price || !purchase_date || !content) {
+        if (!apartmentNo || !buyer_Name || !buyer_id || !buyer_Email || !buyer_Phone || !room_type || !price || !purchase_date || !content) {
             return res.status(400).json({ message: "All required fields must be provided" });
         }
 
@@ -146,7 +146,7 @@ export async function updatedpurchase(req, res) {
         const updatedPurchase = await Purchase.findByIdAndUpdate(
             req.params.id,
             { 
-                room_id, buyer_Name, buyer_id, buyer_Email, buyer_Phone, 
+                apartmentNo, buyer_Name, buyer_id, buyer_Email, buyer_Phone, 
                 room_type, price: priceNum, purchase_date: purchaseDate, content 
             },
             { new: true }  // Return updated document

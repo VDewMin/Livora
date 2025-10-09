@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, ClockIcon, UsersIcon } from 'lucide-react';
+import { ArrowLeftIcon, ClockIcon } from 'lucide-react';
 
 const SDLaundryEdit = () => {
   const { schedule_id } = useParams();
@@ -10,33 +10,39 @@ const SDLaundryEdit = () => {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
+    resident_name: '',
+    resident_id: '',
     weight: '',
-    service_type: '',
+    service_type: 'silver',
     time_duration: '',
-    status: '',
-    total_cost: '',
+    status: 'pending', // Default status
+    total_cost: '0.00', // For display only
   });
 
-  // Cost rates per service type (example rates in LKR per kg)
+  // Cost rates per service type (matching SDLaundryRequestForm)
   const serviceRates = {
-    wash: 5,
-    'dry-clean': 10,
-    iron: 3,
+    silver: 100,  
+    premium: 150, 
   };
 
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const response = await axiosInstance.get(`/laundry/schedule/${schedule_id}`);
-        setRequest(response.data);
+        const response = await axiosInstance.get(`/laundry?schedule_id=${schedule_id}`);
+        console.log('Fetched request data:', response.data); // Debug log
+        const requestData = response.data.find(req => req.schedule_id === schedule_id) || {};
+        setRequest(requestData);
         setFormData({
-          weight: response.data.weight,
-          service_type: response.data.service_type,
-          time_duration: response.data.time_duration,
-          status: response.data.status,
-          total_cost: response.data.total_cost,
+          resident_name: requestData.resident_name || '',
+          resident_id: requestData.resident_id || '',
+          weight: requestData.weight?.toString() || '',
+          service_type: requestData.service_type || 'silver',
+          time_duration: requestData.time_duration?.toString() || '',
+          status: requestData.status || 'pending', // Set fetched status or default
+          total_cost: requestData.total_cost?.toFixed(2) || '0.00',
         });
       } catch (error) {
+        console.error('GET Error:', error.response?.data || error.message);
         toast.error('Failed to load request details');
       } finally {
         setLoading(false);
@@ -45,7 +51,7 @@ const SDLaundryEdit = () => {
     fetchRequest();
   }, [schedule_id]);
 
-  // Auto-calculate total cost based on weight and service type
+  // Auto-calculate total cost based on weight and service type (for display only)
   useEffect(() => {
     const weightNum = Number(formData.weight);
     const rate = serviceRates[formData.service_type] || 0;
@@ -55,20 +61,20 @@ const SDLaundryEdit = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.resident_name.trim()) newErrors.resident_name = 'Resident name is required';
+    if (!formData.resident_id.trim()) newErrors.resident_id = 'Resident ID is required';
     if (!formData.weight || isNaN(Number(formData.weight)) || Number(formData.weight) <= 0)
       newErrors.weight = 'Weight must be a positive number';
-    if (!formData.service_type.trim()) newErrors.service_type = 'Service type is required';
+    if (!formData.service_type) newErrors.service_type = 'Service type is required';
     if (!formData.time_duration || isNaN(Number(formData.time_duration)) || Number(formData.time_duration) <= 0)
       newErrors.time_duration = 'Time duration must be a positive number';
     if (!formData.status) newErrors.status = 'Status is required';
-    if (!formData.total_cost || isNaN(Number(formData.total_cost)) || Number(formData.total_cost) < 0)
-      newErrors.total_cost = 'Total cost must be a non-negative number';
     return newErrors;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value || '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -79,12 +85,25 @@ const SDLaundryEdit = () => {
       return;
     }
     try {
-      console.log('Sending PUT request to:', `/laundry/schedule/${schedule_id}`, 'with data:', formData); // Debug log
-      await axiosInstance.put(`/laundry/schedule/${schedule_id}`, formData);
+      const payload = {
+        resident_name: formData.resident_name,
+        resident_id: formData.resident_id,
+        weight: Number(formData.weight),
+        service_type: formData.service_type,
+        time_duration: Number(formData.time_duration),
+        status: formData.status, 
+        
+      };
+      const requestId = request._id; 
+      if (!requestId) {
+        throw new Error('Request ID not found');
+      }
+      console.log('Sending PUT request to:', `/laundry/${requestId}`, 'with data:', payload);
+      await axiosInstance.put(`/laundry/${requestId}`, payload);
       toast.success('Request updated successfully');
       navigate('/laundry/staff');
     } catch (error) {
-      console.error('PUT Error:', error.response?.data || error.message); // Detailed error log
+      console.error('PUT Error:', error.response?.data || error.message);
       toast.error(`Failed to update request: ${error.response?.data?.message || 'Server error'}`);
     }
   };
@@ -105,139 +124,119 @@ const SDLaundryEdit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200">
-      <div className="container mx-auto px-4 py-10">
-        <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-8 bg-white p-6 rounded-lg shadow-lg border-l-4 border-teal-500">
-            <h2 className="text-2xl font-bold text-teal-800">Edit Laundry Request</h2>
-            <button onClick={() => navigate('/laundry/staff')} className="btn btn-ghost text-teal-700">
-              <ArrowLeftIcon className="h-6 w-6" />
-            </button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 py-10">
+      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-teal-800">Edit Laundry Request</h2>
+          <button onClick={() => navigate('/laundry/staff')} className="btn btn-ghost text-teal-700">
+            <ArrowLeftIcon className="h-6 w-6" />
+          </button>
+        </div>
 
-          <div className="card bg-white shadow-xl rounded-lg border-l-4 border-teal-500 overflow-hidden">
-            <div className="card-body p-6">
-              <h2 className="card-title text-3xl mb-6 text-teal-700 flex items-center">
-                <ClockIcon className="h-6 w-6 mr-2 text-teal-500" /> Edit Request
-              </h2>
+        <div className="card bg-white shadow-lg p-4 rounded-lg">
+          <h2 className="text-xl mb-4 text-teal-700 flex items-center">
+            <ClockIcon className="h-5 w-5 mr-2 text-teal-500" /> Edit Request
+          </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="divider text-teal-600 font-semibold">Request Details</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="form-control">
-                    <label className="label text-teal-700">
-                      <span className="label-text font-medium">Weight (kg)</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="weight"
-                      value={formData.weight}
-                      onChange={handleInputChange}
-                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 ${validateForm().weight ? 'input-error' : ''}`}
-                      min="0.1"
-                      step="0.1"
-                    />
-                    {validateForm().weight && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{validateForm().weight}</span>
-                      </label>
-                    )}
-                  </div>
-                  <div className="form-control">
-                    <label className="label text-teal-700">
-                      <span className="label-text font-medium">Service Type</span>
-                    </label>
-                    <select
-                      name="service_type"
-                      value={formData.service_type}
-                      onChange={handleInputChange}
-                      className={`select select-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 ${validateForm().service_type ? 'select-error' : ''}`}
-                    >
-                      <option value="">Select Service</option>
-                      <option value="wash">Wash</option>
-                      <option value="dry-clean">Dry Clean</option>
-                      <option value="iron">Iron</option>
-                    </select>
-                    {validateForm().service_type && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{validateForm().service_type}</span>
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="form-control">
-                    <label className="label text-teal-700">
-                      <span className="label-text font-medium">Time Duration (hours)</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="time_duration"
-                      value={formData.time_duration}
-                      onChange={handleInputChange}
-                      className={`input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 ${validateForm().time_duration ? 'input-error' : ''}`}
-                      min="1"
-                    />
-                    {validateForm().time_duration && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{validateForm().time_duration}</span>
-                      </label>
-                    )}
-                  </div>
-                  <div className="form-control">
-                    <label className="label text-teal-700">
-                      <span className="label-text font-medium">Status</span>
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className={`select select-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 ${validateForm().status ? 'select-error' : ''}`}
-                    >
-                      <option value="">Select Status</option>
-                      <option value="pending">Pending</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                    {validateForm().status && (
-                      <label className="label">
-                        <span className="label-text-alt text-red-500">{validateForm().status}</span>
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                <div className="form-control">
-                  <label className="label text-teal-700">
-                    <span className="label-text font-medium">Total Cost (LKR)</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="total_cost"
-                    value={formData.total_cost}
-                    readOnly
-                    className="input input-bordered w-full border-teal-300 bg-teal-50"
-                  />
-                  {validateForm().total_cost && (
-                    <label className="label">
-                      <span className="label-text-alt text-red-500">{validateForm().total_cost}</span>
-                    </label>
-                  )}
-                </div>
-
-                <div className="card-actions justify-end gap-4 mt-6">
-                  <button type="submit" className="btn btn-primary bg-teal-600 text-white hover:bg-teal-700">
-                    Save Changes
-                  </button>
-                  <button onClick={() => navigate('/laundry/staff')} className="btn btn-secondary">
-                    Cancel
-                  </button>
-                </div>
-              </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block mb-1">Resident Name</label>
+              <input
+                type="text"
+                name="resident_name"
+                value={formData.resident_name}
+                onChange={handleInputChange}
+                className="input input-bordered w-full"
+                required
+              />
+              {validateForm().resident_name && (
+                <span className="text-red-500 text-sm">{validateForm().resident_name}</span>
+              )}
             </div>
-          </div>
+            <div>
+              <label className="block mb-1">Resident ID</label>
+              <input
+                type="text"
+                name="resident_id"
+                value={formData.resident_id}
+                onChange={handleInputChange}
+                className="input input-bordered w-full"
+                required
+              />
+              {validateForm().resident_id && (
+                <span className="text-red-500 text-sm">{validateForm().resident_id}</span>
+              )}
+            </div>
+            <div>
+              <label className="block mb-1">Weight (kg)</label>
+              <input
+                type="number"
+                name="weight"
+                value={formData.weight}
+                onChange={handleInputChange}
+                className="input input-bordered w-full"
+                min="0.1"
+                step="0.1"
+                required
+              />
+              {validateForm().weight && (
+                <span className="text-red-500 text-sm">{validateForm().weight}</span>
+              )}
+            </div>
+            <div>
+              <label className="block mb-1">Service Type</label>
+              <select
+                name="service_type"
+                value={formData.service_type}
+                onChange={handleInputChange}
+                className="select select-bordered w-full"
+              >
+                <option value="silver">Silver (Wash & Dry)</option>
+                <option value="premium">Premium (Wash, Dry, Iron)</option>
+              </select>
+              {validateForm().service_type && (
+                <span className="text-red-500 text-sm">{validateForm().service_type}</span>
+              )}
+            </div>
+            <div>
+              <label className="block mb-1">Time Duration (hours)</label>
+              <input
+                type="number"
+                name="time_duration"
+                value={formData.time_duration}
+                onChange={handleInputChange}
+                className="input input-bordered w-full"
+                min="1"
+                required
+              />
+              {validateForm().time_duration && (
+                <span className="text-red-500 text-sm">{validateForm().time_duration}</span>
+              )}
+            </div>
+            <div>
+              <label className="block mb-1">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="select select-bordered w-full"
+              >
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              {validateForm().status && (
+                <span className="text-red-500 text-sm">{validateForm().status}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-lg"><strong>Total Cost (LKR):</strong> {formData.total_cost.toLocaleString()}</p>
+            </div>
+            <button type="submit" className="btn btn-primary w-full">
+              Save Changes
+            </button>
+          </form>
         </div>
       </div>
     </div>

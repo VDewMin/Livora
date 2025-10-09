@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import axiosInstance from "../lib/axios";
 
 const ResidentDashboard = () => {
   const [stats, setStats] = useState({
-    totalBookings: 12,
-    activeServices: 3,
-    pendingDeliveries: 2,
-    unpaidBills: 1
+    totalFeedbacks: 0,
+    activeServices: 0,
+    pendingDeliveries: 0,
+    unpaidBills: 0
   });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [recentActivity, setRecentActivity] = useState([
     { id: 1, type: "booking", title: "Pool Booking", date: "2025-10-01", status: "Confirmed" },
@@ -20,6 +24,28 @@ const ResidentDashboard = () => {
     { id: 2, title: "Pool Reservation", date: "2025-10-07", time: "3:00 PM" },
     { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
   ]);
+
+  // Fetch dashboard stats from backend
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axiosInstance.get('/users/dashboard/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      setError('Failed to load dashboard data. Please try again.');
+      // Keep default values on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
   const getActivityIcon = (type) => {
     switch(type) {
@@ -75,13 +101,31 @@ const ResidentDashboard = () => {
         <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
+      {/* Error Alert */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {error}
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">Total Bookings</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.totalBookings}</h3>
+              <p className="text-gray-500 text-sm font-medium">Total Feedbacks</p>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">
+                {loading ? (
+                  <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
+                ) : (
+                  stats.totalFeedbacks
+                )}
+              </h3>
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +139,13 @@ const ResidentDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">Active Services</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.activeServices}</h3>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">
+                {loading ? (
+                  <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
+                ) : (
+                  stats.activeServices
+                )}
+              </h3>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
               <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +160,13 @@ const ResidentDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">Pending Deliveries</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.pendingDeliveries}</h3>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">
+                {loading ? (
+                  <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
+                ) : (
+                  stats.pendingDeliveries
+                )}
+              </h3>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +180,13 @@ const ResidentDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm font-medium">Unpaid Bills</p>
-              <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.unpaidBills}</h3>
+              <h3 className="text-3xl font-bold text-gray-800 mt-1">
+                {loading ? (
+                  <div className="animate-pulse bg-gray-200 h-8 w-12 rounded"></div>
+                ) : (
+                  stats.unpaidBills
+                )}
+              </h3>
             </div>
             <div className="bg-red-100 p-3 rounded-full">
               <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

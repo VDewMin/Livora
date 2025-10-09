@@ -111,7 +111,7 @@ export const deleteExpense = async(req, res) => {
 
 export const calculateIncome = async (req, res) => {
   try {
-    const { month, year } = req.query; 
+    const { month, year } = req.query;
 
     let startDate, endDate;
     if (month && year) {
@@ -122,7 +122,7 @@ export const calculateIncome = async (req, res) => {
 
     const paymentFilter = startDate
       ? { paymentDate: { $gte: startDate, $lt: endDate }, status: "Completed" } 
-      : { status: "Completed" }; 
+      : { status: "Completed" };
 
     const expenseFilter = startDate ? { date: { $gte: startDate, $lt: endDate } } : {};
 

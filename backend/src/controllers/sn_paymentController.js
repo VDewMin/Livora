@@ -181,10 +181,9 @@ export const validateOTPAndCompletePayment = async (req, res) => {
 
     await OTP.deleteOne({ email });
 
-    // Update Resident Charges
     const resident = await User.findOne({ residentId: parentPayment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7); 
+      const currentMonth = new Date().toISOString().slice(0, 7);
       resident.lastPaidMonth = currentMonth;
       await resident.save();
     }
@@ -298,12 +297,12 @@ export const vertifyOfflinePayment = async (req, res) => {
 
     const resident = await Payment.findOne({ residentId: payment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+      const currentMonth = new Date().toISOString().slice(0, 7);
       resident.lastPaidMonth = currentMonth;
       await resident.save();
     }
 
-    //update frontend to complete
+    //pending->complete
     res.json({ paymentId, status: "Completed" });
   } catch (error) {
     console.error("Error in verifyOfflinePayment:", error);
@@ -330,7 +329,7 @@ export const rejectOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    // update frontend to reject
+    //pending->rejected
     res.json({ paymentId, status: "Rejected" });
   } catch (error) {
     console.error("Error in rejectOfflinePayment:", error);
@@ -384,10 +383,9 @@ export const getAllPayment = async (req, res) => {
 
     let query = {};
     if (month && year) {
-      // Build date range for that month
       const start = new Date(`${year}-${month}-01T00:00:00.000Z`);
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 1); // next month start
+      end.setMonth(end.getMonth() + 1);
 
       query.paymentDate = { $gte: start, $lt: end };
     }
@@ -417,7 +415,7 @@ export const getPaymentsByResident = async (req, res) => {
 //fetch monthly rent
 export const getResidentMonthlyCharges = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     const resident = await User.findById(id);
     if (!resident) {
