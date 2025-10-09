@@ -166,7 +166,8 @@ const SecurityPrivacy = () => {
             </div>
           </div>
         </div>
-
+        
+        {/* 
         <div className="bg-white rounded-2xl shadow-sm p-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
             <Bell className="w-5 h-5 mr-2 text-blue-600" />
@@ -218,7 +219,7 @@ const SecurityPrivacy = () => {
               </label>
             </div>
           </div>
-        </div>
+        </div>  */}
 
         <div className="bg-white rounded-2xl shadow-sm p-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
