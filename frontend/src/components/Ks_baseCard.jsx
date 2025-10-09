@@ -1,4 +1,3 @@
-// src/components/cards/BaseCard.jsx
 import React from "react";
 
 const BaseCard = ({ title, count, icon: Icon, color }) => {

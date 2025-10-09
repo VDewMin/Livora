@@ -272,7 +272,6 @@ export const getResidentByApartment = async (req, res) => {
       return res.status(400).json({ message: "Apartment number is required" });
     }
 
-    // Only select the fields you need
     const resident = await User.findOne({ apartmentNo })
       .select("firstName")
       .lean();
