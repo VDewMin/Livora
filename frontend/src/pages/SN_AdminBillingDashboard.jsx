@@ -224,7 +224,7 @@ const fetchResidentPayments = async () => {
           {/* Month Selector or Static Month */}
           <div>
               {activeTab === "residents" ? (
-                // 🟢 Static current month (unchangeable)
+                
                 (() => {
                   const now = new Date();
                   const monthName = now.toLocaleString("default", { month: "long" });
@@ -236,7 +236,7 @@ const fetchResidentPayments = async () => {
                   );
                 })()
               ) : (
-                // 🟢 Show month picker on all other tabs
+                // Show month picker on all other tabs
                 <input
                   type="month"
                   value={`${selectedMonth.year}-${selectedMonth.month}`}

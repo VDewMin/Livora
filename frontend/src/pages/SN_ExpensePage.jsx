@@ -7,8 +7,6 @@ export default function ExpensePage() {
   const [formData, setFormData] = useState({ expenseId: "", description: "", amount: "", date: "" });
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({ description: "", amount: "", date: "" });
-
-  // --- API Calls ---
   const fetchExpenses = async () => {
     try {
       const res = await fetch(API_URL);
