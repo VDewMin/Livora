@@ -49,6 +49,13 @@ const UserProfile = () => {
         job: ''
     });
 
+    const formatDateForInput = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return "";
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    };
+
     const nameRegex = /^[A-Za-z\s]+$/;
     const emailRegex = /^(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const phoneRegex = /^\d{10}$/;
@@ -349,7 +356,7 @@ const UserProfile = () => {
                     staffType: res.data.staffType || '',
                     secondaryPhoneNo: res.data.secondaryPhoneNo || '',
                     recoveryEmail: res.data.recoveryEmail || '',
-                    dateOfBirth: res.data.dateOfBirth || '',
+                    dateOfBirth: formatDateForInput(res.data.dateOfBirth),
                     emergencyContactName: res.data.emergencyContactName || '',
                     emergencyContactNumber: res.data.emergencyContactNumber || '',
                     familyMembers: res.data.familyMembers || '',
@@ -573,7 +580,7 @@ const UserProfile = () => {
                                     <div className="relative">
                                         <input
                                             type="date"
-                                            value={isEditing.dateOfBirth ? formData.dateOfBirth : user.dateOfBirth || ''}
+                                            value={isEditing.dateOfBirth ? formData.dateOfBirth : formatDateForInput(user.dateOfBirth)}
                                             onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
                                             readOnly={!isEditing.dateOfBirth}
                                             className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${

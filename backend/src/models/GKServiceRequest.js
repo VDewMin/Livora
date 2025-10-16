@@ -25,7 +25,7 @@ const GKServiceRequestSchema = new mongoose.Schema({
 //generate auto service id 
 GKServiceRequestSchema.pre("save", async function (next) {
   try {
-    // Only generate parcelId if it is not already set
+    
     if (!this.serviceId) {
       let counter = await Counter.findOne({ name: "service" });
       
@@ -38,7 +38,7 @@ GKServiceRequestSchema.pre("save", async function (next) {
       counter.seq += 1;
       await counter.save();
 
-      // Set parcelId
+    
       this.serviceId = "S" + counter.seq.toString().padStart(3, "0");
     }
 

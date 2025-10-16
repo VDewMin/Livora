@@ -8,6 +8,8 @@ const nameRegex = /^[A-Za-z\s]+$/;
 const emailRegex = /^(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const phoneRegex = /^\d{10}$/;
 const apartmentRegex = /^[PR](?:[1-8]0[1-6]|0[1-6])$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 
 const UpdateUser = () => {
   const navigate = useNavigate();
@@ -32,6 +34,13 @@ const UpdateUser = () => {
     medicalConditions: "",
     job: ""
   });
+
+  const formatDateForInput = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return "";
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  };
 
   const [errors, setErrors] = useState({
     firstName: "",
@@ -65,7 +74,7 @@ const UpdateUser = () => {
           staffType: user.staffType || "",
           secondaryPhoneNo: user.secondaryPhoneNo || "",
           recoveryEmail: user.recoveryEmail || "",
-          dateOfBirth: user.dateOfBirth || "",
+          dateOfBirth: formatDateForInput(user.dateOfBirth),
           emergencyContactName: user.emergencyContactName || "",
           emergencyContactNumber: user.emergencyContactNumber || "",
           familyMembers: user.familyMembers || "",
@@ -151,6 +160,18 @@ const UpdateUser = () => {
       return;
     }
 
+     if (name === "password") {
+      setFormData((prev) => ({ ...prev, password: value }));
+      setErrors((prev) => ({
+        ...prev,
+        password:
+          value === "" || passwordRegex.test(value)
+            ? ""
+            : "Weak password — must be 8+ chars, include uppercase, lowercase, number & symbol."
+      }));
+      return;
+    }
+
     if (name === "familyMembers") {
       const number = value.replace(/\D/g, "").slice(0, 2);
       setFormData((prev) => ({ ...prev, familyMembers: number }));
@@ -209,7 +230,23 @@ const UpdateUser = () => {
       }
     }
 
+    if (formData.password && !passwordRegex.test(formData.password)) {
+      toast.error(
+        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character."
+      );
+      setUpdating(false);
+      return;
+    }
+
+
+
     try {
+
+      const payload = { ...formData };
+      if (!payload.password) {
+        delete payload.password; // prevent overwriting existing password
+      }
+      
       await axiosInstance.put(`/users/${id}`, formData);
       toast.success("User updated successfully!");
 

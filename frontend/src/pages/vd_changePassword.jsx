@@ -103,7 +103,7 @@ const ChangePassword = () => {
   };
 
   const handleForgotPassword = () => {
-    navigate("/forgot-password");
+    navigate("/account/forgot-password");
   };
 
   const handleChangePassword = async (e) => {

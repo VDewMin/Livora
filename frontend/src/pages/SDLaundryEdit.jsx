@@ -19,6 +19,7 @@ const SDLaundryEdit = () => {
     total_cost: '0.00', // For display only
   });
 
+  
   const serviceRates = {
     silver: 100,  
     premium: 150, 

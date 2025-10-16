@@ -13,7 +13,7 @@ import noteRoutes from "./routes/SDnotesRoutes.js";
 import purchaseRoutes from "./routes/SDpurchaseRoutes.js";
 import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.js";
 import laundryRoutes from "./routes/SDlaundryRoutes.js";
-
+import feedbackRoutes from "./routes/vd_feedbackRoutes.js";
 
 
 dotenv.config();
@@ -46,8 +46,7 @@ app.use("/api/purchases", purchaseRoutes)
 app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
 app.use('/api/laundry', laundryRoutes);
 
-
-app.use("/uploads", express.static("uploads"));
+app.use("/api/feedback", feedbackRoutes);
 
 
 connectDB().then(() => {
