@@ -21,6 +21,8 @@ const SDCreatePage = () => {
       return;
     }
 
+    
+
     setLoading(true);
     try {
       await axiosInstance.post('/notes', {
