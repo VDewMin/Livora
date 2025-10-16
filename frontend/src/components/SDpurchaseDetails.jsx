@@ -141,7 +141,7 @@ const SDpurchaseDetails = () => {
         try {
             await axiosInstance.put(`/purchases/${id}`, {
                 buyer_Name: purchase.buyer_Name,
-                buyer_id: purchase.buyer_id,
+                userId: purchase.userId,
                 buyer_Email: purchase.buyer_Email,
                 buyer_Phone: purchase.buyer_Phone,
                 apartmentNo: purchase.apartmentNo, // Updated from room_id
@@ -230,7 +230,7 @@ const SDpurchaseDetails = () => {
     const isRental = purchase.room_type === 'rent';
     const currentRoomTypeConfig = {
         rent: { label: 'Rental Agreement', editable: true, icon: CalendarIcon },
-        sale: { label: 'Purchase Agreement', editable: false, icon: CheckCircleIcon },
+        Permanent: { label: 'Purchase Agreement', editable: false, icon: CheckCircleIcon },
         lease: { label: 'Lease Agreement', editable: true, icon: ClockIcon },
         mortgage: { label: 'Mortgage Agreement', editable: false, icon: LockIcon }
     }[purchase.room_type] || { label: 'Agreement', editable: false, icon: FileTextIcon };
@@ -428,13 +428,13 @@ const SDpurchaseDetails = () => {
                                                     <input
                                                         type='text'
                                                         className='input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
-                                                        value={purchase.buyer_id || ''}
-                                                        onChange={(e) => handleInputChange('buyer_id', e.target.value)}
+                                                        value={purchase.userId || ''}
+                                                        onChange={(e) => handleInputChange('User_id', e.target.value)}
                                                         disabled={saving}
                                                     />
                                                 ) : (
                                                     <div className='p-3 bg-teal-50 rounded-lg shadow-sm'>
-                                                        <span className='font-medium text-teal-800'>{purchase.buyer_id || 'N/A'}</span>
+                                                        <span className='font-medium text-teal-800'>{purchase.userId || 'N/A'}</span>
                                                     </div>
                                                 )}
                                             </div>

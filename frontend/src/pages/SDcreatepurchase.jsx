@@ -9,7 +9,7 @@ const SDcreatepurchase = () => {
   // Form state
   const [formData, setFormData] = useState({
     buyer_Name: '',
-    buyer_id: '',
+    userId: '',
     buyer_Email: '',
     buyer_Phone: '',
     apartmentNo: '',
@@ -22,7 +22,7 @@ const SDcreatepurchase = () => {
     lease_start_date: '',
     lease_end_date: '',
     security_deposit: '',
-    monthly_rent: ''
+    monthly_rent: '' // Store as number initially
   });
 
   const [errors, setErrors] = useState({});
@@ -35,11 +35,11 @@ const SDcreatepurchase = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.buyer_Name.trim()) newErrors.buyer_Name = 'Buyer name is required';
-    if (!formData.buyer_id.trim()) newErrors.buyer_id = 'Buyer ID is required';
+    if (!formData.userId.trim()) newErrors.userId = 'Buyer ID is required';
     if (!formData.buyer_Email.trim()) newErrors.buyer_Email = 'Email is required';
     else if (!/^\S+@\S+\.\S+$/.test(formData.buyer_Email)) newErrors.buyer_Email = 'Please enter a valid email';
     if (!formData.apartmentNo.trim()) newErrors.apartmentNo = 'Apartment number is required';
-    else if (!/^[PR](?:[1-8]0[1-6]|0[1-6])$/.test(formData.apartmentNo)) newErrors.apartmentNo = 'Please enter a valid apartment number'; // Fixed message
+    else if (!/^[PR](?:[1-8]0[1-6]|0[1-6])$/.test(formData.apartmentNo)) newErrors.apartmentNo = 'Please enter a valid apartment number';
     if (!formData.buyer_Phone.trim()) newErrors.buyer_Phone = 'Phone number is required';
     if (!formData.room_type.trim()) newErrors.room_type = 'Room type is required';
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) newErrors.price = 'Price must be a positive number';
@@ -50,6 +50,10 @@ const SDcreatepurchase = () => {
       if (!formData.lease_start_date) newErrors.lease_start_date = 'Lease start date is required';
       if (!formData.security_deposit || isNaN(Number(formData.security_deposit)) || Number(formData.security_deposit) < 0) {
         newErrors.security_deposit = 'Security deposit must be a valid number';
+      }
+      // Optional: Validate monthly_rent if needed
+      if (formData.monthly_rent && (isNaN(Number(formData.monthly_rent)) || Number(formData.monthly_rent) <= 0)) {
+        newErrors.monthly_rent = 'Monthly rent must be a positive number';
       }
     }
 
@@ -67,14 +71,14 @@ const SDcreatepurchase = () => {
 
       // Auto-set monthly rent based on lease duration when room_type is 'rent'
       if (name === 'lease_duration' && newData.room_type === 'rent') {
-        let rent = '';
+        let rent = 0;
         switch (value) {
-          case '6_months': rent = 'LKR 20000'; break;
-          case '12_months': rent = 'LKR 15000'; break;
-          case '24_months': rent = 'LKR 12000'; break; // Corrected from 10000 to 12000
-          default: rent = '';
+          case '6_months': rent = 20000; break;
+          case '12_months': rent = 15000; break;
+          case '24_months': rent = 12000; break;
+          default: rent = 0;
         }
-        newData.monthly_rent = rent;
+        newData.monthly_rent = rent; // Store as number
       }
 
       // Show/hide duration fields based on room_type
@@ -87,13 +91,12 @@ const SDcreatepurchase = () => {
           newData.security_deposit = '';
           newData.monthly_rent = '';
           setErrors((prev) => {
-            const { lease_duration, lease_start_date, security_deposit, ...rest } = prev;
+            const { lease_duration, lease_start_date, security_deposit, monthly_rent, ...rest } = prev;
             return rest;
           });
         }
       }
 
-      
       if (errors[name]) {
         setErrors((prev) => ({ ...prev, [name]: '' }));
       }
@@ -128,7 +131,7 @@ const SDcreatepurchase = () => {
     try {
       const payload = {
         buyer_Name: formData.buyer_Name,
-        buyer_id: formData.buyer_id,
+        userId: formData.userId,
         buyer_Email: formData.buyer_Email,
         buyer_Phone: formData.buyer_Phone,
         apartmentNo: formData.apartmentNo,
@@ -141,12 +144,12 @@ const SDcreatepurchase = () => {
       if (formData.room_type === 'rent') {
         payload.lease_duration = formData.lease_duration;
         payload.lease_start_date = formData.lease_start_date;
-        payload.lease_end_date = calculateEndDate() || formData.lease_end_date; // Ensure calculated value
+        payload.lease_end_date = calculateEndDate() || formData.lease_end_date;
         payload.security_deposit = Number(formData.security_deposit) || 0;
-        payload.monthly_rent = Number(formData.monthly_rent) || 0;
+        payload.monthly_rent = Number(formData.monthly_rent) || 0; // Ensure number is sent
       }
 
-      console.log('Submitting payload:', payload); // Verify
+      console.log('Submitting payload:', payload);
       console.log('room_type:', formData.room_type);
       console.log('All rental fields:', {
         lease_duration: formData.lease_duration,
@@ -157,8 +160,8 @@ const SDcreatepurchase = () => {
       });
       console.log('Full payload:', payload);
 
-      const response = await api.post('/purchases', payload); 
-      console.log('Server response:', response.data); 
+      const response = await api.post('/purchases', payload);
+      console.log('Server response:', response.data);
 
       const successMessage = formData.room_type === 'rent'
         ? 'Rental agreement created successfully'
@@ -168,7 +171,7 @@ const SDcreatepurchase = () => {
       navigate('/purchases');
     } catch (error) {
       console.error('Error creating purchase:', error);
-      console.error('Error details:', error.response?.data); // Log full error response
+      console.error('Error details:', error.response?.data);
       toast.error(`Failed to create purchase. Please try again. Details: ${error.response?.data?.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
@@ -186,6 +189,9 @@ const SDcreatepurchase = () => {
     { value: '24_months', label: '24 Months' },
     { value: 'custom', label: 'Custom Duration' }
   ];
+
+  // Format monthly rent for display
+  const displayMonthlyRent = formData.monthly_rent ? `LKR ${Number(formData.monthly_rent).toLocaleString()}` : '';
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 flex items-center justify-center py-8">
@@ -232,16 +238,16 @@ const SDcreatepurchase = () => {
                     </label>
                     <input
                       type="text"
-                      name="buyer_id"
-                      placeholder="Enter buyer ID"
-                      className={`input input-bordered w-full bg-white ${errors.buyer_id ? 'input-error' : ''} focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all`}
-                      value={formData.buyer_id}
+                      name="userId"
+                      placeholder="Enter Buyer ID"
+                      className={`input input-bordered w-full bg-white ${errors.userId ? 'input-error' : ''} focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all`}
+                      value={formData.userId}
                       onChange={handleInputChange}
                       disabled={loading}
                     />
-                    {errors.buyer_id && (
+                    {errors.userId && (
                       <label className="label">
-                        <span className="label-text-alt text-error">{errors.buyer_id}</span>
+                        <span className="label-text-alt text-error">{errors.userId}</span>
                       </label>
                     )}
                   </div>
@@ -414,16 +420,14 @@ const SDcreatepurchase = () => {
                           <span className="label-text">Monthly Rent</span>
                         </label>
                         <input
-                          type="number"
+                          type="text" // Changed from "number" to "text" for formatted display
                           name="monthly_rent"
                           placeholder="Auto-set based on duration"
                           className="input input-bordered w-full bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all"
-                          value={formData.monthly_rent}
+                          value={displayMonthlyRent} // Use formatted display value
                           onChange={handleInputChange}
-                          min="0"
-                          step="0.01"
                           disabled={loading}
-                          readOnly // Prevent manual override for auto-set
+                          readOnly // Prevent manual override
                         />
                         <label className="label">
                           <span className="label-text-alt text-base-content/60 text-xs">

@@ -6,7 +6,7 @@ const purchaseSchema = new mongoose.Schema({
    
     apartmentNo: { type: String, required: true },
     buyer_Name: { type: String, required: true },
-    buyer_id: { type: String, required: true },
+    userId: { type: String, required: true },
     buyer_Email: { 
         type: String, 
         required: true,
