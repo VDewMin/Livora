@@ -121,7 +121,7 @@ const StaffList = () => {
         </table>
       </div>
 
-      {/* Mobile Card View */}
+    
       <div className="lg:hidden">
         {staff.length > 0 ? (
           staff.map((st) => (

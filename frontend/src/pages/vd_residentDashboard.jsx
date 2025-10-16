@@ -25,7 +25,7 @@ const ResidentDashboard = () => {
     { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
   ]);
 
-  // Fetch dashboard stats from backend
+  // Fetch dashboard 
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -36,13 +36,13 @@ const ResidentDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       setError('Failed to load dashboard data. Please try again.');
-      // Keep default values on error
+      
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch data on component mount
+  
   useEffect(() => {
     fetchDashboardStats();
   }, []);
@@ -101,7 +101,7 @@ const ResidentDashboard = () => {
         <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
-      {/* Error Alert */}
+      
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
@@ -197,7 +197,7 @@ const ResidentDashboard = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
@@ -223,7 +223,6 @@ const ResidentDashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Events */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-800">Upcoming Events</h2>

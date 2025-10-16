@@ -29,7 +29,7 @@ const feedbackSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Auto-generate feedbackId using Counter with prefix FB
+// Feedback Id
 feedbackSchema.pre("save", async function (next) {
   try {
     if (!this.feedbackId) {

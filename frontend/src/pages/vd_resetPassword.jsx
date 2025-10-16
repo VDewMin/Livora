@@ -15,7 +15,7 @@ export default function ResetPassword() {
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 
-  // If user is logged in, show a message and option to logout first
+  
   useEffect(() => {
     if (user && token) {
       toast.info("You are currently logged in. Please logout first to reset your password.");

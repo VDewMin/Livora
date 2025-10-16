@@ -9,14 +9,14 @@ const userSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phoneNo: { type: String, required: true, unique: true },
-  secondaryPhoneNo: { type: String },   // NEW
-  recoveryEmail: { type: String },      // NEW
-  dateOfBirth: { type: Date },          // NEW
-  emergencyContactName: { type: String },     // NEW
-  emergencyContactNumber: { type: String },   // NEW
-  familyMembers: { type: Number },       // NEW
-  medicalConditions: { type: String },        // NEW
-  job: { type: String },                      // NEW
+  secondaryPhoneNo: { type: String },   
+  recoveryEmail: { type: String },    
+  dateOfBirth: { type: Date },          
+  emergencyContactName: { type: String },     
+  emergencyContactNumber: { type: String },   
+  familyMembers: { type: Number },       
+  medicalConditions: { type: String },      
+  job: { type: String },                  
 
   password: { type: String, required: true },
   role: { type: String, enum: ["Admin", "Resident", "Staff"], default: "Resident" },

@@ -16,16 +16,18 @@ const ProfileHeader = () => {
     "/admin/deliveries": "Deliveries",
     "/admin/admin-view": "Services",
     "/admin/booking": "Booking",
-    "/admin/billing": "Billing",
+    "/admin/billing": "Finance",
     "/admin/stafflist": "Employees",
     "/admin/residentlist": "Residents",
     "/admin/apartments": "Apartments",
+    "/admin/feedback": "Feedback",
 
     "/resident/dashboard": "Dashboard",
     "/resident/deliveries": "Deliveries",
     "/resident/user-view": "Services",
     "/resident/booking": "Booking",
     "/resident/billing": "Billing",
+    "/resident/feedback": "Feedback",
 
     "/securityDashboard": "Dashboard",
     "/security/deliveries": "Deliveries",
@@ -37,7 +39,6 @@ const ProfileHeader = () => {
     [`/profile/${user?._id}`]: "Account Information",
     [`/change-password/${user?._id}`]: "Change Password",
     [`/notifications/${user?._id}`]: "Notification Settings",
-    [`/personalization/${user?._id}`]: "Personalization",
     [`/security-privacy/${user?._id}`]: "Security & Privacy",
   };
 
