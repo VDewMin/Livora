@@ -160,6 +160,8 @@ const SecurityPrivacy = () => {
   // Save file
   doc.save(`${user.firstName || "user"}_${user._id}_profile.pdf`);
   toast.success("User profile exported successfully");
+
+  
 };
 
   const handleAccountDelete = () => {

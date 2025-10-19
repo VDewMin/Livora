@@ -6,6 +6,9 @@ import { createTransporter } from "../utils/vd_email.js";
 import GKServiceRequest from "../models/GKServiceRequest.js";
 import Parcel from "../models/ks_Parcel.js";
 import Payment from "../models/sn_payment.js";
+import Notification from "../models/vd_notification.js";
+import { emitNotification } from "../utils/vd_emitNotification.js";
+
 
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
@@ -554,11 +557,24 @@ export const changePassword = async (req, res) => {
     await user.save();
 
     // (Optional) Invalidate existing sessions/tokens here if you’re using JWT
+    
+    const notification = {
+      userId: user._id.toString(),
+      title: "Password Updated",
+      message: "Your account password was changed successfully.",
+      createdAt: new Date(),
+      isRead: false,
+    };
+
+    await Notification.create(notification);  // Save in DB
+    emitNotification(notification);   
 
     return res.json({
       success: true,
       message: "Password changed successfully",
     });
+
+
   } catch (error) {
     console.error("Error in changePassword:", error);
     res.status(500).json({
@@ -628,6 +644,19 @@ export const toggleTwoFactor = async (req, res) => {
 
     user.twoFactorEnabled = enabled;
     await user.save();
+
+    const notification = {
+      userId: user._id.toString(),
+      title: "Two-Factor Authentication",
+      message: enabled
+        ? "You have successfully enabled Two-Factor Authentication for your account."
+        : "You have disabled Two-Factor Authentication for your account.",
+      createdAt: new Date(),
+      isRead: false,
+    };
+
+    await Notification.create(notification); // Save notification in DB
+    emitNotification(notification);
 
     res.json({ 
       message: `Two-factor authentication ${enabled ? "enabled" : "disabled"}`, 
