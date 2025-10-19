@@ -41,18 +41,22 @@ const SN_ResidentBillingDashboard = () => {
       const res = await axiosInstance.get(`/payments/resident/${userId}/charges`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      // Use exact values from backend
       setCharges({
-        rent: res.data.isPaid ? 0 : res.data.rent,
-        laundry: res.data.isPaid ? 0 : res.data.laundry,
-        others: res.data.isPaid ? 0 : res.data.others,
-        total: res.data.isPaid ? 0 : res.data.total,
+        rent: res.data.rent || 0,
+        laundry: res.data.laundry || 0,
+        others: res.data.others || 0,
+        total: res.data.total || 0,
       });
     } catch (err) {
       console.error("Error fetching charges:", err.response?.data || err);
+      toast.error(err.response?.data?.message || "Unable to fetch charges");
     } finally {
       setLoadingCharges(false);
     }
   };
+
 
   // Fetch payment history
   const fetchPaymentHistory = async () => {

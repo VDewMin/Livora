@@ -417,33 +417,28 @@ export const getResidentMonthlyCharges = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 1️⃣ Fetch resident
     const resident = await User.findById(id);
     if (!resident) {
-      console.log("No user found in DB for this ID:", id);
       return res.status(404).json({ message: "Resident not found" });
     }
 
+    // 2️⃣ Current month range
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    const payment = await Payment.findOne({
-      residentId: id, 
-      status: "Completed",
-      paymentDate: { $gte: startDate, $lte: endDate },
-    });
+    // 3️⃣ Get monthly rent
+    let rent = 0;
+    const purchase = await Purchase.findOne({ apartmentNo: resident.apartmentNo });
+    if (purchase && purchase.monthly_rent) rent = purchase.monthly_rent;
 
-    let rent = 1000;
-    const purchase = await Purchase.findOne({ room_id: resident.apartmentNo });
-    if (purchase && (purchase.monthly_rent)) {
-      rent = purchase.monthly_rent;
-    }
-
+    // 4️⃣ Get pending laundry for current month
     let laundry = 0;
     const laundryAgg = await LaundryRequest.aggregate([
       {
         $match: {
-          resident_id: resident.userId, 
+          resident_id: resident.userId,
           status: "pending",
           created_at: { $gte: startDate, $lte: endDate },
         },
@@ -452,20 +447,45 @@ export const getResidentMonthlyCharges = async (req, res) => {
     ]);
     if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
 
-    const others = 0;
+    // 5️⃣ Check if any completed payment exists for this month
+    const payments = await Payment.find({
+      residentId: id,
+      status: "Completed",
+      paymentDate: { $gte: startDate, $lte: endDate },
+    }).sort({ paymentDate: 1 });
+
+    let rentDue = rent;
+    let laundryDue = laundry;
+
+    if (payments.length > 0) {
+      // Assume payment covers rent first, then laundry
+      let remainingPaid = payments.reduce((sum, p) => sum + p.totalAmount, 0);
+
+      // Deduct rent
+      rentDue = Math.max(rent - remainingPaid, 0);
+      remainingPaid = Math.max(remainingPaid - rent, 0);
+
+      // Deduct laundry
+      laundryDue = Math.max(laundry - remainingPaid, 0);
+    }
+
+    const totalDue = rentDue + laundryDue;
+    const isPaid = totalDue === 0;
 
     return res.json({
-      rent,
-      laundry,
-      others,
-      total: rent + laundry + others,
-      isPaid: !!payment,
+      rent: rentDue,
+      laundry: laundryDue,
+      others: 0,
+      total: totalDue,
+      isPaid,
     });
   } catch (err) {
     console.error("Error fetching resident charges:", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
 
 //Get all residents with monthly charges and payment status
 export const getAllResidentsMonthlyCharges = async (req, res) => {
@@ -479,12 +499,12 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
 
     // Fetch all purchases (rents)
     const purchases = await Purchase.find({
-      room_id: { $in: residents.map(r => r.apartmentNo) },
+      apartmentNo: { $in: residents.map(r => r.apartmentNo) },
     }).lean();
 
     const purchaseMap = {};
     purchases.forEach(p => {
-      purchaseMap[p.room_id?.trim()] = p.monthly_rent || 0;
+      purchaseMap[p.apartmentNo?.trim()] = p.monthly_rent || 0;
     });
 
     // Fetch all laundry this month
