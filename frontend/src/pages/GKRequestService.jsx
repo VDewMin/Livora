@@ -42,10 +42,10 @@ function GKServiceRequest() {
       const onlyDigits = /^\d*$/;
 
       if (!onlyDigits.test(value)) {
-        setErrors({ ...errors, contactNo: "Only numbers are allowed" });
+        toast.error("Only numbers are allowed");
         return;
       } else if (value.length > 10) {
-        setErrors({ ...errors, contactNo: "Contact number must be 10 digits" });
+        toast.error("Contact number must be 10 digits");
         return;
       } else {
         setErrors({ ...errors, contactNo: "" });

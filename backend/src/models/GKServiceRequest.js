@@ -22,19 +22,16 @@ const GKServiceRequestSchema = new mongoose.Schema({
     { timestamps: true } //createdAt, updateAt
 );
 
-//generate auto service id 
 GKServiceRequestSchema.pre("save", async function (next) {
   try {
     
     if (!this.serviceId) {
       let counter = await Counter.findOne({ name: "service" });
       
-      // Initialize counter if missing
       if (!counter) {
         counter = await Counter.create({ name: "service", seq: 0 });
       }
 
-      // Increment counter
       counter.seq += 1;
       await counter.save();
 

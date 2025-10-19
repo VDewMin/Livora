@@ -10,13 +10,8 @@ const parcelSchema = new mongoose.Schema({
 
      residentName: {
       type: String,
-      
+      required: true
     },
-
-   /* residentId: {
-      type: String,
-      required: true,
-    }, */
 
     apartmentNo: {
       type: String,
@@ -52,12 +47,12 @@ const parcelSchema = new mongoose.Schema({
 
     arrivalDateTime: {
       type: Date,
-      default: Date.now, // Automatically logs arrival time
+      default: Date.now,
     },
 
     receivedByStaff: {
       type: String,
-      required: true, // Auto from staff login session
+      required: true, 
     },
 
     collectedDateTime: {
@@ -71,8 +66,8 @@ const parcelSchema = new mongoose.Schema({
     },
 
     qr: {
-      verifyUrl: String,
-      imgDataUrl: String
+      verifyUrl: String,  //link that qr code points
+      imgDataUrl: String  // store image as a encoded string
     }
 
 },
@@ -82,20 +77,16 @@ const parcelSchema = new mongoose.Schema({
 
 parcelSchema.pre("save", async function (next) {
   try {
-    // Only generate parcelId if it is not already set
     if (!this.parcelId) {
       let counter = await Counter.findOne({ name: "parcel" });
       
-      // Initialize counter if missing
       if (!counter) {
         counter = await Counter.create({ name: "parcel", seq: 0 });
       }
 
-      // Increment counter
       counter.seq += 1;
       await counter.save();
 
-      // Set parcelId
       this.parcelId = "P" + counter.seq.toString().padStart(3, "0");
     }
 
