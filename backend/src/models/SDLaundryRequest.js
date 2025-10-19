@@ -8,7 +8,6 @@ const laundryRequestSchema = new mongoose.Schema({
   resident_id: {
     type: String,
     required: true,
-    unique: true,
   },
   weight: {
     type: Number,
