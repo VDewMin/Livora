@@ -1,4 +1,3 @@
-// src/pages/KsSecurityDashboard.jsx
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/vd_sidebar.jsx";
 import TotalParcelsCard from "../components/Ks_TotalParcelsCard";

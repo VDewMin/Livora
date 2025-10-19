@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import axios from "axios";
 import { Camera, CheckCircle2, XCircle, Package, MapPin, AlertCircle, RefreshCw, Shield, Activity } from "lucide-react";
-import Sidebar from "../components/vd_sidebar.jsx"; // ✅ import your reusable sidebar
+import Sidebar from "../components/vd_sidebar.jsx"; 
 
-// Helper to decode JWT payload (keeping your original function)
+
 function decodeJwtPayload(token) {
   if (!token) return null;
   try {
@@ -38,7 +38,7 @@ const KsScanner = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const html5QrcodeRef = useRef(null);
 
-  // Get cameras (your original logic)
+  // Get cameras 
   useEffect(() => {
     Html5Qrcode.getCameras()
       .then((deviceCameras) => {
@@ -63,7 +63,7 @@ const KsScanner = () => {
     };
   }, []);
 
-  // Start scanner (your original logic)
+  // Start scanner 
   useEffect(() => {
     if (!cameraId) return;
 
@@ -210,7 +210,7 @@ const KsScanner = () => {
                 className="bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center relative overflow-hidden"
                 style={{ height: "400px" }}
               >
-                {/* This div will be replaced by the Html5Qrcode scanner */}
+               
               </div>
             </div>
           </div>

@@ -79,7 +79,6 @@ expenseShema.pre("save", async function (next) {
   }
 });
 
-
 const Expense = mongoose.model("Expense", expenseShema);
 
 export default Expense;

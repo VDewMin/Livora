@@ -54,14 +54,14 @@ export const createParcels = async (req, res) => {
     });
 
     const savedParcel = await newParcel.save();
-
+    //generate a secure url with loc id and parcelId that the qr code  link to
     const { url: verifyUrl } = makeVerifyUrl(savedParcel.parcelId , savedParcel.locId);
-    let qr = null;
+    let qr = null; 
     try {
       const imgDataUrl = await QRCode.toDataURL(verifyUrl, {
-        errorCorrectionLevel: "M",
+        errorCorrectionLevel: "M", //quality
         margin: 1,
-        scale: 6
+        scale: 6 // size
       });
 
       savedParcel.qr = { verifyUrl, imgDataUrl };
@@ -140,7 +140,7 @@ export const verifyParcelQr = (req, res) => {
   const decoded = decodeVerifyToken(token);
 
   if (!decoded) {
-    return res.status(400).json({ valid: false, message: "Invalid QR code" });
+    return res.status(400).json({ valid: false, message: "Invalid QR code" }); //if the qr code token is invalid or missing
   }
 
   res.json({
