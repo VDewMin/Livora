@@ -491,7 +491,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
       // Fetch all laundry current month
       const laundryRequests = await LaundryRequest.find({
         resident_id: { $in: residents.map(r => r.userId) },
-        status: "completed",
+        //status: "completed",
         created_at: { $gte: startDate, $lt: endDate },
       }).lean();
 
@@ -505,22 +505,19 @@ export const getResidentMonthlyCharges = async (req, res) => {
       const payments = await Payment.find({
         $or: [
           { residentId: { $in: residents.map(r => r.userId) } },
-          { apartmentNo: { $in: residents.map(r => r.apartmentNo) } },
         ],
         status: "Completed",
         paymentDate: { $gte: startDate, $lt: endDate },
       }).lean();
-      console.log(payments);
+      
 
       // Map residentId -> totalPaid
       const paymentMap = {};
       payments.forEach(p => {
-        // Find the residentId for this payment
+        
         const residentKey = p.residentId || residents.find(r => r.apartmentNo === p.apartmentNo)?.userId;
         if (residentKey) {
           paymentMap[residentKey] = (paymentMap[residentKey] || 0) + p.totalAmount;
-          console.log(residentKey)
-          console.log(p.totalAmount)
         }
       });
       
@@ -528,14 +525,29 @@ export const getResidentMonthlyCharges = async (req, res) => {
       // compare
       const result = residents.map(r => {
         const rent = purchaseMap[r.apartmentNo] || 0;
-        console.log(rent)
         const laundry = laundryMap[r.userId] || 0;
-        console.log(laundry)
         const totalDue = rent + laundry;
-        console.log(totalDue)
         const totalPaid = paymentMap[r.userId] || 0;
-        console.log(totalPaid)
-        const status = totalPaid != totalDue ? "Paid" : "Unpaid";
+        
+        let status;
+          if (totalDue === 0 && totalPaid === 0) {
+          status = "Unpaid"; 
+        } else if (totalPaid >= totalDue && totalDue > 0) {
+          status = "Paid";
+        } else {
+          status = "Unpaid";
+        }
+
+        console.log("🧾 Total residents:", residents.length);
+        console.log("🧺 Laundry Requests:", laundryRequests.length);
+        console.log("💰 Purchases:", purchases.length);
+        console.log("💳 Payments:", payments.length);
+
+        // Optional deeper checks
+        console.log("Laundry Map:", laundryMap);
+        console.log("Purchase Map:", purchaseMap);
+        console.log("Payment Map:", paymentMap);
+
 
         return {
           residentId: r.userId,
