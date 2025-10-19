@@ -467,17 +467,17 @@ export const getResidentMonthlyCharges = async (req, res) => {
   }
 };
 
-// ✅ Get all residents with monthly charges and payment status
+//Get all residents with monthly charges and payment status
 export const getAllResidentsMonthlyCharges = async (req, res) => {
   try {
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    // 1️⃣ Fetch all residents
+    // Fetch all residents
     const residents = await User.find({ role: "Resident" }).lean();
 
-    // 2️⃣ Fetch all purchases (rents)
+    // Fetch all purchases (rents)
     const purchases = await Purchase.find({
       room_id: { $in: residents.map(r => r.apartmentNo) },
     }).lean();
@@ -487,7 +487,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
       purchaseMap[p.room_id?.trim()] = p.monthly_rent || 0;
     });
 
-    // 3️⃣ Fetch all laundry this month
+    // Fetch all laundry this month
     const laundryRequests = await LaundryRequest.find({
       resident_id: { $in: residents.map(r => r.userId) },
       created_at: { $gte: startDate, $lt: endDate },
@@ -501,7 +501,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
       }
     });
 
-    // 4️⃣ Fetch all completed payments this month
+    //Fetch all completed payments this month
     const payments = await Payment.find({
       $or: [
         { apartmentNo: { $in: residents.map(r => r.apartmentNo) } },
@@ -511,7 +511,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
       paymentDate: { $gte: startDate, $lt: endDate },
     }).lean();
 
-    // ✅ Build paymentMap by apartmentNo (consistent key)
+    // Build paymentMap by apartmentNo (consistent key)
     const paymentMap = {};
     payments.forEach(p => {
       const key = p.apartmentNo?.trim() || p.room_id?.trim();
@@ -520,7 +520,7 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
       }
     });
 
-    // 5️⃣ Combine and calculate final results
+    // Combine and calculate final results
     const result = residents.map(r => {
       const rent = purchaseMap[r.apartmentNo?.trim()] || 0;
       const laundry =
