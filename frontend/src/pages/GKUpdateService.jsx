@@ -20,7 +20,7 @@ function GKUpdateService() {
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Convert file buffer from backend to Base64 for preview
+  // Convert file buffer to base64
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
     try {
@@ -64,7 +64,7 @@ function GKUpdateService() {
     fetchService();
   }, [id, navigate]);
 
-  // validation
+  // Handle input changes and validation
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -125,11 +125,10 @@ function GKUpdateService() {
     setFormData({ ...formData, [name]: value });
   };
 
-  //Submit updated service
+  // Submit updated service
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Field validation before submit
     if (formData.contactNo.length !== 10) {
       toast.error("Contact number must be exactly 10 digits!");
       return;
@@ -172,95 +171,118 @@ function GKUpdateService() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
-      <h2 className="text-xl font-bold mb-4 text-center">Update Service</h2>
+    <div className="max-w-2xl mx-auto bg-white rounded-2xl p-8 shadow-md font-poppins">
+      <h2 className="text-2xl font-bold mb-6 text-center">Update Service</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-4">
-          <div className="w-1/2">
-            <label className="block font-semibold mb-1">Apartment Number</label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block font-semibold mb-1">Apartment Number*</label>
             <input
               type="text"
               name="aptNo"
               value={formData.aptNo}
               readOnly
-              className="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed"
             />
           </div>
-          <div className="w-1/2">
-            <label className="block font-semibold mb-1">Service ID</label>
+          <div>
+            <label className="block font-semibold mb-1">Service ID*</label>
             <input
               type="text"
               name="serviceId"
               value={formData.serviceId}
               readOnly
-              className="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg bg-gray-100 cursor-not-allowed"
             />
           </div>
         </div>
 
-        <label className="block font-semibold mb-1">Contact Number</label>
-        <input
-          type="text"
-          name="contactNo"
-          value={formData.contactNo}
-          onChange={handleChange}
-          maxLength={10}
-          className="w-full border px-3 py-2 rounded"
-        />
-        {errors.contactNo && <p className="text-red-600 text-sm">{errors.contactNo}</p>}
-        <label className="block font-semibold mb-1">Contact Email</label>
-        <input
-          type="email"
-          name="contactEmail"
-          value={formData.contactEmail}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-        {errors.contactEmail && <p className="text-red-600 text-sm">{errors.contactEmail}</p>}
+        {/* Row 2: Contact No + Contact Email */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block font-semibold mb-1">Contact Number*</label>
+            <input
+              type="text"
+              name="contactNo"
+              value={formData.contactNo}
+              onChange={handleChange}
+              maxLength={10}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg"
+            />
+            {errors.contactNo && (
+              <p className="text-red-600 text-sm mt-1">{errors.contactNo}</p>
+            )}
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Contact Email*</label>
+            <input
+              type="email"
+              name="contactEmail"
+              value={formData.contactEmail}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg"
+            />
+            {errors.contactEmail && (
+              <p className="text-red-600 text-sm mt-1">{errors.contactEmail}</p>
+            )}
+          </div>
+        </div>
 
-        <label className="block font-semibold mb-1">Service Type</label>
-        <select
-          name="serviceType"
-          value={formData.serviceType}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        >
-          <option value="">-- Select Service Type --</option>
-          <option value="Electrical">Electrical</option>
-          <option value="Plumbing">Plumbing</option>
-          <option value="Cleaning">Cleaning</option>
-          <option value="Other">Other</option>
-        </select>
-
-        <label className="block font-semibold mb-1">Description</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-
+        {/* Service Type */}
         <div>
-          <label className="block font-semibold mb-1">Upload PNG/JPG Image</label>
+          <label className="block font-semibold mb-1">Service Type*</label>
+          <select
+            name="serviceType"
+            value={formData.serviceType}
+            onChange={handleChange}
+            className="w-full border border-gray-300 px-3 py-2 rounded-lg"
+          >
+            <option value="">-- Select Service Type --</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block font-semibold mb-1">Description*</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full border border-gray-300 px-3 py-2 rounded-lg"
+          />
+        </div>
+
+        {/* File Upload */}
+        <div>
+          <label className="block font-semibold mb-1">Upload PNG/JPG Image*</label>
           <input
             type="file"
             name="fileUrl"
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border border-gray-300 px-3 py-2 rounded-lg"
           />
         </div>
 
+        {/* Image Preview */}
         {preview && (
           <div className="mt-4">
-            <p className="font-semibold text-sm mb-1">Image Preview:</p>
-            <img src={preview} alt="Preview" className="rounded-lg border" />
+            <p className="font-semibold text-sm mb-1 text-center">Image Preview:*</p>
+            <img
+              src={preview}
+              alt="Preview"
+              className="rounded-lg border w-full align-middle mx-auto"
+            />
           </div>
         )}
 
         <button
           type="submit"
-          className="w-full bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
+          className="w-full bg-sky-500 text-white py-2 rounded-lg hover:bg-sky-600 transition"
         >
           Update
         </button>

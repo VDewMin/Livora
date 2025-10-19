@@ -19,10 +19,10 @@ const ProfileHeader = () => {
     "/admin/billing": "Billing",
     "/admin/stafflist": "Employees",
     "/admin/residentlist": "Residents",
+    "/admin/send-announcements": "Announcements",
     "/admin/apartments": "Apartments",
 
     "/resident/dashboard": "Dashboard",
-    "/resident/deliveries": "Deliveries",
     "/resident/user-view": "Services",
     "/resident/booking": "Booking",
     "/resident/billing": "Billing",
@@ -51,7 +51,7 @@ const ProfileHeader = () => {
     currentTitle = "Account Information";
   }
 
-  useEffect(() => {
+  /*useEffect(() => {
     fetchAnnouncements();
   }, []);
 
@@ -62,7 +62,7 @@ const ProfileHeader = () => {
     } catch (err) {
       console.error("Failed to fetch announcements:", err);
     }
-  };
+  };*/
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 relative z-30">
@@ -102,7 +102,7 @@ const ProfileHeader = () => {
             </button>
 
             {/* Dropdown */}
-            {showDropdown && (
+           {/* {showDropdown && (
               <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50 max-h-96 overflow-y-auto">
                 <div className="p-2 font-bold border-b">Announcements</div>
                 {announcements.length === 0 ? (
@@ -122,11 +122,11 @@ const ProfileHeader = () => {
             )}
 
             {/* Notification Count */}
-            {announcements.length > 0 && (
+            {/*{announcements.length > 0 && (
               <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1 rounded-full">
                 {announcements.length}
               </div>
-            )}
+            )}*/}
           </div>
 
           {/* User Profile */}

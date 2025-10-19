@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axios";
 
 const ResidentDashboard = () => {
+  
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalFeedbacks: 0,
     activeServices: 0,
@@ -198,31 +202,7 @@ const ResidentDashboard = () => {
       </div>
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Recent Activity</h2>
-            <button className="text-blue-500 text-sm hover:text-blue-600 font-medium">View All</button>
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                <div className="bg-white p-2 rounded-full text-gray-600">
-                  {getActivityIcon(activity.type)}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800">{activity.title}</h3>
-                  <p className="text-sm text-gray-500">{activity.date}</p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
-                  {activity.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="max-w-full gap-6">
         {/* Upcoming Events */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
@@ -263,7 +243,7 @@ const ResidentDashboard = () => {
             </svg>
             <span className="font-medium">New Booking</span>
           </button>
-          <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition flex flex-col items-center gap-2 text-green-600">
+          <button onClick={() => navigate("/add-service")} className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition flex flex-col items-center gap-2 text-green-600">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>

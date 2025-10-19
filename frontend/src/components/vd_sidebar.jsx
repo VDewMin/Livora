@@ -12,6 +12,7 @@ import {
   ScanLine,
   PackagePlus,
   Building2,
+  NotepadText,
   Users,
   MessageSquareHeart
 } from 'lucide-react';
@@ -28,6 +29,7 @@ const roleRoutes = {
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
     "resident-management": "admin/residentlist",
+    announcements: "/admin/send-announcements",
     feedback: "/admin/feedback",
     
     //"resident-management": "admin/residentlist",
@@ -82,10 +84,11 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+  { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
 
 
-];
+]
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
