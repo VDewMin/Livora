@@ -131,7 +131,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
         {allowedMenuItems.map((item) => {
           const Icon = item.icon;
           const route = roleRoutes[effectiveRole]?.[item.id] || null;
-          // Other tabs use onItemClick
+          
           return (
             <button
               key={item.id}
@@ -148,9 +148,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           );
         })}
 
-        {/* Settings Section */}
+        {/* Settings */}
         <div className="pt-4">
-          {/* Clickable settings row */}
+          {/* settings row */}
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
             className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
@@ -164,7 +164,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
             />
           </button>
 
-          {/* Submenu only when expanded */}
+          {/* Submenu */}
           {isSettingsOpen && (
             <div className="ml-6 mt-1 space-y-1">
               {settingsSubmenu.map((item) => {

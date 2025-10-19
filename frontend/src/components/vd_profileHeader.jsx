@@ -2,30 +2,34 @@ import React, { useEffect, useState } from "react";
 import { Search, Bell, Mail } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ProfileHeader = () => {
-  const [announcements, setAnnouncements] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const pageTitles = {
     "/admin/dashboard": "Dashboard",
     "/admin/deliveries": "Deliveries",
     "/admin/admin-view": "Services",
     "/admin/booking": "Booking",
-    "/admin/billing": "Billing",
+    "/admin/billing": "Finance",
     "/admin/stafflist": "Employees",
     "/admin/residentlist": "Residents",
     "/admin/send-announcements": "Announcements",
     "/admin/apartments": "Apartments",
+    "/admin/feedback": "Feedback",
 
     "/resident/dashboard": "Dashboard",
     "/resident/user-view": "Services",
     "/resident/booking": "Booking",
     "/resident/billing": "Billing",
+    "/resident/feedback": "Feedback",
 
     "/securityDashboard": "Dashboard",
     "/security/deliveries": "Deliveries",
@@ -37,7 +41,6 @@ const ProfileHeader = () => {
     [`/profile/${user?._id}`]: "Account Information",
     [`/change-password/${user?._id}`]: "Change Password",
     [`/notifications/${user?._id}`]: "Notification Settings",
-    [`/personalization/${user?._id}`]: "Personalization",
     [`/security-privacy/${user?._id}`]: "Security & Privacy",
   };
 
@@ -51,18 +54,66 @@ const ProfileHeader = () => {
     currentTitle = "Account Information";
   }
 
-  /*useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
-  const fetchAnnouncements = async () => {
+  const fetchNotifications = async () => {
+    if (!user?._id) return;
     try {
-      const res = await axiosInstance.get("/api/announcements");
-      setAnnouncements(res.data);
+      const res = await axiosInstance.get(`/notifications/${user._id}/sidebar`);
+      setNotifications(res.data);
+
+      const unread = res.data.filter((n) => !n.isRead).length;
+      setUnreadCount(unread);
     } catch (err) {
-      console.error("Failed to fetch announcements:", err);
+      console.error("Failed to fetch notifications:", err);
     }
-  };*/
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [user?._id]);
+
+  const handleBellClick = async () => {
+    setShowDropdown(!showDropdown);
+    if (!showDropdown) {
+      await fetchNotifications();
+    }
+  };
+
+  const handleMarkAsRead = async () => {
+    if (!user?._id) return;
+    try {
+      // Call API to mark all notifications as read
+      await axiosInstance.put(`/notifications/user/${user._id}/mark-read`);
+
+      // Refresh notifications
+      await fetchNotifications();
+
+      setUnreadCount(0);
+
+    } catch (err) {
+      console.error("Failed to mark notifications as read:", err);
+    }
+  };
+
+  const handleSeeMore = () => {
+    setShowDropdown(false);
+    navigate(`/notifications/${user._id}`);
+  };
+
+  const handleNotificationClick = async (notificationId) => {
+    try {
+      // Mark individual notification as read
+      await axiosInstance.patch(`/notifications/${notificationId}/mark-read`);
+      // Refresh notifications
+      await fetchNotifications();
+
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+    setShowDropdown(false);
+    navigate(`/notifications/${user._id}`, { state: { notificationId } });
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 relative z-30">
@@ -93,40 +144,73 @@ const ProfileHeader = () => {
           <div className="relative">
             <button
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={handleBellClick}
             >
               <Bell className="h-5 w-5" />
-              {announcements.length > 0 && (
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-              )}
+              
             </button>
 
             {/* Dropdown */}
-           {/* {showDropdown && (
-              <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50 max-h-96 overflow-y-auto">
-                <div className="p-2 font-bold border-b">Announcements</div>
-                {announcements.length === 0 ? (
-                  <p className="p-2 text-gray-500 text-sm">No announcements</p>
-                ) : (
-                  announcements.map((a) => (
-                    <div key={a._id} className="p-2 border-b hover:bg-gray-50">
-                      <p className="font-semibold">{a.title}</p>
-                      <p className="text-sm">{a.message}</p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(a.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  ))
-                )}
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-80 bg-white border rounded shadow-lg z-50 max-h-96 overflow-y-auto flex flex-col">
+                {/* Header with Mark as Read */}
+                <div className="p-2 font-bold border-b flex justify-between items-center sticky top-0 bg-white">
+                  <span>Notifications</span>
+                  <button
+                    onClick={handleMarkAsRead}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-normal"
+                  >
+                    Mark as read
+                  </button>
+                </div>
+
+                {/* Notifications List */}
+                <div className="flex-1 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <p className="p-2 text-gray-500 text-sm">No notifications</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n._id}
+                        className={`p-2 border-b hover:bg-gray-50 cursor-pointer ${
+                          !n.isRead ? "bg-blue-50" : "bg-white"
+                        }`}
+                        onClick={() => handleNotificationClick(n._id)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <p className="font-semibold flex-1">{n.title}</p>
+                          {!n.isRead && (
+                            <span className="h-2 w-2 bg-blue-600 rounded-full flex-shrink-0 mt-1.5 ml-2"></span>
+                          )}
+                        </div>
+                        <p className="text-sm">{n.message}</p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(n.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* See More Button */}
+                <div className="p-2 border-t sticky bottom-0 bg-white">
+                  <button
+                    onClick={handleSeeMore}
+                    className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    See more
+                  </button>
+                </div>
               </div>
             )}
 
             {/* Notification Count */}
-            {/*{announcements.length > 0 && (
-              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1 rounded-full">
-                {announcements.length}
+            {unreadCount > 0 && (
+              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
+                {unreadCount > 5 ? "5+" : unreadCount}
               </div>
-            )}*/}
+            )}
+
           </div>
 
           {/* User Profile */}

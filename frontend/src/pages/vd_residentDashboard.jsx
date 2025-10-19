@@ -29,7 +29,7 @@ const ResidentDashboard = () => {
     { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
   ]);
 
-  // Fetch dashboard stats from backend
+  // Fetch dashboard 
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -40,13 +40,13 @@ const ResidentDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       setError('Failed to load dashboard data. Please try again.');
-      // Keep default values on error
+      
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch data on component mount
+  
   useEffect(() => {
     fetchDashboardStats();
   }, []);
@@ -105,7 +105,7 @@ const ResidentDashboard = () => {
         <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
-      {/* Error Alert */}
+      
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
@@ -201,9 +201,32 @@ const ResidentDashboard = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
-      <div className="max-w-full gap-6">
-        {/* Upcoming Events */}
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Activity */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Recent Activity</h2>
+            <button className="text-blue-500 text-sm hover:text-blue-600 font-medium">View All</button>
+          </div>
+          <div className="space-y-4">
+            {recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <div className="bg-white p-2 rounded-full text-gray-600">
+                  {getActivityIcon(activity.type)}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-800">{activity.title}</h3>
+                  <p className="text-sm text-gray-500">{activity.date}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
+                  {activity.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-800">Upcoming Events</h2>

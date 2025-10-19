@@ -1,14 +1,19 @@
 import Feedback from "../models/vd_feedback.js";
+import Notification from "../models/vd_notification.js";
+import { emitNotification } from "../utils/vd_emitNotification.js";
 
-// 🧍 Resident: Create feedback
+// Resident: Create feedback
 export const createFeedback = async (req, res) => {
   try {
     const { feedbackType, feedbackAbout, message, feedbackDate } = req.body;
-    const userId = req.user.id;
+
+    // ✅ Extract user info from req.user (set by authMiddleware)
+    const userId = req.user._id;
+    const residentId = req.user.userId; // custom app-level ID
 
     const newFeedback = new Feedback({
       userId,
-      residentId: req.user.userId, // app-level ID like R001
+      residentId,
       feedbackType,
       feedbackAbout,
       message,
@@ -16,11 +21,26 @@ export const createFeedback = async (req, res) => {
     });
     await newFeedback.save();
 
-    res.status(201).json({ success: true, message: "Feedback submitted!" });
+    // ✅ Create notification
+    const notification = {
+      userId: userId.toString(),
+      title: "Feedback Submitted",
+      message: `You submitted a new ${feedbackType.toLowerCase()} regarding ${feedbackAbout}.`,
+      createdAt: new Date(),
+      isRead: false,
+    };
+
+    await Notification.create(notification);
+    emitNotification(notification);
+
+    res.status(201).json({ success: true, message: "Feedback submitted successfully!" });
+
   } catch (err) {
+    console.error("Error creating feedback:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // 👤 Resident: View their feedbacks
 export const getUserFeedbacks = async (req, res) => {

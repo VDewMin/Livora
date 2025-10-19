@@ -10,21 +10,31 @@ const FeedbackForm = () => {
   const [feedbackDate, setFeedbackDate] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      await axiosInstance.post("/feedback", { feedbackType, feedbackAbout, message, feedbackDate });
-      toast.success("Feedback submitted successfully!");
-      setMessage("");
-      setFeedbackDate("");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to submit feedback");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    await axiosInstance.post(
+      "/feedback",
+      { feedbackType, feedbackAbout, message, feedbackDate },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      }
+    );
+
+    toast.success("Feedback submitted successfully!");
+    setMessage("");
+    setFeedbackDate("");
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to submit feedback");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const getFeedbackIcon = () => {
     switch (feedbackType) {
