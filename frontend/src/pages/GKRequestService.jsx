@@ -123,50 +123,54 @@ function GKServiceRequest() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
+    <div className="max-w-4xl mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
       <h2 className="text-xl font-bold mb-6 text-center">Service Request</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block font-semibold mb-1">Apartment No</label>
-          <input
-            type="text"
-            name="aptNo"
-            value={formData.aptNo}
-            readOnly
-            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-          />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block font-semibold mb-1">Apartment No*</label>
+            <input
+              type="text"
+              name="aptNo"
+              value={formData.aptNo}
+              readOnly
+              className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Contact Email*</label>
+            <input
+              type="text"
+              name="contactEmail"
+              value={formData.contactEmail}
+              readOnly
+              className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Contact No*</label>
+            <input
+              type="text"
+              name="contactNo"
+              value={formData.contactNo}
+              onChange={handleChange}
+              required
+              maxLength={10}
+              className="w-full p-2 border border-gray-300 rounded-lg"
+            />
+            {errors.contactNo && (
+              <p className="text-red-500 text-sm mt-1">{errors.contactNo}</p>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Contact Email</label>
-          <input
-            type="text"
-            name="contactEmail"
-            value={formData.contactEmail}
-            readOnly
-            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-          />
-        </div>
 
         <div>
-          <label className="block font-semibold mb-1">Contact No</label>
-          <input
-            type="text"
-            name="contactNo"
-            value={formData.contactNo}
-            onChange={handleChange}
-            required
-            maxLength={10}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          {errors.contactNo && (
-            <p className="text-red-500 text-sm mt-1">{errors.contactNo}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Service Type</label>
+          <label className="block font-semibold mb-1">Service Type*</label>
           <select
             name="serviceType"
             value={formData.serviceType}
@@ -174,7 +178,7 @@ function GKServiceRequest() {
             required
             className="w-full p-2 border border-gray-300 rounded-lg"
           >
-            <option value="">-- Select Service Type --</option>
+            <option value="" >-- Select Service Type --</option>
             <option value="Electrical">Electrical</option>
             <option value="Plumbing">Plumbing</option>
             <option value="Cleaning">Cleaning</option>
@@ -183,7 +187,7 @@ function GKServiceRequest() {
         </div>
 
         <div>
-          <label className="block font-semibold mb-1">Description</label>
+          <label className="block font-semibold mb-1">Description*</label>
           <textarea
             name="description"
             value={formData.description}
@@ -194,12 +198,12 @@ function GKServiceRequest() {
         </div>
 
         <div>
-          <label className="block font-semibold mb-1">Upload PNG/JPG Image</label>
+          <label className="block font-semibold mb-1">Upload PNG/JPG Image*</label>
           <input
             type="file"
             name="fileUrl"
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            className="w-full p-2 border border-gray-300 rounded-lg "
           />
         </div>
 

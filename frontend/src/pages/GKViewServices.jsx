@@ -158,9 +158,9 @@ function GKViewServices() {
       ) : filteredServices.length === 0 ? (
         <p className="text-gray-600">No matching service requests found.</p>
       ) : (
-        <div className="overflow-x-auto max-h-[70vh]">
-          <table className="border border-gray-300 w-full">
-            <thead className="sticky top-0 bg-gray-100 z-10">
+        <div className="overflow-x-auto max-h-[70vh] rounded-lg shadow-md">
+          <table className="border  border-gray-300 w-full">
+            <thead className="sticky top-0 bg-green-600 z-10 text-white">
               <tr>
                 <th className="p-3 border text-left">Service ID</th>
                 <th className="p-3 border text-left">Contact No</th>
