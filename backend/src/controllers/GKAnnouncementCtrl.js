@@ -3,12 +3,12 @@ import Announcement from "../models/GKAnnouncements.js";
 //Create new announcement (Admin only)
 export const createAnnouncement = async (req, res) => {
   try {
-    const { title, message } = req.body;
-    if (!title || !message) {
-      return res.status(400).json({ error: "Title and message are required" });
+    const { title, message, date } = req.body;
+    if (!title || !message || !date) {
+      return res.status(400).json({ error: "Title, message, and date are required" });
     }
 
-    const announcement = new Announcement({ title, message });
+    const announcement = new Announcement({ title, message, date });
     await announcement.save();
 
     // In real-world, you could also push to FCM/Socket.io for realtime notification

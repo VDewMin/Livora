@@ -171,13 +171,22 @@ function GKUpdateService() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl p-8 shadow-md font-poppins">
-      <h2 className="text-2xl font-bold mb-6 text-center">Update Service</h2>
+    <div className="mt-0 bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100 font-sens-serif">
+        <div className="bg-gradient-to-r from-sky-600 to-indigo-600 p-3 text-white">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            🧰 Update Service Request 
+          </h2>
+          <p className="text-blue-100 text-sm mt-1">
+            Modify and resubmit your existing service request below.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit} className="space-y-5 p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+        <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block font-semibold mb-1">Apartment Number*</label>
+            <label className="block font-semibold mb-3">Apartment Number*</label>
             <input
               type="text"
               name="aptNo"
@@ -187,7 +196,7 @@ function GKUpdateService() {
             />
           </div>
           <div>
-            <label className="block font-semibold mb-1">Service ID*</label>
+            <label className="block font-semibold mb-3">Service ID*</label>
             <input
               type="text"
               name="serviceId"
@@ -198,10 +207,8 @@ function GKUpdateService() {
           </div>
         </div>
 
-        {/* Row 2: Contact No + Contact Email */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block font-semibold mb-1">Contact Number*</label>
+            <label className="block font-semibold mt-3">Contact Number*</label>
             <input
               type="text"
               name="contactNo"
@@ -215,7 +222,7 @@ function GKUpdateService() {
             )}
           </div>
           <div>
-            <label className="block font-semibold mb-1">Contact Email*</label>
+            <label className="block font-semibold mt-3">Contact Email*</label>
             <input
               type="email"
               name="contactEmail"
@@ -227,11 +234,10 @@ function GKUpdateService() {
               <p className="text-red-600 text-sm mt-1">{errors.contactEmail}</p>
             )}
           </div>
-        </div>
 
         {/* Service Type */}
         <div>
-          <label className="block font-semibold mb-1">Service Type*</label>
+          <label className="block font-semibold mt-3">Service Type*</label>
           <select
             name="serviceType"
             value={formData.serviceType}
@@ -248,7 +254,7 @@ function GKUpdateService() {
 
         {/* Description */}
         <div>
-          <label className="block font-semibold mb-1">Description*</label>
+          <label className="block font-semibold mt-3">Description*</label>
           <textarea
             name="description"
             value={formData.description}
@@ -256,10 +262,11 @@ function GKUpdateService() {
             className="w-full border border-gray-300 px-3 py-2 rounded-lg"
           />
         </div>
+        </div>
 
-        {/* File Upload */}
         <div>
-          <label className="block font-semibold mb-1">Upload PNG/JPG Image*</label>
+        <div>
+          <label className="block font-semibold mb-2">Upload PNG/JPG Image*</label>
           <input
             type="file"
             name="fileUrl"
@@ -279,14 +286,16 @@ function GKUpdateService() {
             />
           </div>
         )}
+        </div>
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-sky-500 text-white py-2 rounded-lg hover:bg-sky-600 transition"
+          className="w-full py-3 rounded-lg text-white transition-all bg-sky-600 hover:bg-sky-500 shadow-md hover:shadow-lg"
         >
           Update
         </button>
-      </form>
+    </form>
     </div>
   );
 }
