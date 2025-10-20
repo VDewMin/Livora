@@ -4,6 +4,8 @@ import SN_IncomeTab from "../components/SN_IncomeTab";
 import SN_ExpenseTab from "../components/SN_ExpenseManager";
 import SN_PaymentDetail from "../components/SN_PaymentDetail";
 import ResidentTable from "../components/SN_ResidentTable";
+import SN_Adm_ReceiptHistory from "../components/SN_Adm_ReceiptHistory";
+
 import {
   BarChart,
   Bar,
@@ -460,13 +462,13 @@ const fetchResidentPayments = async () => {
         )}
 
         {activeTab === "receipts" && (
-          <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Receipts
-            </h2>
-            <p>Coming soon: Download and view individual receipts.</p>
-          </div>
+          <SN_Adm_ReceiptHistory
+            selectedMonth={selectedMonth}
+            onViewReceipt={(id) => setSelectedPaymentId(id)}
+          />
         )}
+
+
       </main>
     </div>
   );
