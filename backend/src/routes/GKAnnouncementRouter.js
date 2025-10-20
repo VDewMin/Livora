@@ -7,6 +7,6 @@ const router = express.Router();
 router.post("/send", createAnnouncement);
 
 // Get all announcements
-router.get("/", getAnnouncements);
+router.get("/recive", getAnnouncements);
 
 export default router;
