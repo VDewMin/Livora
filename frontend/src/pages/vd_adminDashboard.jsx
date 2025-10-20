@@ -23,7 +23,7 @@ const AdminDashboard = () => {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  // Fetch all dashboard data
+  // ✅ Fetch all data
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* Error Alert */}
+      
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
@@ -231,9 +231,9 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Bookings Trend */}
+        {/* Bookings*/}
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Booking Trends</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -264,7 +264,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Service Distribution and Recent Activity */}
+      {/*Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Service Distribution */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* various Stats */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
           <div className="flex items-center justify-between">

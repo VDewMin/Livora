@@ -12,6 +12,7 @@ import {
   ScanLine,
   PackagePlus,
   Building2,
+  NotepadText,
   Users,
   MessageSquareHeart
 } from 'lucide-react';
@@ -28,6 +29,7 @@ const roleRoutes = {
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
     "resident-management": "admin/residentlist",
+    announcements: "/admin/send-announcements",
     feedback: "/admin/feedback",
     
     //"resident-management": "admin/residentlist",
@@ -82,10 +84,11 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+  { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
 
 
-];
+]
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
@@ -128,7 +131,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
         {allowedMenuItems.map((item) => {
           const Icon = item.icon;
           const route = roleRoutes[effectiveRole]?.[item.id] || null;
-          // Other tabs use onItemClick
+          
           return (
             <button
               key={item.id}
@@ -145,9 +148,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           );
         })}
 
-        {/* Settings Section */}
+        {/* Settings */}
         <div className="pt-4">
-          {/* Clickable settings row */}
+          {/* settings row */}
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
             className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
@@ -161,7 +164,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
             />
           </button>
 
-          {/* Submenu only when expanded */}
+          {/* Submenu */}
           {isSettingsOpen && (
             <div className="ml-6 mt-1 space-y-1">
               {settingsSubmenu.map((item) => {

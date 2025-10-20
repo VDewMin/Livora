@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/axios";
 
 const ResidentDashboard = () => {
+  
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalFeedbacks: 0,
     activeServices: 0,
@@ -25,7 +29,7 @@ const ResidentDashboard = () => {
     { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
   ]);
 
-  // Fetch dashboard stats from backend
+  // Fetch dashboard 
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -36,13 +40,13 @@ const ResidentDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       setError('Failed to load dashboard data. Please try again.');
-      // Keep default values on error
+      
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch data on component mount
+  
   useEffect(() => {
     fetchDashboardStats();
   }, []);
@@ -101,7 +105,7 @@ const ResidentDashboard = () => {
         <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
-      {/* Error Alert */}
+      
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
@@ -197,7 +201,7 @@ const ResidentDashboard = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
@@ -223,7 +227,6 @@ const ResidentDashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Events */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-800">Upcoming Events</h2>
@@ -263,7 +266,7 @@ const ResidentDashboard = () => {
             </svg>
             <span className="font-medium">New Booking</span>
           </button>
-          <button className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition flex flex-col items-center gap-2 text-green-600">
+          <button onClick={() => navigate("/add-service")} className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition flex flex-col items-center gap-2 text-green-600">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>

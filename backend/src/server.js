@@ -14,6 +14,9 @@ import purchaseRoutes from "./routes/SDpurchaseRoutes.js";
 import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.js";
 import laundryRoutes from "./routes/SDlaundryRoutes.js";
 import feedbackRoutes from "./routes/vd_feedbackRoutes.js";
+import notificationRoutes from "./routes/vd_notificaionRoutes.js"
+import { initSocket } from "./socket.js";
+
 
 
 dotenv.config();
@@ -47,10 +50,13 @@ app.use('/api/convention-hall-bookings',conventionHallBookingRoutes)
 app.use('/api/laundry', laundryRoutes);
 
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log("Server started on port: ", PORT);
+  const serverInstance = app.listen(PORT, () => {
+    console.log("Server started on port:", PORT);
+    
+    initSocket(serverInstance);
   });
 });

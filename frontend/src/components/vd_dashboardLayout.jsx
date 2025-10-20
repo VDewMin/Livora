@@ -30,11 +30,11 @@ const DashboardLayout = () => {
           <ProfileHeader />
         </div>
         
-        {/* Scrollable Content */}
+        {/* Scrollable */}
         <div 
           className="flex-1 bg-gray-50 overflow-y-auto"
           style={{ 
-            marginTop: '80px' // Adjust based on header height
+            marginTop: '80px' // based on header height
           }}
         >
           <div className="p-6">
@@ -43,7 +43,7 @@ const DashboardLayout = () => {
         </div>
       </div>
 
-      {/* Mobile Overlay */}
+      {/* Mobile */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
