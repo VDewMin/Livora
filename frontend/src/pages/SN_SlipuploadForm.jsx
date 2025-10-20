@@ -47,7 +47,7 @@ const OfflineSlipForm = () => {
       });
 
       if (res.ok) {
-        toast.success("Offline payment submitted successfully! Awaiting admin verification.");
+        toast.success("Offline payment submitted successfully!");
       } else {
         const err = await res.json();
         toast.error("Error: " + err.message);
