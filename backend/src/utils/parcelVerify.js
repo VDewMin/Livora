@@ -7,7 +7,7 @@ export function makeVerifyUrl(parcelId, locId) {
   const token = jwt.sign(
     { parcelId, locId },
     SECRET,
-    { expiresIn: "7d" } // token valid for 7 days
+    { expiresIn: "14d" } // token valid for 14 days
   );
   return { url: `${process.env.BASE_URL}/api/parcels/verify?token=${token}` };
 }
