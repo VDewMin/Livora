@@ -18,7 +18,6 @@ import notificationRoutes from "./routes/vd_notificaionRoutes.js"
 import { initSocket } from "./socket.js";
 
 
-
 dotenv.config();
 
 const app = express();
