@@ -56,7 +56,7 @@ const UserProfile = () => {
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     };
 
-    const nameRegex = /^[A-Za-z\s]+$/;
+    const nameRegex = /^[A-Z][a-z]*(?:\s[A-Z][a-z]*)*$/;
     const emailRegex = /^(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const phoneRegex = /^\d{10}$/;
 
@@ -184,6 +184,7 @@ const UserProfile = () => {
             return;
         }
 
+
         if (field === "familyMembers") {
             const number = value.replace(/\D/g, "").slice(0, 2);
             setFormData((prev) => ({ ...prev, familyMembers: number }));
@@ -239,10 +240,38 @@ const UserProfile = () => {
             toast.error("Secondary phone must be exactly 10 digits");
             return;
         }
+            
         if (field === "emergencyContactNumber" && formData.emergencyContactNumber && !phoneRegex.test(formData.emergencyContactNumber)) {
             toast.error("Emergency contact must be exactly 10 digits");
             return;
         }
+
+        if (formData.dateOfBirth) {
+            const dob = new Date(formData.dateOfBirth);
+            const today = new Date();
+
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            const dayDiff = today.getDate() - dob.getDate();
+
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                age--;
+            }
+
+            if (age < 18) {
+                toast.error("You must be at least 18 years old to register.");
+                setLoading(false);
+                return;
+            }
+
+            if (age > 100) {
+                toast.error("Age cannot be more than 100 years.");
+                setLoading(false);
+                return;
+            }
+        }
+
+
         try {
             const updateData = { [field]: formData[field] };
             await axiosInstance.put(`/users/${userId}`, updateData);
@@ -289,6 +318,32 @@ const UserProfile = () => {
             toast.error("Emergency contact name: letters only");
             return;
         }
+
+        if (formData.dateOfBirth) {
+            const dob = new Date(formData.dateOfBirth);
+            const today = new Date();
+
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            const dayDiff = today.getDate() - dob.getDate();
+
+            if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                age--;
+            }
+
+            if (age < 18) {
+                toast.error("You must be at least 18 years old to register.");
+                setLoading(false);
+                return;
+            }
+
+            if (age > 100) {
+                toast.error("Age cannot be more than 100 years.");
+                setLoading(false);
+                return;
+            }
+        }
+
 
         try {
             const updateData = {

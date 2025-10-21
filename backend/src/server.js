@@ -16,6 +16,7 @@ import laundryRoutes from "./routes/SDlaundryRoutes.js";
 import feedbackRoutes from "./routes/vd_feedbackRoutes.js";
 import notificationRoutes from "./routes/vd_notificaionRoutes.js"
 import { initSocket } from "./socket.js";
+import searchRoutes from "./routes/vd_searchRoutes.js";
 
 
 dotenv.config();
@@ -50,7 +51,7 @@ app.use('/api/laundry', laundryRoutes);
 
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use("/api/search", searchRoutes);
 
 connectDB().then(() => {
   const serverInstance = app.listen(PORT, () => {

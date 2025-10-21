@@ -171,30 +171,38 @@ export const updateUser = async (req, res) => {
       medicalConditions,
     } = req.body;
 
+    // Prevent duplicate apartment number for residents
     if (role === "Resident" && apartmentNo) {
-      const existingResident = await User.findOne({ apartmentNo });
+      const existingResident = await User.findOne({ apartmentNo, _id: { $ne: req.params.id } });
       if (existingResident) {
         return res.status(400).json({ message: "Apartment number already registered." });
       }
     }
 
-    const updateData = {
-      firstName,
-      lastName,
-      email,
-      recoveryEmail,
-      phoneNo,
-      secondaryPhoneNo,
-      role,
-      dateOfBirth,
-      job,
-      emergencyContactName,
-      emergencyContactNumber,
-      familyMembers,
-      medicalConditions,
-      ...(role === "Resident" && { apartmentNo, residentType, }),
-      ...(role === "Staff" && { staffType }),
-    };
+    const updateData = {};
+
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (email !== undefined) updateData.email = email;
+    if (recoveryEmail !== undefined) updateData.recoveryEmail = recoveryEmail;
+    if (phoneNo !== undefined) updateData.phoneNo = phoneNo;
+    if (secondaryPhoneNo !== undefined) updateData.secondaryPhoneNo = secondaryPhoneNo;
+    if (role !== undefined) updateData.role = role;
+    if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+    if (job !== undefined) updateData.job = job;
+    if (emergencyContactName !== undefined) updateData.emergencyContactName = emergencyContactName;
+    if (emergencyContactNumber !== undefined) updateData.emergencyContactNumber = emergencyContactNumber;
+    if (familyMembers !== undefined) updateData.familyMembers = familyMembers;
+    if (medicalConditions !== undefined) updateData.medicalConditions = medicalConditions;
+
+    if (role === "Resident") {
+      if (apartmentNo !== undefined) updateData.apartmentNo = apartmentNo;
+      if (residentType !== undefined) updateData.residentType = residentType;
+    }
+
+    if (role === "Staff" && staffType !== undefined) {
+      updateData.staffType = staffType;
+    }
 
     if (password) {
       updateData.password = await bcrypt.hash(password, saltRounds);
@@ -203,7 +211,7 @@ export const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) return res.status(404).json({ message: "User not found" });
@@ -214,6 +222,7 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 export const deleteUser = async(req, res) => {
