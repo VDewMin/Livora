@@ -14,7 +14,8 @@ import {
   Building2,
   NotepadText,
   Users,
-  MessageSquareHeart
+  MessageSquareHeart,
+  Shirt
 } from 'lucide-react';
 import { useAuth } from '../context/vd_AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -50,6 +51,11 @@ const roleRoutes = {
     "parcel-pickup-verification": "/scanner",
     "add-parcel": "/addParcel"
   },
+
+  Laundry: {
+    dashboard: "/laundry/dashboard",
+    requests: "/laundry/requests",
+  },
 };
 
 const Sidebar = ({ activeItem, onItemClick }) => {
@@ -72,7 +78,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   const cancelLogout = () => setShowLogoutConfirm(false);
 
  const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security"],  },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
@@ -86,6 +92,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
   { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
+  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"] }
 
 
 ]

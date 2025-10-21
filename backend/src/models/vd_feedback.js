@@ -29,7 +29,6 @@ const feedbackSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Feedback Id
 feedbackSchema.pre("save", async function (next) {
   try {
     if (!this.feedbackId) {
@@ -50,4 +49,5 @@ feedbackSchema.pre("save", async function (next) {
   }
 });
 
-export default mongoose.model("Feedback", feedbackSchema);
+const Feedback = mongoose.model("Feedback", feedbackSchema);
+export default Feedback;
