@@ -75,7 +75,7 @@ const SDAdminBookingDetails = () => {
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-gray-700"><strong>Name:</strong> {booking.name}</p>
             <p className="text-gray-700"><strong>Phone:</strong> {booking.phone_number}</p>
-            <p className="text-gray-700"><strong>Room Number:</strong> {booking.apartment_room_number}</p>
+            <p className="text-gray-700"><strong>Room Number:</strong> {booking.apartmentNo}</p>
             <p className="text-gray-700"><strong>Guests:</strong> {booking.number_of_guests}</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">

@@ -5,6 +5,7 @@ import vindi from '../assets/vindi.jpg';
 import sandeepa from '../assets/sandeepa.jpg'
 import sachintha from '../assets/sachintha.jpg'
 import kaveesha from '../assets/kaveesha.jpg'
+import livoralogo from '../assets/livoralogo.png';
 
 const LivoraLandingPage = () => {
   return (
@@ -13,7 +14,9 @@ const LivoraLandingPage = () => {
       <header className="bg-gray-800 shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-gold-500 flex items-center justify-center text-white font-bold text-xl">L</div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-gold-500 flex items-center justify-center text-white font-bold text-xl">
+              <img src={livoralogo} alt="Livora Logo" className="w-10 h-10 object-contain rounded-full" />
+            </div>
             <h1 className="text-2xl font-bold">Livora</h1>
           </div>
           
@@ -28,7 +31,7 @@ const LivoraLandingPage = () => {
             <p className="text-lg mb-6 text-gray-300 max-w-md">
               Experience unparalleled luxury and innovation in modern living spaces.
             </p>
-            <Link to="/contact" className="bg-teal-500 text-white px-6 py-3 rounded-full hover:bg-teal-600 transition duration-300 font-semibold">
+            <Link to="/livora/details" className="bg-teal-500 text-white px-6 py-3 rounded-full hover:bg-teal-600 transition duration-300 font-semibold">
               Discover More
             </Link>
           </div>

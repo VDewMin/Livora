@@ -7,7 +7,7 @@ const purchaseSchema = new mongoose.Schema({
     apartmentNo: { 
         type: String, 
         required: true,
-        match: [/^[PR](?:[1-8]0[1-6]|0[1-6])$/, "enter a valid apartment number (e.g., P101, R806)"]
+        match: [/^[PQ](?:[1-8]0[1-6]|0[1-6])$/, "enter a valid apartment number (e.g., P101, Q806)"]
      },
     buyer_Name: { type: String, required: true },
     userId: { type: String, required: true },
