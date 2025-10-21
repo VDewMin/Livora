@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Gagagana from '../assets/gagana.jpg';
 import vindi from '../assets/vindi.jpg';
 import sandeepa from '../assets/sandeepa.jpg'
+import sachintha from '../assets/sachintha.jpg'
+import kaveesha from '../assets/kaveesha.jpg'
 
 const LivoraLandingPage = () => {
   return (
@@ -118,47 +120,49 @@ const LivoraLandingPage = () => {
           </div>
         </div>
       </section>
-      <section>
-        <h2 className="text-4xl font-bold mb-6 text-center text-gold-500">Developers</h2>
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-center gap-8">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-              {/* Replace with: <img src={developer1Photo} alt="Developer 1" className="w-32 h-32 object-cover rounded-full mb-4" /> */}
-                <div className="w-32 h-32 bg-gray-700 rounded-full mb-4"></div>
-                <h3 className="text-xl font-semibold mb-2 text-teal-400">Sachintha Nirmal</h3>
-                <p className="text-gray-400 text-center">Project Leader.Payment Management System.</p>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-                {/* Replace with: <img src={developer2Photo} alt="Developer 2" className="w-32 h-32 object-cover rounded-full mb-4" /> */}
-                <div className="w-32 h-32 bg-gray-700 rounded-full mb-4"></div>
-                <h3 className="text-xl font-semibold mb-2 text-teal-400">Kaveesha Fernando</h3>
-                <p className="text-gray-400 text-center">Parcel Delivery Management System.</p>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-                <div className="w-32 h-32 bg-gray-700 rounded-full mb-4">
-                                    <img src={vindi} alt="Developer 3" className="w-32 h-32 object-cover rounded-full mb-4" /> 
-
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-teal-400">Vindiya Dewmin</h3>
-                <p className="text-gray-400 text-center">User Account Management.</p>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-                <div className="w-32 h-32 bg-gray-700 rounded-full mb-4">
-                                  <img src={Gagagana} alt="Developer 4" className="w-32 h-32 object-cover rounded-full mb-4" /> 
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-teal-400">Gagagana Kalhara</h3>
-                <p className="text-gray-400 text-center">Maintains and Announcement Management.</p>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-                <div className="w-32 h-32 bg-gray-700 rounded-full mb-4">
-                                    <img src={sandeepa} alt="Developer 5" className="w-32 h-32 object-cover rounded-full mb-4" /> 
-
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-teal-400">Kulain Sandeepa</h3>
-                <p className="text-gray-400 text-center">UI and Booking Management.</p>
-            </div>
+      
+      <section className="py-16 bg-gray-900">
+  <h2 className="text-4xl font-bold mb-10 text-center text-gold-500">Developers</h2>
+  <div className="container mx-auto px-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 justify-items-center">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
+        <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
+          <img src={sachintha} alt="Sachintha Nirmal" className="w-full h-full object-cover" />
         </div>
-
-      </section>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Sachintha Nirmal</h3>
+        <p className="text-gray-400 text-sm">Project Leader. Payment Management System.</p>
+      </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
+        <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
+          <img src={kaveesha} alt="Kaveesha Fernando" className="w-full h-full object-cover" />
+        </div>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Kaveesha Fernando</h3>
+        <p className="text-gray-400 text-sm">Parcel Delivery Management System.</p>
+      </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
+        <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
+          <img src={vindi} alt="Vindiya Dewmin" className="w-full h-full object-cover" />
+        </div>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Vindiya Dewmin</h3>
+        <p className="text-gray-400 text-sm">User Account Management.</p>
+      </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
+        <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
+          <img src={Gagagana} alt="Gagagana Kalhara" className="w-full h-full object-cover" />
+        </div>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Gagagana Kalhara</h3>
+        <p className="text-gray-400 text-sm">Maintains and Announcement Management.</p>
+      </div>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
+        <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
+          <img src={sandeepa} alt="Kulain Sandeepa" className="w-full h-full object-cover" />
+        </div>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Kulain Sandeepa</h3>
+        <p className="text-gray-400 text-sm">UI and Booking Management.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Call to Action */}
       <section className="py-16 bg-gray-850 text-center">
