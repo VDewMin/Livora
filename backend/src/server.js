@@ -15,7 +15,6 @@ import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.
 import laundryRoutes from "./routes/SDlaundryRoutes.js";
 import feedbackRoutes from "./routes/vd_feedbackRoutes.js";
 
-
 dotenv.config();
 
 const app = express();
