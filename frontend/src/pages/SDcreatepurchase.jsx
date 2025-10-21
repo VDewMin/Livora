@@ -39,7 +39,7 @@ const SDcreatepurchase = () => {
     if (!formData.buyer_Email.trim()) newErrors.buyer_Email = 'Email is required';
     else if (!/^\S+@\S+\.\S+$/.test(formData.buyer_Email)) newErrors.buyer_Email = 'Please enter a valid email';
     if (!formData.apartmentNo.trim()) newErrors.apartmentNo = 'Apartment number is required';
-    else if (!/^[PR](?:[1-8]0[1-6]|0[1-6])$/.test(formData.apartmentNo)) newErrors.apartmentNo = 'Please enter a valid apartment number';
+    else if (!/^[PQ](?:[1-8]0[1-6]|0[1-6])$/.test(formData.apartmentNo)) newErrors.apartmentNo = 'Please enter a valid apartment number';
     if (!formData.buyer_Phone.trim()) newErrors.buyer_Phone = 'Phone number is required';
     if (!formData.room_type.trim()) newErrors.room_type = 'Room type is required';
     if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) <= 0) newErrors.price = 'Price must be a positive number';
@@ -305,7 +305,7 @@ const SDcreatepurchase = () => {
                     <input
                       type="text"
                       name="apartmentNo"
-                      placeholder="P101, R203 etc"
+                      placeholder="P101, Q203 etc"
                       className={`input input-bordered w-full bg-white ${errors.apartmentNo ? 'input-error' : ''} focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all`}
                       value={formData.apartmentNo}
                       onChange={handleInputChange}
@@ -351,7 +351,7 @@ const SDcreatepurchase = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div className="p-4 bg-white border border-teal-300 rounded-lg shadow-md">
                         <label className="label text-lg font-semibold text-teal-700 block mb-2">
-                          <span className="label-text">Lease Duration *</span>
+                          <span className="label-text">Lease Duration </span>
                         </label>
                         <select
                           name="lease_duration"

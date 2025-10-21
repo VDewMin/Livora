@@ -1,10 +1,18 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../lib/axios";
+import axiosInstance from "../lib/axios.js";
 import axios from "axios";
+import { useAuth } from "../context/vd_AuthContext"; // Import useAuth context
+
+
+
+
 
 const ResidentDashboard = () => {
   const navigate = useNavigate();
+  const { token, user: authUser } = useAuth(); // Access auth context
+  const userId = sessionStorage.getItem("userId") || authUser?._id; // Get userId from session or auth
 
   const [stats, setStats] = useState({
     totalFeedbacks: 0,
@@ -17,6 +25,7 @@ const ResidentDashboard = () => {
   const [error, setError] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+  const [purchases, setPurchases] = useState([]);
 
   const [recentActivity, setRecentActivity] = useState([
     { id: 1, type: "booking", title: "Pool Booking", date: "2025-10-01", status: "Confirmed" },
@@ -31,7 +40,6 @@ const ResidentDashboard = () => {
     { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
   ]);
 
-  // Fetch dashboard 
   // Fetch dashboard stats
   const fetchDashboardStats = async () => {
     try {
@@ -42,15 +50,14 @@ const ResidentDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       setError('Failed to load dashboard data. Please try again.');
-      
-      console.error("Error fetching dashboard stats:", error);
-      setError("Failed to load dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch purchases for the user
   
+
   // Fetch announcements from backend
   const fetchAnnouncements = async () => {
     try {
@@ -64,11 +71,35 @@ const ResidentDashboard = () => {
     }
   };
 
+  // Fetch user session info and store in sessionStorage
+  const fetchUserSession = async () => {
+    if (!userId || sessionStorage.getItem("userSession")) return;
+    try {
+      const res = await axiosInstance.get(`/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const userSession = {
+        userId: res.data._id,
+        name: `${res.data.firstName} ${res.data.lastName}`.trim(),
+        apartmentNo: res.data.apartmentNo,
+        email: res.data.email,
+      };
+      sessionStorage.setItem("userSession", JSON.stringify(userSession));
+    } catch (err) {
+      console.error("Error fetching user session:", err.response?.data || err);
+    }
+  };
+
+  
+
   // Load all data on mount
   useEffect(() => {
+    fetchUserSession();
     fetchDashboardStats();
     fetchAnnouncements();
-  }, []);
+  }, [userId, token]);
+
+  
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -88,14 +119,21 @@ const ResidentDashboard = () => {
     }
   };
 
+  // Get user session data
+  const userSession = JSON.parse(sessionStorage.getItem("userSession")) || {};
+
   return (
     <div className="p-6">
       <div className="mb-6">
+        <div className="mb-2">
+          <p className="text-gray-600">
+            Welcome, {userSession.name || 'Guest'} • Apartment {userSession.apartmentNo || 'N/A'}
+          </p>
+        </div>
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
-      
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
@@ -223,14 +261,22 @@ const ResidentDashboard = () => {
       <div className="mt-6 bg-white p-6 rounded-xl shadow-lg">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition flex flex-col items-center gap-2 text-blue-600">
+          <button
+            className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition flex flex-col items-center gap-2 text-blue-600"
+            onClick={() => navigate("/convention-hall-home")}
+          >
             <svg
               className="w-8 h-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 4v16m8-8H4"
+              ></path>
             </svg>
             <span className="font-medium">New Booking</span>
           </button>
@@ -255,21 +301,70 @@ const ResidentDashboard = () => {
             <span className="font-medium">Service Request</span>
           </button>
 
-          <button className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition flex flex-col items-center gap-2 text-purple-600">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          <button
+            className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition flex flex-col items-center gap-2 text-purple-600"
+            onClick={() => navigate("/messages")}
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              ></path>
             </svg>
             <span className="font-medium">Messages</span>
           </button>
 
-          <button className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition flex flex-col items-center gap-2 text-orange-600">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          <button
+            className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition flex flex-col items-center gap-2 text-orange-600"
+            onClick={() => navigate("/pay-bills")}
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+              ></path>
             </svg>
             <span className="font-medium">Pay Bills</span>
           </button>
+
+          <button
+            className="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition flex flex-col items-center gap-2 text-teal-600"
+            onClick={() => navigate(`/purchases/68f51b6b20bee7bcb5565c12`)}
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              ></path>
+            </svg>
+            <span className="font-medium">My Purchases</span>
+          </button>
         </div>
       </div>
+
+      
+      
     </div>
   );
 };
