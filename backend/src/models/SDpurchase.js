@@ -41,8 +41,5 @@ const purchaseSchema = new mongoose.Schema({
 });
 
 
-
-
-
 const Purchase = mongoose.model("Purchase", purchaseSchema);
 export default Purchase;

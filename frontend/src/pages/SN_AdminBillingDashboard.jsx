@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import SN_IncomeTab from "../components/SN_IncomeTab";
 import SN_ExpenseTab from "../components/SN_ExpenseManager";
 import SN_PaymentDetail from "../components/SN_PaymentDetail";
-import ResidentTable from "../components/SN_ResidentTable"; // ✅ new component
+import ResidentTable from "../components/SN_ResidentTable";
+import SN_Adm_ReceiptHistory from "../components/SN_Adm_ReceiptHistory";
+
 import {
   BarChart,
   Bar,
@@ -42,7 +44,7 @@ const SN_AdminBillingDashboard = () => {
 
   const navigate = useNavigate();
 
-  // ---------- Fetch Income/Expenses ----------
+  //Fetch Income/Expenses
   const fetchIncomeData = async () => {
     try {
       const res = await fetch(
@@ -56,7 +58,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Payments ----------
+  //Fetch Payments
   const fetchPayments = async () => {
     try {
       const res = await fetch(
@@ -76,7 +78,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Expenses ----------
+  //Fetch Expenses
   const fetchExpenses = async () => {
     try {
       const res = await fetch(
@@ -90,7 +92,7 @@ const SN_AdminBillingDashboard = () => {
     }
   };
 
-  // ---------- Fetch Transactions ----------
+  //Fetch Transactions
   const fetchTransactions = async () => {
     const [paymentsData, expensesData] = await Promise.all([
       fetchPayments(),
@@ -123,7 +125,7 @@ const SN_AdminBillingDashboard = () => {
     setTransactions(allTx);
   };
 
-  // ---------- Fetch Resident Payments ----------
+  //Fetch Resident Payments
 const fetchResidentPayments = async () => {
   try {
     const res = await fetch(
@@ -136,22 +138,17 @@ const fetchResidentPayments = async () => {
   }
 };
 
-
-  // ---------- On Month Change ----------
   const handleMonthChange = (e) => {
     const [year, month] = e.target.value.split("-");
     setSelectedMonth({ month, year });
   };
 
-  // ---------- Effect ----------
   useEffect(() => {
     fetchIncomeData();
     fetchTransactions();
     fetchResidentPayments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
-  // ---------- When expenses update ----------
   const handleUpdateExpenses = (expensesArray) => {
     const total = (expensesArray || []).reduce(
       (acc, exp) => acc + Number(exp.amount || 0),
@@ -162,7 +159,7 @@ const fetchResidentPayments = async () => {
     fetchTransactions();
   };
 
-  // ---------- Chart Data ----------
+  //Chart Data
   const barData = [
     { name: "Income", value: totalIncome },
     { name: "Expenses", value: totalExpenses },
@@ -195,7 +192,6 @@ const fetchResidentPayments = async () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      
       <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-4 text-gray-900">
           Billing & Finance
@@ -227,13 +223,30 @@ const fetchResidentPayments = async () => {
             ))}
           </div>
 
+          {/* Month Selector or Static Month */}
           <div>
-            <input
-              type="month"
-              value={`${selectedMonth.year}-${selectedMonth.month}`}
-              onChange={handleMonthChange}
-              className="border px-3 py-2 rounded shadow-sm"
-            />
+              {activeTab === "residents" ? (
+                
+                (() => {
+                  const now = new Date();
+                  const monthName = now.toLocaleString("default", { month: "long" });
+                  const year = now.getFullYear();
+                  return (
+                    <span className="px-3 py-2 rounded bg-gray-100 text-gray-700 font-medium">
+                      {monthName} {year}
+                    </span>
+                  );
+                })()
+              ) : (
+                // Show month picker on all other tabs
+                <input
+                  type="month"
+                  value={`${selectedMonth.year}-${selectedMonth.month}`}
+                  onChange={handleMonthChange}
+                  className="border px-3 py-2 rounded shadow-sm"
+                />
+              )}
+
           </div>
         </div>
 
@@ -396,68 +409,66 @@ const fetchResidentPayments = async () => {
           <ResidentTable residents={residentPayments} />
         )}
 
-
         {activeTab === "pendingPayments" && (
-  <div className="bg-white p-6 rounded-2xl shadow">
-    <h2 className="text-lg font-semibold mb-4">
-      Pending Offline Payments
-    </h2>
-    {offlinePending.length > 0 ? (
-      <table className="min-w-full border text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 w-[12%]">Payment ID</th>
-            <th className="border p-2 w-[10%]">Apartment No</th>
-            <th className="border p-2 w-[20%]">Resident Name</th>
-            <th className="border p-2 w-[15%]">Amount</th>
-            <th className="border p-2 w-[13%]">Status</th>
-            <th className="border p-2 w-[15%]">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {offlinePending.map((p) => (
-            <tr
-              key={p.paymentId || p._id}
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => setSelectedPaymentId(p.paymentId)}
-            >
-              <td className="border px-4 py-2">{p.paymentId}</td>
-              <td className="border px-4 py-2">{p.apartmentNo ?? "—"}</td>
-              <td className="border px-4 py-2">{p.residentName ?? "—"}</td>
-              <td className="border px-4 py-2 font-semibold">
-                Rs. {Number(p.totalAmount || 0).toLocaleString()}
-              </td>
-              <td className="border px-4 py-2">
-                <span className="font-medium text-yellow-600">
-                  {p.status}
-                </span>
-              </td>
-              <td className="border px-4 py-2">
-                {p.paymentDate
-                  ? new Date(p.paymentDate).toLocaleDateString()
-                  : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p className="text-gray-500 text-center">
-        No pending offline payments
-      </p>
-    )}
-  </div>
-)}
-
-
-        {activeTab === "receipts" && (
           <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Receipts
+            <h2 className="text-lg font-semibold mb-4">
+              Pending Offline Payments
             </h2>
-            <p>Coming soon: Download and view individual receipts.</p>
+            {offlinePending.length > 0 ? (
+              <table className="min-w-full border text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2 w-[12%]">Payment ID</th>
+                    <th className="border p-2 w-[10%]">Apartment No</th>
+                    <th className="border p-2 w-[20%]">Resident Name</th>
+                    <th className="border p-2 w-[15%]">Amount</th>
+                    <th className="border p-2 w-[13%]">Status</th>
+                    <th className="border p-2 w-[15%]">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {offlinePending.map((p) => (
+                    <tr
+                      key={p.paymentId || p._id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedPaymentId(p.paymentId)}
+                    >
+                      <td className="border px-4 py-2">{p.paymentId}</td>
+                      <td className="border px-4 py-2">{p.apartmentNo ?? "—"}</td>
+                      <td className="border px-4 py-2">{p.residentName ?? "—"}</td>
+                      <td className="border px-4 py-2 font-semibold">
+                        Rs. {Number(p.totalAmount || 0).toLocaleString()}
+                      </td>
+                      <td className="border px-4 py-2">
+                        <span className="font-medium text-yellow-600">
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="border px-4 py-2">
+                        {p.paymentDate
+                          ? new Date(p.paymentDate).toLocaleDateString()
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-gray-500 text-center">
+                No pending offline payments
+              </p>
+            )}
           </div>
         )}
+
+        {activeTab === "receipts" && (
+          <SN_Adm_ReceiptHistory
+            selectedMonth={selectedMonth}
+            onViewReceipt={(id) => setSelectedPaymentId(id)}
+          />
+        )}
+
+
       </main>
     </div>
   );

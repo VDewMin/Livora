@@ -34,24 +34,22 @@ function GKServiceRequest() {
     }
   }, []);
 
-  // Handle input changes for editable fields
+  // Handle input changes
   const handleChange = (e) => {
     const { name, files, value } = e.target;
 
     if (name === "contactNo") {
       const onlyDigits = /^\d*$/;
-
       if (!onlyDigits.test(value)) {
-        setErrors({ ...errors, contactNo: "Only numbers are allowed" });
+        toast.error("Only numbers are allowed");
         return;
       } else if (value.length > 10) {
-        setErrors({ ...errors, contactNo: "Contact number must be 10 digits" });
+        toast.error("Contact number must be 10 digits");
         return;
       } else {
         setErrors({ ...errors, contactNo: "" });
       }
-
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, contactNo: value }));
       return;
     }
 
@@ -62,11 +60,10 @@ function GKServiceRequest() {
 
         if (!validTypes.includes(fileType)) {
           toast.error("Only PNG and JPG images are allowed!");
-          e.target.value = null; // reset file input
+          e.target.value = null;
           setFile(null);
           return;
         }
-
         setFile(files[0]);
       }
       return;
@@ -85,7 +82,6 @@ function GKServiceRequest() {
     }
 
     setLoading(true);
-
     try {
       const requestData = new FormData();
       Object.keys(formData).forEach((key) =>
@@ -105,7 +101,6 @@ function GKServiceRequest() {
       });
       navigate("/resident/user-view");
 
-      // Reset only editable fields
       setFormData((prev) => ({
         ...prev,
         serviceType: "",
@@ -123,95 +118,127 @@ function GKServiceRequest() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-2xl p-6 mt-10 shadow-md font-poppins">
-      <h2 className="text-xl font-bold mb-6 text-center">Service Request</h2>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block font-semibold mb-1">Apartment No</label>
-          <input
-            type="text"
-            name="aptNo"
-            value={formData.aptNo}
-            readOnly
-            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-          />
+      <div className="mt-0 bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100 font-sens-serif">
+        <div className="bg-gradient-to-r from-sky-600 to-indigo-600 p-3 text-white">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            🧰 Submit a Service Request
+          </h2>
+          <p className="text-blue-100 text-sm mt-1">
+            Let the management team know what needs fixing or attention.
+          </p>
         </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Contact Email</label>
-          <input
-            type="text"
-            name="contactEmail"
-            value={formData.contactEmail}
-            readOnly
-            className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block font-semibold mb-1 text-gray-700">
+                Apartment No*
+              </label>
+              <input
+                type="text"
+                name="aptNo"
+                value={formData.aptNo}
+                readOnly
+                className="w-full border border-gray-300 rounded-lg p-2 bg-gray-100 cursor-not-allowed"
+              />
+            </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Contact No</label>
-          <input
-            type="text"
-            name="contactNo"
-            value={formData.contactNo}
-            onChange={handleChange}
-            required
-            maxLength={10}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          {errors.contactNo && (
-            <p className="text-red-500 text-sm mt-1">{errors.contactNo}</p>
-          )}
-        </div>
+            <div>
+              <label className="block font-semibold mb-1 text-gray-700">
+                Contact Email*
+              </label>
+              <input
+                type="text"
+                name="contactEmail"
+                value={formData.contactEmail}
+                readOnly
+                className="w-full border border-gray-300 rounded-lg p-2 bg-gray-100 cursor-not-allowed"
+              />
+            </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Service Type</label>
-          <select
-            name="serviceType"
-            value={formData.serviceType}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
+            <div>
+              <label className="block font-semibold mb-1 text-gray-700">
+                Contact No*
+              </label>
+              <input
+                type="text"
+                name="contactNo"
+                value={formData.contactNo}
+                onChange={handleChange}
+                required
+                maxLength={10}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-400 focus:outline-none"
+              />
+              {errors.contactNo && (
+                <p className="text-red-500 text-sm mt-1">{errors.contactNo}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1 text-gray-700">
+              Service Type*
+            </label>
+            <select
+              name="serviceType"
+              value={formData.serviceType}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-400 focus:outline-none"
+            >
+              <option value="">-- Select Service Type --</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Cleaning">Cleaning</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1 text-gray-700">
+              Description*
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg p-2 resize-none focus:ring-2 focus:ring-sky-400 focus:outline-none"
+              placeholder="Briefly describe your service issue..."
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1 text-gray-700">
+              Upload PNG/JPG Image (Optional)
+            </label>
+            <input
+              type="file"
+              name="fileUrl"
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 hover:bg-gray-100 transition"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg text-white transition-all ${
+              loading
+                ? "bg-sky-500 cursor-not-allowed"
+                : "bg-sky-600 hover:bg-sky-500 shadow-md hover:shadow-lg"
+            }`}
           >
-            <option value="">-- Select Service Type --</option>
-            <option value="Electrical">Electrical</option>
-            <option value="Plumbing">Plumbing</option>
-            <option value="Cleaning">Cleaning</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
+            {loading ? "Submitting..." : "Submit Request"}
+          </button>
+        </form>
 
-        <div>
-          <label className="block font-semibold mb-1">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
+        {/* Footer */}
+        <div className="bg-gray-50 px-6 py-3 text-sm text-gray-500 text-center border-t">
+          Apartment Service Center • We're here to help 🏢
         </div>
-
-        <div>
-          <label className="block font-semibold mb-1">Upload PNG/JPG Image</label>
-          <input
-            type="file"
-            name="fileUrl"
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-sky-500 text-white py-2 rounded-lg hover:bg-sky-600 disabled:opacity-50"
-        >
-          {loading ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-    </div>
+      </div>
   );
 }
 

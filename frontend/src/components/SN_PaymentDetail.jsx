@@ -1,20 +1,18 @@
-// src/components/SN_PaymentDetail.jsx
 import React, { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/vd_AuthContext";
 import html2pdf from "html2pdf.js";
 
 const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
-  const { user: authUser } = useAuth(); // get logged-in user info
-  const isAdmin = authUser?.role === "Admin"; // adjust based on your role field
+  const { user: authUser } = useAuth();
+  const isAdmin = authUser?.role === "Admin";
 
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [isImageOpen, setIsImageOpen] = useState(false);
 
-  const receiptRef = useRef(); // ref for PDF capture
-
+  const receiptRef = useRef();
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -59,12 +57,129 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
     }
   };
 
+  // PDF generation with Tailwind UI
   const handleDownloadPDF = () => {
-    if (!receiptRef.current) return;
+    if (!payment) return;
 
-    // Hide slip image before export
-    const slipImages = receiptRef.current.querySelectorAll(".slip-img");
-    slipImages.forEach((img) => (img.style.display = "none"));
+    const pdfDiv = document.createElement("div");
+    pdfDiv.className = "min-h-screen bg-slate-100 p-8";
+
+    pdfDiv.innerHTML = `
+      <div class="max-w-4xl mx-auto bg-white shadow-2xl">
+        <!-- Header -->
+        <div class="border-b-4 border-blue-600 p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h1 class="text-4xl font-bold text-blue-700">Pearl Residencies</h1>
+              <p class="text-gray-600 text-lg">Premium Living Spaces</p>
+            </div>
+            <div class="text-right">
+              <h2 class="text-2xl font-bold text-gray-800">RECEIPT</h2>
+              <p class="text-gray-600 text-sm mt-1">Payment Confirmation</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment & Resident Info -->
+        <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">PAYMENT ID</p>
+              <p class="text-xl font-bold text-gray-800">${payment.paymentId}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">PAYMENT DATE</p>
+              <p class="text-xl font-bold text-gray-800">${new Date(payment.paymentDate).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">RESIDENT INFORMATION</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Resident Name</p>
+              <p class="text-gray-800 text-lg font-semibold">${payment.residentName}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Apartment No</p>
+              <p class="text-gray-800 text-lg font-semibold">${payment.apartmentNo}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Phone Number</p>
+              <p class="text-gray-800 text-lg font-semibold">${payment.phoneNumber}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">PAYMENT DETAILS</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Payment Type</p>
+              <p class="text-gray-800 text-base">${payment.paymentType}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Status</p>
+              <p class="text-base font-semibold ${
+                payment.status === "Completed"
+                  ? "text-green-600"
+                  : payment.status === "Failed"
+                  ? "text-red-600"
+                  : "text-yellow-600"
+              }">${payment.status}</p>
+            </div>
+            ${
+              payment.paymentType !== "Offline" && payment.transactionId
+                ? `<div class="col-span-2">
+                    <p class="text-sm text-gray-600 font-semibold">Transaction ID</p>
+                    <p class="text-gray-800 text-base">${payment.transactionId}</p>
+                  </div>`
+                : ""
+            }
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200 bg-blue-50">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">AMOUNT BREAKDOWN</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <p class="text-gray-700 font-semibold">Rent Amount</p>
+              <p class="text-gray-800 font-semibold">Rs. ${payment.amountRent || 0}</p>
+            </div>
+            <div class="flex justify-between">
+              <p class="text-gray-700 font-semibold">Laundry Amount</p>
+              <p class="text-gray-800 font-semibold">Rs. ${payment.amountLaundry || 0}</p>
+            </div>
+            <div class="border-t-2 border-blue-300 pt-3 flex justify-between">
+              <p class="text-lg font-bold text-gray-800">Total Amount</p>
+              <p class="text-xl font-bold text-blue-600">Rs. ${payment.totalAmount || 0}</p>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="p-8 border-b-2 border-gray-200 bg-gray-50">
+          <h3 class="font-bold text-gray-800 mb-3">NOTES</h3>
+          <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+            <li>This is a system-generated receipt. No signature required.</li>
+            <li>Please retain this receipt for your records.</li>
+            <li>For queries, contact customer support.</li>
+          </ul>
+        </div>
+
+        <div class="p-8 bg-gradient-to-r from-blue-50 to-blue-100 border-t-4 border-blue-600 text-center">
+          <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
+          <p class="text-gray-700">Premium Living Spaces</p>
+          <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
+          <p class="text-gray-700 text-sm">Website: www.pearlresidencies.com</p>
+          <div class="text-xs text-gray-600 mt-6 pt-4 border-t border-gray-300">
+            <p>This document is confidential and intended solely for the addressee.</p>
+            <p class="mt-1">Generated on: ${new Date().toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    `;
 
     const opt = {
       margin: 0.5,
@@ -74,22 +189,13 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
     };
 
-    html2pdf()
-      .set(opt)
-      .from(receiptRef.current)
-      .save()
-      .finally(() => {
-        // Restore slip image visibility
-        slipImages.forEach((img) => (img.style.display = ""));
-      });
+    html2pdf().set(opt).from(pdfDiv).save();
   };
 
   if (loading) return <p className="text-center text-gray-600">Loading payment details...</p>;
   if (!payment) return <p className="text-center text-red-500">Payment not found.</p>;
 
-  // Only show Verify/Reject buttons if admin and offline payment is pending
-  const showAdminActions =
-    isAdmin && payment.paymentType === "Offline" && payment.status === "Pending";
+  const showAdminActions = isAdmin && payment.paymentType === "Offline" && payment.status === "Pending";
 
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center p-6">
@@ -105,60 +211,49 @@ const SN_PaymentDetail = ({ paymentId, goBack, onRemovePayment }) => {
             onClick={handleDownloadPDF}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            📄 Download PDF
+            📄 Download Receipt PDF
           </button>
         </div>
 
+        {/* Original payment detail UI */}
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Payment Details</h2>
-
-        <div ref={receiptRef} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Field label="Payment ID" value={payment.paymentId} />
-            <Field label="Payment Type" value={payment.paymentType} />
-            <Field label="Apartment No" value={payment.apartmentNo} />
-            <Field label="Resident Name" value={payment.residentName} />
-            <Field label="Phone Number" value={payment.phoneNumber} />
-            <Field
-              label="Status"
-              value={payment.status}
-              className={`${
-                payment.status === "Completed"
-                  ? "text-green-600 font-semibold"
-                  : payment.status === "Failed"
-                  ? "text-red-600 font-semibold"
-                  : "text-yellow-600 font-semibold"
-              }`}
-            />
-            <Field
-              label="Payment Date"
-              value={new Date(payment.paymentDate).toLocaleString()}
-            />
-            <Field label="Total Amount" value={`Rs. ${payment.totalAmount}`} />
-
-            {payment.amountRent !== undefined && (
-              <Field label="Rent Amount" value={`Rs. ${payment.amountRent}`} />
-            )}
-            {payment.amountLaundry !== undefined && (
-              <Field label="Laundry Amount" value={`Rs. ${payment.amountLaundry}`} />
-            )}
-
-            {payment.transactionId && (
-              <Field label="Transaction ID" value={payment.transactionId} className="col-span-2" />
-            )}
-          </div>
-
-          {payment.slipFile?.data && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Payment Slip</label>
-              <img
-                src={`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`}
-                alt="Slip"
-                className="slip-img max-w-sm border rounded-lg shadow-lg cursor-pointer hover:scale-105 transition"
-                onClick={() => setIsImageOpen(true)}
-              />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Field label="Payment ID" value={payment.paymentId} />
+          <Field label="Payment Type" value={payment.paymentType} />
+          <Field label="Apartment No" value={payment.apartmentNo} />
+          <Field label="Resident Name" value={payment.residentName} />
+          <Field label="Phone Number" value={payment.phoneNumber} />
+          <Field
+            label="Status"
+            value={payment.status}
+            className={`${
+              payment.status === "Completed"
+                ? "text-green-600 font-semibold"
+                : payment.status === "Failed"
+                ? "text-red-600 font-semibold"
+                : "text-yellow-600 font-semibold"
+            }`}
+          />
+          <Field label="Payment Date" value={new Date(payment.paymentDate).toLocaleString()} />
+          <Field label="Total Amount" value={`Rs. ${payment.totalAmount}`} />
+          {payment.amountRent !== undefined && <Field label="Rent Amount" value={`Rs. ${payment.amountRent}`} />}
+          {payment.amountLaundry !== undefined && <Field label="Laundry Amount" value={`Rs. ${payment.amountLaundry}`} />}
+          {payment.paymentType !== "Offline" && payment.transactionId && (
+            <Field label="Transaction ID" value={payment.transactionId} />
           )}
         </div>
+
+        {payment.slipFile?.data && (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Slip</label>
+            <img
+              src={`data:${payment.slipFile.contentType};base64,${payment.slipFile.data}`}
+              alt="Slip"
+              className="slip-img max-w-sm border rounded-lg shadow-lg cursor-pointer hover:scale-105 transition"
+              onClick={() => setIsImageOpen(true)}
+            />
+          </div>
+        )}
 
         {showAdminActions && (
           <div className="mt-6 flex gap-4">

@@ -27,7 +27,7 @@ const OfflineSlipForm = () => {
 
     if (!slip) {
       toast.error("Please upload a slip file (PNG/JPG)");
-      setTimeout(() => navigate("/resident/billing"), 2000); // redirect after 2s
+      setTimeout(() => navigate("/resident/billing"), 2000);
       return;
     }
 
@@ -47,7 +47,7 @@ const OfflineSlipForm = () => {
       });
 
       if (res.ok) {
-        toast.success("Offline payment submitted successfully! Awaiting admin verification.");
+        toast.success("Offline payment submitted successfully!");
       } else {
         const err = await res.json();
         toast.error("Error: " + err.message);

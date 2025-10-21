@@ -11,7 +11,6 @@ const VerifyOTP = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // ✅ Get paymentId and email from URL query
   const paymentId = searchParams.get("paymentId");
   const email = searchParams.get("email");
 
@@ -51,7 +50,6 @@ const VerifyOTP = () => {
       if (newAttempts >= 3) {
         toast.error("Too many failed attempts. Payment cancelled.");
 
-        // Force mark payment as failed
         try {
           await axios.post("http://localhost:5001/api/payments/validate-otp", {
             email,
@@ -77,7 +75,7 @@ const VerifyOTP = () => {
       await axios.post("http://localhost:5001/api/payments/resend-otp", { email });
       setAttempts(0);
       setOtp("");
-      toast.success("📧 New OTP sent! Attempts reset.");
+      toast.success("New OTP sent!");
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error("Failed to resend OTP.");

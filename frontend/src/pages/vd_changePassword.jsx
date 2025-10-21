@@ -12,7 +12,6 @@ const ChangePassword = () => {
   const [message, setMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-  // Password visibility states
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

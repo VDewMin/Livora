@@ -1,4 +1,4 @@
-// vd_profileSettings.jsx
+
 import React, { useEffect, useState } from 'react';
 import UserProfile from '../pages/vd_userProfile';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ const ProfileSettings = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState('account-information');
 
-  // Sync active tab with ?tab=
+  
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');

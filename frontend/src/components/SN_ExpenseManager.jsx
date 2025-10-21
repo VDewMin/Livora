@@ -12,13 +12,13 @@ const CATEGORIES = [
 
 const PAYMENT_METHODS = ["Cash", "Bank Transfer", "Online Payment", "Card", "Other"];
 
- const getTodayLocal = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+const getTodayLocal = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
   const [expenses, setExpenses] = useState([]);
@@ -56,7 +56,7 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
   };
 
   const addExpense = async () => {
-    if ( !newExpense.notes || !newExpense.amount) {
+    if (!newExpense.notes || !newExpense.amount) {
       return toast.error("Please fill all required fields");
     }
 
@@ -68,9 +68,9 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     if (newExpense.date > today) {
       return toast.error("Date cannot be in the future");
     }
+
     try {
       const formData = new FormData();
-      
       formData.append("category", newExpense.category);
       formData.append("paymentMethod", newExpense.paymentMethod);
       formData.append("notes", newExpense.notes);
@@ -99,7 +99,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
     }
   };
 
-  // When an expense is deleted in ExpenseDetail
   const handleRemoveExpense = (id) => {
     setExpenses((prev) => prev.filter((e) => e._id !== id));
     onUpdateFinancials && onUpdateFinancials(expenses.filter((e) => e._id !== id));
@@ -108,7 +107,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
 
   return (
     <div className="p-6 relative">
-      {/* Expense Detail View */}
       {selectedExpenseId ? (
         <SN_ExpenseDetail
           expenseId={selectedExpenseId}
@@ -127,7 +125,6 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
             </button>
           </div>
 
-          {/* Expenses Table */}
           <table className="border w-full text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -157,17 +154,13 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
             </tbody>
           </table>
 
-          {/* Add Expense Modal */}
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-start pt-20 z-50">
               <div className="bg-white p-6 rounded-xl shadow-lg w-[400px]">
                 <h3 className="text-lg font-bold mb-3">Add New Expense</h3>
-                {/*<input
-                  className="border p-2 rounded w-full mb-2"
-                  placeholder="Expense ID"
-                  value={newExpense.expenseId}
-                  onChange={(e) => setNewExpense({ ...newExpense, expenseId: e.target.value })}
-                />*/}
+
+                {/* Category */}
+                <label className="block mb-1 font-medium">Category</label>
                 <select
                   className="border p-2 rounded w-full mb-2"
                   value={newExpense.category}
@@ -179,6 +172,9 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
                     </option>
                   ))}
                 </select>
+
+                {/* Payment Method */}
+                <label className="block mb-1 font-medium">Payment Method</label>
                 <select
                   className="border p-2 rounded w-full mb-2"
                   value={newExpense.paymentMethod}
@@ -190,20 +186,29 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
                     </option>
                   ))}
                 </select>
+
+                {/* Notes */}
+                <label className="block mb-1 font-medium">Note</label>
                 <input
                   className="border p-2 rounded w-full mb-2"
-                  placeholder="Notes"
+                  placeholder="Enter simple note about the expense"
                   value={newExpense.notes}
                   onChange={(e) => setNewExpense({ ...newExpense, notes: e.target.value })}
                 />
+
+                {/* Amount */}
+                <label className="block mb-1 font-medium">Amount (Rs.)</label>
                 <input
                   className="border p-2 rounded w-full mb-2"
                   type="number"
                   min="1"
-                  placeholder="Amount"
+                  placeholder="Enter amount"
                   value={newExpense.amount}
                   onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
                 />
+
+                {/* Date */}
+                <label className="block mb-1 font-medium">Date</label>
                 <input
                   className="border p-2 rounded w-full mb-2"
                   type="date"
@@ -211,11 +216,16 @@ export default function SN_ExpenseTab({ selectedMonth, onUpdateFinancials }) {
                   value={newExpense.date}
                   onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
                 />
+
+                {/* Attachment */}
+                <label className="block mb-1 font-medium">Attachment (optional)</label>
                 <input
                   className="border p-2 rounded w-full mb-4"
                   type="file"
                   onChange={handleFileChange}
                 />
+
+                {/* Buttons */}
                 <div className="flex justify-end gap-2">
                   <button onClick={() => setShowModal(false)} className="px-3 py-1 border rounded">
                     Cancel

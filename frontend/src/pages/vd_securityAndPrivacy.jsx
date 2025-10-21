@@ -1,13 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import { Shield, Lock, Eye, EyeOff, Key, Smartphone, Bell, Database, UserX, Download, Trash2, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import axiosInstance from "../lib/axios";
+import { useAuth } from "../context/vd_AuthContext";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const SecurityPrivacy = () => {
+  const { user } = useAuth();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const getProfilePictureDataUrl = (profilePicture) => {
+  if (!profilePicture?.data || !profilePicture?.contentType) return null;
+
+  // If already a string, use directly
+  if (typeof profilePicture.data === "string") {
+    return `data:${profilePicture.contentType};base64,${profilePicture.data}`;
+  }
+
+  // If it's a Buffer-like object (Mongoose), convert to Base64
+  if (profilePicture.data.data) { // check if it's nested Uint8Array
+    const binary = new Uint8Array(profilePicture.data.data)
+      .reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+    return `data:${profilePicture.contentType};base64,${btoa(binary)}`;
+  }
+
+  return null;
+};
+
 
   // Load current 2FA status on mount
   useEffect(() => {
@@ -16,10 +39,12 @@ const SecurityPrivacy = () => {
         const res = await axiosInstance.get("/users/2fa-status");
         setTwoFactorEnabled(res.data?.twoFactorEnabled || false);
       } catch (e) {
-        // ignore silently; page can still function
+        
       }
     })();
   }, []);
+
+  
 
   const handleEnable2FA = async () => {
     try {
@@ -64,8 +89,80 @@ const SecurityPrivacy = () => {
   };
 
   const handleDataDownload = () => {
-    toast.success("Your data export has been initiated. You'll receive an email shortly.");
-  };
+  if (!user) return toast.error("User data not available");
+
+  const doc = new jsPDF();
+
+  const profileDataUrl = getProfilePictureDataUrl(user.profilePicture);
+  let startY = 20; // default Y position for table
+
+  // Add profile picture at the top
+  if (profileDataUrl) {
+    const imgWidth = 50;
+    const imgHeight = 50;
+    const imgX = 80; // center-ish
+    const imgY = 10;
+    doc.addImage(profileDataUrl, "JPEG", imgX, imgY, imgWidth, imgHeight);
+
+    startY = imgY + imgHeight + 10; // push table below image
+  }
+
+
+  // Title
+  doc.setFontSize(18);
+  doc.text("User Profile Information", 105, 15, { align: "center" });
+
+  // Prepare table data
+  const tableData = [
+    ["First Name", user.firstName || "-"],
+    ["Last Name", user.lastName || "-"],
+    ["Email", user.email || "-"],
+    ["Phone Number", user.phoneNo || "-"],
+    ["Apartment No", user.apartmentNo || "-"],
+    ["Resident Type", user.residentType || "-"],
+    ["Staff Type", user.staffType || "-"],
+    ["Secondary Phone", user.secondaryPhoneNo || "-"],
+    ["Recovery Email", user.recoveryEmail || "-"],
+    ["Date of Birth", user.dateOfBirth || "-"],
+    ["Emergency Contact Name", user.emergencyContactName || "-"],
+    ["Emergency Contact Number", user.emergencyContactNumber || "-"],
+    ["Family Members", user.familyMembers || "-"],
+    ["Medical Conditions", user.medicalConditions || "-"],
+    ["Job", user.job || "-"],
+    ["Role", user.role || "-"],
+  ];
+
+  // Generate table
+  doc.autoTable({
+  startY: startY + 10, // start below the image
+  head: [["Field", "Value"]],
+  body: tableData,
+  theme: "grid",
+  headStyles: {
+    fillColor: [30, 144, 255],
+    textColor: 255,
+    fontStyle: "bold",
+  },
+  bodyStyles: {
+    textColor: 20,
+    fontSize: 11,
+  },
+  styles: {
+    cellPadding: 4,
+  },
+  columnStyles: {
+    0: { cellWidth: 50 },
+    1: { cellWidth: 120 },
+  },
+});
+
+
+  // Save file
+  doc.save(`${user.firstName || "user"}_${user._id}_profile.pdf`);
+  toast.success("User profile exported successfully");
+
+  
+};
 
   const handleAccountDelete = () => {
     const confirmed = window.confirm(
@@ -80,7 +177,7 @@ const SecurityPrivacy = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
+        
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
             <Shield className="w-6 h-6 text-blue-600" />
@@ -236,7 +333,7 @@ const SecurityPrivacy = () => {
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900 mb-2">Download Your Data</h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Request a copy of your personal data including profile information, activity logs, and preferences.
+                    Request a copy of your personal data including profile information.
                   </p>
                   <button
                     onClick={handleDataDownload}
