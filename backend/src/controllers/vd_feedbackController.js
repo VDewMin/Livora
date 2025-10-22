@@ -1,6 +1,9 @@
 import Feedback from "../models/vd_feedback.js";
 import Notification from "../models/vd_notification.js";
 import { emitNotification } from "../utils/vd_emitNotification.js";
+import User from "../models/vd_user.js";
+import { createTransporter } from "../utils/vd_email.js"; // your existing mail setup
+
 
 // Resident: Create feedback
 export const createFeedback = async (req, res) => {
@@ -98,5 +101,48 @@ export const deleteFeedback = async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const sendFeedbackReply = async (req, res) => {
+  try {
+    const { feedbackId } = req.params;
+    const { subject, message } = req.body;
+    console.log("📩 Incoming reply for:", feedbackId, subject);
+
+    if (!subject || !message) {
+      return res.status(400).json({ success: false, message: "Subject and message are required" });
+    }
+
+    const feedback = await Feedback.findOne({ feedbackId }).populate("userId");
+    if (!feedback) {
+      console.log("❌ Feedback not found");
+      return res.status(404).json({ success: false, message: "Feedback not found" });
+    }
+
+    const user = await User.findById(feedback.userId._id);
+    if (!user?.email) {
+      console.log("❌ Resident email not found");
+      return res.status(404).json({ success: false, message: "Resident email not found" });
+    }
+
+    console.log("✅ Sending email to:", user.email);
+    const transporter = await createTransporter();
+    await transporter.sendMail({
+      from: `"LIVORA" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject,
+      text: message,
+    });
+
+    feedback.reply = { subject, message, date: new Date() };
+    feedback.status = "Reviewed";
+    await feedback.save();
+
+    console.log("✅ Email sent and feedback saved");
+    res.status(200).json({ success: true, message: "Reply sent successfully" });
+  } catch (error) {
+    console.error("💥 Error in sendFeedbackReply:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

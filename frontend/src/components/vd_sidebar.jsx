@@ -37,6 +37,7 @@ const roleRoutes = {
 
     //"resident-management": "admin/residentlist",
     apartments: "/purchases",
+    help: "/help"
   },
   Resident: {
     dashboard: `/resident/dashboard/userId`,
@@ -45,6 +46,7 @@ const roleRoutes = {
     booking: "/convention-hall-home",
     billing: "/resident/billing",
     feedback: "/resident/feedback",
+    help: "/help"
   },
   Security: {
     dashboard: "/securityDashboard",
@@ -52,12 +54,13 @@ const roleRoutes = {
     "parcel-logs": "/viewParcels",
     "parcel-pickup-verification": "/scanner",
     "add-parcel": "/addParcel",
-    "parcel-slots": "/slots",
+    help: "/help"
   },
 
   Laundry: {
     dashboard: "/laundry/dashboard",
     requests: "/laundry/requests",
+    help: "/help"
   },
 };
 
@@ -82,8 +85,8 @@ const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
-  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
-  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
+  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
+  { id: "billing", label: "Finance", icon: CreditCard, roles: ["Resident", "Admin"] },
   //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
   { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
@@ -220,9 +223,9 @@ const menuItems = [
       {/* Bottom Section */}
       <div className="p-4 border-t border-gray-200 space-y-1">
         <button
-          onClick={() => onItemClick("help")}
+          onClick={() => navigate(roleRoutes[effectiveRole]?.help || "/help")}
           className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-            activeItem === "help"
+            location.pathname === "/help"
               ? "bg-gray-100 text-gray-900"
               : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
           }`}

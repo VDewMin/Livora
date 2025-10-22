@@ -39,6 +39,7 @@ import AdminDashboard from "./pages/vd_adminDashboard.jsx";
 import FeedbackForm from "./pages/vd_feedbackForm.jsx";
 import FeedbackList from "./pages/vd_feedbackList.jsx";
 import Notifications from "./pages/vd_notification.jsx";
+import HelpPage from "./pages/vd_help.jsx";
 
 
 import GKAdminViewServices from './pages/GKAdminViewServices.jsx';
@@ -118,6 +119,7 @@ const App = () =>{
                     <Route path="/resident/feedback" element={<ProtectedRoute allowedRoles={["Resident"]}><FeedbackForm /></ProtectedRoute>} />
                     <Route path="/security-privacy/:userId" element={<ProtectedRoute><SecurityPrivacy /></ProtectedRoute>} />
                     <Route path="/notifications/:userId" element={<ProtectedRoute><Notifications /></ProtectedRoute>}></Route>
+                    <Route path="/help" element={<HelpPage />} />
 
                     <Route path="/viewParcels" element={<KsViewParcels />} />  
                     <Route path="/addParcel" element={<KsAddParcel />} />       

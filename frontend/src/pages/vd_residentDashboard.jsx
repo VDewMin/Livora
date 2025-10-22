@@ -227,35 +227,40 @@ const ResidentDashboard = () => {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Announcements</h2>
-          <button className="text-blue-500 text-sm hover:text-blue-600 font-medium">
-            View All
-          </button>
-        </div>
+  <div className="flex items-center justify-between mb-4">
+    <h2 className="text-xl font-bold text-gray-800">Announcements</h2>
+  </div>
 
-        {loadingAnnouncements ? (
-          <p className="text-gray-500">Loading announcements...</p>
-        ) : announcements.length === 0 ? (
-          <p className="text-gray-500">No announcements available.</p>
-        ) : (
-          <div className="space-y-4">
-            {announcements.map((a) => (
-              <div
-                key={a._id}
-                className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500"
-              >
-                <h3 className="font-semibold text-gray-800">{a.title}</h3>
-                <p className="text-gray-700 mt-1">{a.message}</p>
-                <p className="text-gray-700 mt-1">{a.date}</p>
-                <p className="text-xs text-gray-500 mt-2">
-                  {new Date(a.createdAt).toLocaleString()}
-                </p>
-              </div>
-            ))}
+  {loadingAnnouncements ? (
+    <p className="text-gray-500">Loading announcements...</p>
+  ) : announcements.length === 0 ? (
+    <p className="text-gray-500">No announcements available.</p>
+  ) : (
+    <div className="max-h-64 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100">
+      {announcements.map((a) => (
+        <div
+          key={a._id}
+          className="flex items-start p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500 hover:bg-blue-100 transition"
+        >
+          {/* Left side: Date */}
+          <div className="w-24 flex-shrink-0 text-center border-r border-blue-900 pr-4">
+            <p className="text-sm font-semibold text-blue-700">
+              {new Date(a.date || a.createdAt).toLocaleDateString()}
+            </p>
           </div>
-        )}
-      </div>
+
+          {/* Right side: Content */}
+          <div className="flex-1 pl-4">
+            <h3 className="font-semibold text-gray-800">{a.title}</h3>
+            <p className="text-gray-700 mt-1">{a.message}</p>
+            <p className="text-xs text-gray-500 mt-2">{a.date}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
 
       {/* Quick Actions */}
       <div className="mt-6 bg-white p-6 rounded-xl shadow-lg">

@@ -5,6 +5,7 @@ import {
   getAllFeedbacks,
   updateFeedback,
   deleteFeedback,
+  sendFeedbackReply,
 } from "../controllers/vd_feedbackController.js";
 import { authMiddleware } from "../middleware/auth.js";
 
@@ -26,5 +27,7 @@ router.get("/my-feedbacks", authMiddleware, getUserFeedbacks);
 router.get("/", authMiddleware, adminOnly, getAllFeedbacks);
 router.patch("/:id", authMiddleware, adminOnly, updateFeedback);
 router.delete("/:id", authMiddleware, adminOnly, deleteFeedback);
+router.post("/reply/:feedbackId", sendFeedbackReply);
+
 
 export default router;
