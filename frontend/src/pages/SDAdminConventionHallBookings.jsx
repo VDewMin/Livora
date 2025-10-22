@@ -51,7 +51,7 @@ const SDAdminConventionHallBookings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200 py-10">
       <div className="max-w-6xl mx-auto p-6">
-        <nav className="bg-teal-700 text-white p-2 mb-6 rounded-lg shadow-md">
+       {/* <nav className="bg-teal-700 text-white p-2 mb-6 rounded-lg shadow-md">
           <ul className="flex justify-around">
             <li>
               <Link
@@ -71,7 +71,7 @@ const SDAdminConventionHallBookings = () => {
               </Link>
             </li>
           </ul>
-        </nav>
+        </nav> */}
 
         <h1 className="text-4xl font-bold text-teal-800 mb-8 text-center animate-fade-in">
           Admin Convention Hall Bookings

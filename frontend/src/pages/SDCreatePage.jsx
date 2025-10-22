@@ -1,9 +1,9 @@
-
 import { ArrowLeftIcon, CheckCircleIcon } from 'lucide-react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../lib/axios.js';
+import logo from '../assets/logo.png';
 
 const SDCreatePage = () => {
   const [title, setTitle] = useState('');
@@ -71,7 +71,9 @@ const SDCreatePage = () => {
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center mr-4">
-              <span className="text-white font-bold text-xl">PR</span>
+              <span className="text-white font-bold text-xl">
+                <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" />
+              </span>
             </div>
             <h1 className="text-2xl font-bold">Pearl Residencies</h1>
           </div>
