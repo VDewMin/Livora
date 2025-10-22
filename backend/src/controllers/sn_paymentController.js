@@ -553,9 +553,6 @@ export const getResidentMonthlyCharges = async (req, res) => {
     const totalDue = rentDue + laundryDue;
     const isPaid = totalDue === 0;
 
-    console.log("rent: " + rentDue)
-    console.log("laundry: " + laundryDue)
-    console.log("total" + totalDue)
     return res.json({
       rent: rentDue,
       laundry: laundryDue,
@@ -568,7 +565,6 @@ export const getResidentMonthlyCharges = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 
 //Get all residents with monthly charges and payment status
@@ -649,13 +645,6 @@ export const getAllResidentsMonthlyCharges = async (req, res) => {
         status,
       };
     });
-
-    // 🧾 Debug logs
-    console.log("🧾 Residents:", residents.length);
-    console.log("💰 Purchases:", purchases.length);
-    console.log("🧺 Laundry:", laundryRequests.length);
-    console.log("💳 Payments:", payments.length);
-    console.log("✅ Payment Map:", paymentMap);
 
     res.json(result);
   } catch (err) {
