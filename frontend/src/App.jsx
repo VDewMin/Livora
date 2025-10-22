@@ -71,6 +71,9 @@ import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
 import SecurityPrivacy from "./pages/vd_securityAndPrivacy.jsx";
 import SDpurchasesList from "./pages/SDpurchasesList";
+import SDresidentpurchaseDetails from "./components/SDresidentpurchaseDetails.jsx";
+import LivoraLandingPage from "./pages/LivoraLandingPage.jsx";
+import LivoraDetailsPage from "./pages/LivoraDetailsPage.jsx";
 
 const App = () =>{
     return(
@@ -164,8 +167,9 @@ const App = () =>{
 
                 <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
-                <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
-                </Route>
+               <Route path="/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} /> {/* Updated route */} 
+               <Route path="/resident/purchase/:id" element={<SDresidentpurchaseDetails />} />
+                              </Route>
                 
                <Route path="/purchases/create" element={<SDcreatepurchase />} />
                
@@ -180,7 +184,8 @@ const App = () =>{
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-
+                <Route path="/livora" element={<LivoraLandingPage/>} />
+                <Route path="/livora/details" element={<LivoraDetailsPage/>} />
 
  
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
@@ -199,4 +204,4 @@ const App = () =>{
     );
 };
 
-export default App;
+export default App

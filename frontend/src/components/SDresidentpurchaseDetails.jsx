@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -12,7 +13,7 @@ import axiosInstance from '../lib/axios.js';
 import html2pdf from 'html2pdf.js';
 import { useAuth } from "../context/vd_AuthContext";
 
-const SDpurchaseDetails = () => {
+const SDresidentpurchaseDetails = () => {
     const [purchase, setPurchase] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -24,29 +25,8 @@ const SDpurchaseDetails = () => {
     const { id } = useParams();
     const { token, user: authUser } = useAuth();
     const userId = sessionStorage.getItem("userId") || authUser?._id;
-
-    // Fetch user session info and store in sessionStorage if not present
-    useEffect(() => {
-        const fetchUserSession = async () => {
-            if (!userId || sessionStorage.getItem("userSession")) return;
-            try {
-                const res = await axiosInstance.get(`/users/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const userSession = {
-                    userId: res.data._id,
-                    name: `${res.data.firstName} ${res.data.lastName}`.trim(),
-                    apartmentNo: res.data.apartmentNo,
-                    email: res.data.email,
-                };
-                sessionStorage.setItem("userSession", JSON.stringify(userSession));
-            } catch (err) {
-                console.error("Error fetching user session:", err.response?.data || err);
-                toast.error("Unable to fetch user session");
-            }
-        };
-        fetchUserSession();
-    }, [userId, token]);
+    const userSession = JSON.parse(sessionStorage.getItem("userSession")) || {};
+    const apartmentNo = userSession.apartmentNo;
 
     const calculateLeaseMetrics = (purchase) => {
         if (!purchase || purchase.room_type !== 'rent' || !purchase.lease_start_date || !purchase.lease_end_date) {
@@ -102,39 +82,65 @@ const SDpurchaseDetails = () => {
         };
     };
 
+    // Fetch user session info and store in sessionStorage
+    const fetchUserSession = async () => {
+        if (!userId || sessionStorage.getItem("userSession")) return;
+        try {
+            const res = await axiosInstance.get(`/users/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const userSession = {
+                userId: res.data._id,
+                name: `${res.data.firstName} ${res.data.lastName}`.trim(),
+                apartmentNo: res.data.apartmentNo,
+                email: res.data.email,
+            };
+            sessionStorage.setItem("userSession", JSON.stringify(userSession));
+        } catch (err) {
+            console.error("Error fetching user session:", err.response?.data || err);
+            toast.error("Unable to fetch user session");
+        }
+    };
+
     useEffect(() => {
         const fetchPurchase = async () => {
             try {
-                const response = await axiosInstance.get(`/purchases/${id}`);
-                const fetchedPurchase = response.data;
-                setPurchase({ ...fetchedPurchase, apartmentNo: fetchedPurchase.apartmentNo || fetchedPurchase.room_id });
-                setIsEditable(['rent', 'lease'].includes(fetchedPurchase.room_type));
-                if (fetchedPurchase.room_type === 'rent') {
-                    setLeaseStatus(calculateLeaseMetrics(fetchedPurchase));
+                const normalizedApartmentNo = apartmentNo?.split(':')[0] || apartmentNo;
+                const response = await axiosInstance.get(`/purchases/user/${userId}/apartment/${normalizedApartmentNo}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const purchases = response.data;
+                if (purchases.length > 0) {
+                    const fetchedPurchase = purchases[0];
+                    setPurchase({ ...fetchedPurchase, apartmentNo: fetchedPurchase.apartmentNo || fetchedPurchase.room_id });
+                    setIsEditable(['rent', 'lease'].includes(fetchedPurchase.room_type));
+                    if (fetchedPurchase.room_type === 'rent') {
+                        setLeaseStatus(calculateLeaseMetrics(fetchedPurchase));
+                    }
+                } else {
+                    toast.error(`No purchases found for user ${userId} and apartment ${normalizedApartmentNo}`);
+                    navigate("/purchases");
                 }
             } catch (error) {
                 console.error("Error fetching purchase details:", error);
-                // Check if the error is a 404 and provide a specific message
-                if (error.response?.status === 404) {
-                    toast.error(`Purchase with ID ${id} not found.`);
-                } else {
-                    toast.error("Failed to fetch purchase details due to an unexpected error.");
-                }
-                // Optionally redirect to a fallback page or list
+                toast.error("Failed to fetch purchase details due to an unexpected error.");
                 navigate("/purchases");
             } finally {
                 setLoading(false);
             }
         };
-        if (id) fetchPurchase(); // Only fetch if id is present
-    }, [id, navigate]);
+        if (userId && apartmentNo) {
+            fetchUserSession();
+            fetchPurchase();
+        }
+    }, [userId, apartmentNo, navigate, token]);
 
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete purchase ${purchase?.purchase_id}?\n\nThis will ${purchase.room_type === 'rent' ? 'terminate the lease agreement' : 'cancel the ownership transfer'}.`)) 
             return;
         
         try {
-            await axiosInstance.delete(`/purchases/${id}`);
+            await axiosInstance.delete(`/purchases/${purchase._id}`);
             const deleteMessage = purchase.room_type === 'rent' 
                 ? `Rental agreement ${purchase.purchase_id} terminated`
                 : `Purchase ${purchase.purchase_id} cancelled`;
@@ -171,7 +177,7 @@ const SDpurchaseDetails = () => {
 
         setSaving(true);
         try {
-            await axiosInstance.put(`/purchases/${id}`, {
+            await axiosInstance.put(`/purchases/${purchase._id}`, {
                 buyer_Name: purchase.buyer_Name,
                 userId: purchase.userId,
                 buyer_Email: purchase.buyer_Email,
@@ -211,126 +217,31 @@ const SDpurchaseDetails = () => {
         setPurchase(prev => ({ ...prev, [field]: value }));
     };
 
-   
-const handleGenerateReceipt = () => {
-    if (!purchase || !detailsRef.current) {
-        console.error('❌ No purchase data or details ref available');
-        toast.error('No purchase data available');
-        return;
-    }
+    const handleGenerateReceipt = () => {
+        if (!purchase || !detailsRef.current) {
+            console.error('❌ No purchase data or details ref available');
+            toast.error('No purchase data available');
+            return;
+        }
 
-    const pdfDiv = document.createElement("div");
-    pdfDiv.className = "min-h-screen bg-slate-100 p-8";
-
-    pdfDiv.innerHTML = `
-      <div class="max-w-4xl mx-auto bg-white shadow-2xl">
-        <!-- Header -->
-        <div class="border-b-4 border-teal-600 p-8 bg-gradient-to-r from-teal-50 to-teal-100">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <h1 class="text-4xl font-bold text-teal-700">Pearl Residencies</h1>
-              <p class="text-gray-600 text-lg">Premium Living Spaces</p>
-            </div>
-            <div class="text-right">
-              <h2 class="text-2xl font-bold text-gray-800">PURCHASE RECEIPT</h2>
-              <p class="text-gray-600 text-sm mt-1">Purchase Confirmation</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Purchase Info -->
-        <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
-          <div class="grid grid-cols-2 gap-8">
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">PURCHASE ID</p>
-              <p class="text-xl font-bold text-gray-800">${purchase.purchase_id}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">PURCHASE DATE</p>
-              <p class="text-xl font-bold text-gray-800">${new Date(purchase.purchase_date).toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8 border-b-2 border-gray-200">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">BUYER INFORMATION</h3>
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">Buyer Name</p>
-              <p class="text-gray-800 text-lg font-semibold">${purchase.buyer_Name}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">Apartment No</p>
-              <p class="text-gray-800 text-lg font-semibold">${purchase.apartmentNo}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8 border-b-2 border-gray-200">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">PURCHASE DETAILS</h3>
-          <div class="grid grid-cols-2 gap-6">
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">Room Type</p>
-              <p class="text-gray-800 text-base">${purchase.room_type}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600 font-semibold">Status</p>
-              <p class="text-base font-semibold text-green-600">Completed</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8 border-b-2 border-gray-200 bg-teal-50">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">AMOUNT BREAKDOWN</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between">
-              <p class="text-gray-700 font-semibold">Purchase Price</p>
-              <p class="text-gray-800 font-semibold">LKR ${purchase.price?.toLocaleString() || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8 border-b-2 border-gray-200 bg-gray-50">
-          <h3 class="font-bold text-gray-800 mb-3">NOTES</h3>
-          <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
-            <li>This is a system-generated receipt. No signature required.</li>
-            <li>Please retain this receipt for your records.</li>
-            <li>For queries, contact customer support.</li>
-          </ul>
-        </div>
-
-        <div class="p-8 bg-gradient-to-r from-teal-50 to-teal-100 border-t-4 border-teal-600 text-center">
-          <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
-          <p class="text-gray-700">Premium Living Spaces</p>
-          <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
-          <p class="text-gray-700 text-sm">Website: www.pearlresidencies.com</p>
-          <div class="text-xs text-gray-600 mt-6 pt-4 border-t border-gray-300">
-            <p>This document is confidential and intended solely for the addressee.</p>
-            <p class="mt-1">Generated on: ${new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const opt = {
-        margin: 0.5,
-        filename: `receipt_${purchase.purchase_id}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        html2pdf()
+            .from(detailsRef.current)
+            .set({
+                filename: `receipt_${purchase.purchase_id}.pdf`,
+                margin: [10, 10, 10, 10],
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            })
+            .save()
+            .then(() => {
+                console.log('✅ Receipt downloaded:', `receipt_${purchase.purchase_id}.pdf`);
+                toast.success('Receipt generated and downloaded!');
+            })
+            .catch((error) => {
+                console.error('❌ Receipt generation failed:', error);
+                toast.error('Failed to generate receipt');
+            });
     };
-
-    html2pdf().set(opt).from(pdfDiv).save()
-        .then(() => {
-            console.log('✅ Receipt downloaded:', `receipt_${purchase.purchase_id}.pdf`);
-            toast.success('Receipt generated and downloaded!');
-        })
-        .catch((error) => {
-            console.error('❌ Receipt generation failed:', error);
-            toast.error('Failed to generate receipt');
-        });
-};
-
 
     if (loading) {
         return (
@@ -347,7 +258,7 @@ const handleGenerateReceipt = () => {
         return (
             <div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-teal-100 to-indigo-200'>
                 <div className='alert alert-error max-w-md shadow-lg bg-white text-red-700 border border-red-200'>
-                    <span>Purchase with ID {id} not found</span>
+                    <span>No purchases found for user and apartment</span>
                     <Link to="/purchases" className='btn btn-ghost text-teal-700 hover:bg-teal-100'>Back to Purchases</Link>
                 </div>
             </div>
@@ -362,13 +273,10 @@ const handleGenerateReceipt = () => {
         mortgage: { label: 'Mortgage Agreement', editable: false, icon: LockIcon }
     }[purchase.room_type] || { label: 'Agreement', editable: false, icon: FileTextIcon };
 
-    const userSession = JSON.parse(sessionStorage.getItem("userSession")) || {};
-
     return (
         <div className='min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200'>
             <div className='container mx-auto px-4 py-8'>
                 <div className='max-w-5xl mx-auto'>
-                    {/* Header Section with Session Info */}
                     <div className='flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-md'>
                         <div className='flex-1'>
                             <div className='mb-2'>
@@ -383,7 +291,6 @@ const handleGenerateReceipt = () => {
                         </div>
                         
                         <div className='flex items-center gap-4'>
-                            {/* Status Badge */} 
                             <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm ${
                                 isEditable ? 'bg-green-100 text-green-700 border border-green-200' : 
                                 leaseStatus?.status === 'current' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
@@ -405,7 +312,6 @@ const handleGenerateReceipt = () => {
                                 )}
                             </div>
 
-                            {/* Action Buttons */} 
                             <div className='flex gap-2'>
                                 {isRental && leaseStatus && leaseStatus.status !== 'expired' && (
                                     <button className='btn btn-outline btn-sm text-teal-700 border-teal-300 hover:bg-teal-100' onClick={() => {
@@ -455,11 +361,9 @@ const handleGenerateReceipt = () => {
                         </div>
                     </div>
 
-                    {/* Purchase Header Card */} 
                     <div className='card bg-white shadow-lg rounded-lg mb-8 overflow-hidden border border-teal-200'>
                         <div className='card-body p-6'>
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-                                {/* Purchase ID & Basic Info */} 
                                 <div className='text-center md:text-left'>
                                     <h1 className='card-title text-2xl font-bold text-teal-700 mb-1'>
                                         #{purchase.purchase_id}
@@ -470,7 +374,6 @@ const handleGenerateReceipt = () => {
                                     )}
                                 </div>
 
-                                {/* Key Financials */} 
                                 <div className='text-center md:text-right'>
                                     <div className='text-2xl font-bold text-green-600 mb-1'>
                                         {formatCurrency(purchase.price)}
@@ -487,7 +390,6 @@ const handleGenerateReceipt = () => {
                                     )}
                                 </div>
 
-                                {/* Rental Timeline (Only for Rentals) */}
                                 {isRental && leaseStatus && (
                                     <div className='text-center'>
                                         <div className='flex items-center justify-center gap-2 mb-2'>
@@ -495,7 +397,6 @@ const handleGenerateReceipt = () => {
                                             <span className='text-sm text-teal-600'>Lease Timeline</span>
                                         </div>
                                         
-                                        {/* Progress Bar */}
                                         <div className='w-full bg-gray-200 rounded-full h-2 mb-2'>
                                             <div 
                                                 className={`h-2 rounded-full transition-all duration-300 ${
@@ -522,13 +423,10 @@ const handleGenerateReceipt = () => {
                         </div>
                     </div>
 
-                    {/* Main Content Area */}
                     <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-                        {/* Left Column - Core Details */}
                         <div className='lg:col-span-2 space-y-6'>
                             <div className='card bg-white shadow-lg rounded-lg' ref={detailsRef}>
                                 <div className='card-body p-6'>
-                                    {/* Buyer Information */}
                                     <div className='mb-6'>
                                         <h3 className='card-title mb-4 flex items-center gap-2 text-teal-700'>
                                             <UserIcon className='h-5 w-5'/>
@@ -563,7 +461,7 @@ const handleGenerateReceipt = () => {
                                                         type='text'
                                                         className='input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
                                                         value={purchase.userId || ''}
-                                                        onChange={(e) => handleInputChange('User_id', e.target.value)}
+                                                        onChange={(e) => handleInputChange('userId', e.target.value)}
                                                         disabled={saving}
                                                     />
                                                 ) : (
@@ -613,7 +511,6 @@ const handleGenerateReceipt = () => {
                                         </div>
                                     </div>
 
-                                    {/* Apartment Details */}
                                     <div className='mb-6'>
                                         <h3 className='card-title mb-4 flex items-center gap-2 text-teal-700'>
                                             <FileTextIcon className='h-5 w-5'/>
@@ -652,7 +549,6 @@ const handleGenerateReceipt = () => {
                                         </div>
                                     </div>
 
-                                    {/* Notes */}
                                     <div>
                                         <h3 className='card-title mb-4 flex items-center gap-2 text-teal-700'>
                                             <FileTextIcon className='h-5 w-5'/>
@@ -678,9 +574,7 @@ const handleGenerateReceipt = () => {
                             </div>
                         </div>
 
-                        {/* Right Column - Financial & Timeline Summary */}
                         <div className='space-y-6'>
-                            {/* Financial Summary Card */}
                             <div className='card bg-white shadow-lg rounded-lg border border-teal-200'>
                                 <div className='card-body p-6'>
                                     <h3 className='card-title flex items-center gap-2 mb-4 text-teal-700'>
@@ -722,7 +616,6 @@ const handleGenerateReceipt = () => {
                                 </div>
                             </div>
 
-                            {/* Rental Timeline Card (Only for Rentals) */}
                             {isRental && leaseStatus && (
                                 <div className='card bg-white shadow-lg rounded-lg border border-teal-200'>
                                     <div className='card-body p-6'>
@@ -731,7 +624,6 @@ const handleGenerateReceipt = () => {
                                             Lease Timeline
                                         </h3>
                                         
-                                        {/* Progress Bar */}
                                         <div className='mb-4'>
                                             <div className='flex justify-between text-xs text-teal-600 mb-2'>
                                                 <span>{formatDate(purchase.lease_start_date)}</span>
@@ -750,7 +642,6 @@ const handleGenerateReceipt = () => {
                                             </div>
                                         </div>
                                         
-                                        {/* Status Alert */}
                                         <div className={`alert shadow-lg mb-4 ${
                                             leaseStatus.statusColor === 'success' ? 'bg-green-100 text-green-700 border-green-200' :
                                             leaseStatus.statusColor === 'warning' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
@@ -760,7 +651,6 @@ const handleGenerateReceipt = () => {
                                             <span className='font-medium'>{leaseStatus.statusMessage}</span>
                                         </div>
                                         
-                                        {/* Action Items */}
                                         <div className='space-y-2'>
                                             {leaseStatus.status === 'renewal_due' && (
                                                 <button className='btn btn-warning btn-sm w-full text-yellow-700 border-yellow-300 hover:bg-yellow-100' onClick={() => {
@@ -784,14 +674,12 @@ const handleGenerateReceipt = () => {
                                 </div>
                             )}
 
-                            {/* Quick Actions Card */}
                             <div className='card bg-white shadow-lg rounded-lg border border-teal-200'>
                                 <div className='card-body p-4'>
                                     <h4 className='font-semibold mb-3 flex items-center gap-2 text-teal-700'>
                                         📋 Quick Actions
                                     </h4>
                                     <div className='space-y-2 text-sm'>
-                                        {/* Generate Receipt Button */}
                                         <button 
                                             type="button"
                                             className='btn btn-outline btn-sm w-full justify-start text-teal-700 border-teal-300 hover:bg-teal-100' 
@@ -801,7 +689,6 @@ const handleGenerateReceipt = () => {
                                             Generate Receipt
                                         </button>
                                         
-                                        {/* Other buttons */}
                                         {purchase?.room_type === 'rent' && (
                                             <button 
                                                 type="button"
@@ -827,7 +714,6 @@ const handleGenerateReceipt = () => {
                         </div>
                     </div>
 
-                    {/* Bottom Action Bar */}
                     <div className='card-actions justify-between mt-8 pt-4 border-t border-teal-200 bg-white p-4 rounded-lg shadow-md'>
                         <Link to='/purchases' className='btn btn-ghost btn-lg text-teal-700 hover:bg-teal-100 transition-all'>
                             ← Back to All Purchases
@@ -868,4 +754,4 @@ const handleGenerateReceipt = () => {
     );
 };
 
-export default SDpurchaseDetails;
+export default SDresidentpurchaseDetails;

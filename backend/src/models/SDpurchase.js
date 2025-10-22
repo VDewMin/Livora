@@ -4,7 +4,11 @@ import mongoose from "mongoose";
 // Purchase Schema
 const purchaseSchema = new mongoose.Schema({
    
-    apartmentNo: { type: String, required: true },
+    apartmentNo: { 
+        type: String, 
+        required: true,
+        match: [/^[PQ](?:[1-8]0[1-6]|0[1-6])$/, "enter a valid apartment number (e.g., P101, Q806)"]
+     },
     buyer_Name: { type: String, required: true },
     userId: { type: String, required: true },
     buyer_Email: { 
@@ -12,7 +16,11 @@ const purchaseSchema = new mongoose.Schema({
         required: true,
         match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"]
     },
-    buyer_Phone: { type: String, required: true },
+    buyer_Phone: { 
+        type: String, 
+        required: true,
+        match: [/^\d{10}$/, "Please enter a valid 10-digit phone number"]
+    },
     room_type: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
     purchase_date: { type: Date, required: true },
