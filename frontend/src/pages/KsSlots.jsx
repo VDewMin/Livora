@@ -31,7 +31,7 @@ const KsSlots = () => {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
-        <MapPin className="text-blue-500" /> Slot Availability
+        <MapPin className="text-blue-500" /> Slots Availability
       </h1>
 
       <div className="grid grid-cols-10 gap-3">
