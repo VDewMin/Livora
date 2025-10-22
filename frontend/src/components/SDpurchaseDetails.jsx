@@ -225,10 +225,10 @@ const handleGenerateReceipt = () => {
     pdfDiv.innerHTML = `
       <div class="max-w-4xl mx-auto bg-white shadow-2xl">
         <!-- Header -->
-        <div class="border-b-4 border-teal-600 p-8 bg-gradient-to-r from-teal-50 to-teal-100">
+        <div class="border-b-4 border-blue-300 p-8 bg-gradient-to-r from-teal-50 to-teal-100">
           <div class="flex items-start justify-between mb-4">
             <div>
-              <h1 class="text-4xl font-bold text-teal-700">Pearl Residencies</h1>
+              <h1 class="text-4xl font-bold text-blue-400">Pearl Residencies</h1>
               <p class="text-gray-600 text-lg">Premium Living Spaces</p>
             </div>
             <div class="text-right">
@@ -242,8 +242,8 @@ const handleGenerateReceipt = () => {
         <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
           <div class="grid grid-cols-2 gap-8">
             <div>
-              <p class="text-sm text-gray-600 font-semibold">PURCHASE ID</p>
-              <p class="text-xl font-bold text-gray-800">${purchase.purchase_id}</p>
+              <p class="text-sm text-gray-600 font-semibold">USER ID:</p>
+              <p class="text-xl font-bold text-gray-800">${purchase.userId}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600 font-semibold">PURCHASE DATE</p>
@@ -253,38 +253,38 @@ const handleGenerateReceipt = () => {
         </div>
 
         <div class="p-8 border-b-2 border-gray-200">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">BUYER INFORMATION</h3>
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-300">BUYER INFORMATION</h3>
           <div class="grid grid-cols-2 gap-6">
             <div>
-              <p class="text-sm text-gray-600 font-semibold">Buyer Name</p>
+              <p class="text-sm text-gray-600 font-semibold">Buyer Name :</p>
               <p class="text-gray-800 text-lg font-semibold">${purchase.buyer_Name}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-600 font-semibold">Apartment No</p>
+              <p class="text-sm text-gray-600 font-semibold">Apartment No :</p>
               <p class="text-gray-800 text-lg font-semibold">${purchase.apartmentNo}</p>
             </div>
           </div>
         </div>
 
         <div class="p-8 border-b-2 border-gray-200">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">PURCHASE DETAILS</h3>
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-300">PURCHASE DETAILS</h3>
           <div class="grid grid-cols-2 gap-6">
             <div>
-              <p class="text-sm text-gray-600 font-semibold">Room Type</p>
+              <p class="text-sm text-gray-600 font-semibold">Room Type :</p>
               <p class="text-gray-800 text-base">${purchase.room_type}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-600 font-semibold">Status</p>
-              <p class="text-base font-semibold text-green-600">Completed</p>
+              <p class="text-sm text-gray-600 font-semibold">Status :</p>
+              <p class="text-base font-semibold text-blue-600">Completed</p>
             </div>
           </div>
         </div>
 
         <div class="p-8 border-b-2 border-gray-200 bg-teal-50">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">AMOUNT BREAKDOWN</h3>
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">AMOUNT BREAKDOWN</h3>
           <div class="space-y-3">
             <div class="flex justify-between">
-              <p class="text-gray-700 font-semibold">Purchase Price</p>
+              <p class="text-gray-700 font-semibold">Purchase Price :</p>
               <p class="text-gray-800 font-semibold">LKR ${purchase.price?.toLocaleString() || 0}</p>
             </div>
           </div>
@@ -299,7 +299,7 @@ const handleGenerateReceipt = () => {
           </ul>
         </div>
 
-        <div class="p-8 bg-gradient-to-r from-teal-50 to-teal-100 border-t-4 border-teal-600 text-center">
+        <div class="p-8 bg-gradient-to-r from-teal-50 to-teal-100 border-t-4 border-blue-300 text-center">
           <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
           <p class="text-gray-700">Premium Living Spaces</p>
           <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
@@ -317,7 +317,7 @@ const handleGenerateReceipt = () => {
         filename: `receipt_${purchase.purchase_id}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        jsPDF: { unit: "in", format: "a2", orientation: "landscape" },
     };
 
     html2pdf().set(opt).from(pdfDiv).save()

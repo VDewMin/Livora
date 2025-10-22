@@ -6,6 +6,10 @@ import sandeepa from '../assets/sandeepa.jpg'
 import sachintha from '../assets/sachintha.jpg'
 import kaveesha from '../assets/kaveesha.jpg'
 import livoralogo from '../assets/livoralogo.png';
+import mission from '../assets/mission.jpeg';
+import story from '../assets/story.jpeg';
+import vision from '../assets/vision.jpeg';
+import discuss from '../assets/discuss.jpeg';
 
 const LivoraLandingPage = () => {
   return (
@@ -36,9 +40,10 @@ const LivoraLandingPage = () => {
             </Link>
           </div>
           <div className="md:w-1/2 mt-6 md:mt-0">
-            {/* COMMENT: Add your hero photo here */}
-            {/* Replace with: <img src={heroPhoto} alt="Livora Hero" className="w-full h-64 object-cover rounded-lg" /> */}
-            <div className="w-full h-64 bg-gray-700 rounded-lg"></div>
+           
+            <div className="w-full h-64 bg-gray-700 rounded-lg">
+                           <img src={discuss} alt="Livora Hero" className="w-full h-64 object-cover rounded-lg" /> 
+            </div>
           </div>
         </div>
       </section>
@@ -96,29 +101,33 @@ const LivoraLandingPage = () => {
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-2 text-teal-400">Our Story</h3>
               <p className="text-gray-400">
-                Founded in 2000, Livora has been redefining luxury living with innovative designs and community-focused developments.
+                Founded in 2025, Livora has been redefining luxury living with innovative designs and community-focused developments.
               </p>
-              {/* COMMENT: Add your story photo here */}
-              {/* Replace with: <img src={storyPhoto} alt="Livora Story" className="w-full h-40 object-cover mt-4 rounded" /> */}
-              <div className="w-full h-40 bg-gray-700 mt-4 rounded"></div>
+             
+              <div className="w-full h-40 bg-gray-700 mt-4 rounded">
+                              <img src={story} alt="Livora Story" className="w-full h-40 object-cover mt-4 rounded" /> 
+
+              </div>
             </div>
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-2 text-teal-400">Our Mission</h3>
               <p className="text-gray-400">
                 To create sustainable, luxurious homes that enhance the quality of life for our residents.
               </p>
-              {/* COMMENT: Add your mission photo here */}
-              {/* Replace with: <img src={missionPhoto} alt="Livora Mission" className="w-full h-40 object-cover mt-4 rounded" /> */}
-              <div className="w-full h-40 bg-gray-700 mt-4 rounded"></div>
+              
+              <div className="w-full h-40 bg-gray-700 mt-4 rounded">
+                              <img src={mission} alt="Livora Mission" className="w-full h-40 object-cover mt-4 rounded" />
+              </div>
             </div>
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-2 text-teal-400">Our Vision</h3>
               <p className="text-gray-400">
                 To be the leading name in luxury residential developments by 2035.
               </p>
-              {/* COMMENT: Add your vision photo here */}
-              {/* Replace with: <img src={visionPhoto} alt="Livora Vision" className="w-full h-40 object-cover mt-4 rounded" /> */}
-              <div className="w-full h-40 bg-gray-700 mt-4 rounded"></div>
+             
+              <div className="w-full h-40 bg-gray-700 mt-4 rounded">
+                              <img src={vision} alt="Livora Vision" className="w-full h-40 object-cover mt-4 rounded" />
+              </div>
             </div>
           </div>
         </div>
@@ -133,14 +142,14 @@ const LivoraLandingPage = () => {
           <img src={sachintha} alt="Sachintha Nirmal" className="w-full h-full object-cover" />
         </div>
         <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Sachintha Nirmal</h3>
-        <p className="text-gray-400 text-sm">Project Leader. Payment Management System.</p>
+        <p className="text-gray-400 text-sm">Project Leader. Finance Management System.</p>
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
         <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
           <img src={kaveesha} alt="Kaveesha Fernando" className="w-full h-full object-cover" />
         </div>
         <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Kaveesha Fernando</h3>
-        <p className="text-gray-400 text-sm">Parcel Delivery Management System.</p>
+        <p className="text-gray-400 text-sm"> Delivery Management System.</p>
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
         <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
@@ -151,10 +160,10 @@ const LivoraLandingPage = () => {
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
         <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
-          <img src={Gagagana} alt="Gagagana Kalhara" className="w-full h-full object-cover" />
+          <img src={Gagagana} alt="Gagana Kalhara" className="w-full h-full object-cover" />
         </div>
-        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Gagagana Kalhara</h3>
-        <p className="text-gray-400 text-sm">Maintains and Announcement Management.</p>
+        <h3 className="text-xl font-semibold mt-4 mb-2 text-teal-400">Gagana Kalhara</h3>
+        <p className="text-gray-400 text-sm">Maintenance and Service Management.</p>
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center">
         <div className="w-32 h-32 overflow-hidden rounded-full bg-gray-700 shadow-inner">
