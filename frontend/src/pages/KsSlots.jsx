@@ -3,26 +3,50 @@ import io from "socket.io-client";
 import api from "../lib/axios.js";
 import { MapPin } from "lucide-react";
 
+// Connect to backend Socket.IO server
 const socket = io("http://localhost:5001");
 
 const KsSlots = () => {
   const [slots, setSlots] = useState([]);
 
   useEffect(() => {
+    // Load all slots from backend
     const loadSlots = async () => {
-      const res = await api.get("/parcels/slots");
-      setSlots(res.data);
+      try {
+        const res = await api.get("/parcels/slots");
+        setSlots(res.data);
+      } catch (err) {
+        console.error("Error loading slots:", err);
+      }
     };
+
     loadSlots();
 
+    // Listen for real-time updates from backend
     socket.on("slotUpdated", (update) => {
       setSlots((prev) =>
-        prev.map((s) =>
-          s.locId === update.locId ? { ...s, status: update.status === "Occupied" ? "Occupied" : "Available" } : s
-        )
+        prev.map((s) => {
+          if (s.locId !== update.locId) return s;
+
+          // 🧠 Explicit mapping logic
+          // - Pending or Removed → Occupied
+          // - Collected → Available
+          // - Unknown → keep previous
+          let newStatus;
+          if (update.status === "Pending" ) {
+            newStatus = "Occupied";
+          } else if (update.status === "Collected" || update.status === "Removed") {
+            newStatus = "Available";
+          } else {
+            newStatus = s.status; // unchanged for unknown statuses
+          }
+
+          return { ...s, status: newStatus };
+        })
       );
     });
 
+    // Clean up listener when component unmounts
     return () => {
       socket.off("slotUpdated");
     };
@@ -38,7 +62,7 @@ const KsSlots = () => {
         {slots.map((slot) => (
           <div
             key={slot.locId}
-            className={`p-4 rounded-lg font-semibold text-center cursor-pointer ${
+            className={`p-4 rounded-lg font-semibold text-center cursor-pointer transition-colors duration-200 ${
               slot.status === "Occupied"
                 ? "bg-red-500 text-white"
                 : "bg-green-400 text-white hover:bg-green-500"
