@@ -12,6 +12,26 @@ const FeedbackForm = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  if (!feedbackDate) {
+    return toast.error("Please select a feedback date.");
+  }
+
+  // ✅ Step 2: Prevent future dates
+  const today = new Date().toISOString().split("T")[0];
+  if (feedbackDate > today) {
+    return toast.error("Feedback date cannot be in the future.");
+  }
+
+  // ✅ Step 3: Prevent very old feedback (e.g., older than 30 days)
+  const selectedDate = new Date(feedbackDate);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  if (selectedDate < thirtyDaysAgo) {
+    return toast.error("Feedback can only be submitted within the last 30 days.");
+  }
+  
   setLoading(true);
 
   try {

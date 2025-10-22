@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Search, Bell, Mail, User, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
+import { Search, Bell, Mail, User, Megaphone, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -187,7 +187,7 @@ const ProfileHeader = () => {
       case 'users': return <User className="h-4 w-4" />;
       case 'feedback': return <MessageSquare className="h-4 w-4" />;
       case 'notifications': return <Bell className="h-4 w-4" />;
-      case 'announcements': return <MessageSquare className="h-4 w-4" />;
+      case 'announcements': return <Megaphone className="h-4 w-4" />;
       case 'services': return <Package className="h-4 w-4" />;
       case 'bookings': return <Calendar className="h-4 w-4" />;
       case 'billing': return <CreditCard className="h-4 w-4" />;
@@ -390,7 +390,7 @@ const ProfileHeader = () => {
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleMailClick}
             >
-              <Mail className="h-5 w-5" />
+              <Megaphone className="h-5 w-5" />
               {unreadAnnouncements > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadAnnouncements > 5 ? "5+" : unreadAnnouncements}

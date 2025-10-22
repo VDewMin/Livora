@@ -139,6 +139,17 @@ export const sendFeedbackReply = async (req, res) => {
     feedback.status = "Reviewed";
     await feedback.save();
 
+    const notification = {
+              userId: user._id.toString(),
+              title: "Feedback Reply Received",
+              message: "You have received a reply to your feedback: " + subject,
+              createdAt: new Date(),
+              isRead: false,
+            };
+    
+    await Notification.create(notification);  // Save in DB
+    emitNotification(notification); 
+
     console.log("✅ Email sent and feedback saved");
     res.status(200).json({ success: true, message: "Reply sent successfully" });
   } catch (error) {
