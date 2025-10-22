@@ -12,13 +12,16 @@ import {
   ScanLine,
   PackagePlus,
   Building2,
+  NotepadText,
   Users,
   MessageSquareHeart,
+  Grid3x3,
   Shirt
-} from 'lucide-react';
-import { useAuth } from '../context/vd_AuthContext';
+
+} from "lucide-react";
+import { useAuth } from "../context/vd_AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from 'react';
+import { useState } from "react";
 
 const roleRoutes = {
   Admin: {
@@ -29,8 +32,9 @@ const roleRoutes = {
     billing: "/admin/billing",
     "staff-management": "/admin/stafflist",
     "resident-management": "admin/residentlist",
+    announcements: "/admin/send-announcements",
     feedback: "/admin/feedback",
-    
+
     //"resident-management": "admin/residentlist",
     apartments: "/purchases",
     help: "/help"
@@ -39,7 +43,7 @@ const roleRoutes = {
     dashboard: `/resident/dashboard/userId`,
     deliveries: "/resident/deliveries",
     services: "/resident/user-view",
-    booking: "/resident/booking",
+    booking: "/convention-hall-home",
     billing: "/resident/billing",
     feedback: "/resident/feedback",
     help: "/help"
@@ -68,18 +72,16 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-
   const handleLogoutClick = () => setShowLogoutConfirm(true);
 
   const confirmLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
     setShowLogoutConfirm(false);
   };
 
   const cancelLogout = () => setShowLogoutConfirm(false);
-
- const menuItems = [
+const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
@@ -91,12 +93,14 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
   { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
+  { id: "parcel-slots", label: "Parcel Slots", icon: Grid3x3, roles: ["Security"],},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+  { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
   { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"] }
 
 
-];
+]
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
@@ -105,8 +109,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   );
 
   const handleMenuClick = (item) => {
-    
-     const route = roleRoutes[effectiveRole]?.[item.id] || null;
+    const route = roleRoutes[effectiveRole]?.[item.id] || null;
     if (route) {
       navigate(route);
     } else {
@@ -115,12 +118,27 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   };
 
   const settingsSubmenu = [
-    { id: "account-information", label: "Account Information", route: (user) => `/profile/${user._id}` },
-    { id: "change-password", label: "Change Password", route: (user) => `/change-password/${user._id}` },
-    { id: "notification", label: "Notification", route: (user) => `/notifications/${user._id}` },
-    { id: "security-privacy", label: "Security & Privacy", route: (user) => `/security-privacy/${user._id}` },
+    {
+      id: "account-information",
+      label: "Account Information",
+      route: (user) => `/profile/${user._id}`,
+    },
+    {
+      id: "change-password",
+      label: "Change Password",
+      route: (user) => `/change-password/${user._id}`,
+    },
+    {
+      id: "notification",
+      label: "Notification",
+      route: (user) => `/notifications/${user._id}`,
+    },
+    {
+      id: "security-privacy",
+      label: "Security & Privacy",
+      route: (user) => `/security-privacy/${user._id}`,
+    },
   ];
-
 
   return (
     <div className="w-64 bg-white h-screen shadow-sm border-r border-gray-200 flex flex-col">
@@ -139,7 +157,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
         {allowedMenuItems.map((item) => {
           const Icon = item.icon;
           const route = roleRoutes[effectiveRole]?.[item.id] || null;
-          
+
           return (
             <button
               key={item.id}
@@ -198,9 +216,8 @@ const Sidebar = ({ activeItem, onItemClick }) => {
                 );
               })}
             </div>
-           )}
+          )}
         </div>
-
       </nav>
 
       {/* Bottom Section */}
@@ -217,24 +234,34 @@ const Sidebar = ({ activeItem, onItemClick }) => {
           Help
         </button>
         <>
-        <button
-          onClick={handleLogoutClick}
-          className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
-        >
-          <LogOut className="mr-3 h-5 w-5" />
-          Log out
-        </button>
-        {showLogoutConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white p-6 rounded shadow-lg">
-              <p className="mb-4">Are you sure you want to log out?</p>
-              <div className="flex justify-end space-x-3">
-                <button onClick={cancelLogout} className="px-4 py-2 bg-gray-200 rounded">No</button>
-                <button onClick={confirmLogout} className="px-4 py-2 bg-blue-600 text-white rounded">Yes</button>
+          <button
+            onClick={handleLogoutClick}
+            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
+          >
+            <LogOut className="mr-3 h-5 w-5" />
+            Log out
+          </button>
+          {showLogoutConfirm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+              <div className="bg-white p-6 rounded shadow-lg">
+                <p className="mb-4">Are you sure you want to log out?</p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={cancelLogout}
+                    className="px-4 py-2 bg-gray-200 rounded"
+                  >
+                    No
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                  >
+                    Yes
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         </>
       </div>
     </div>

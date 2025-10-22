@@ -32,13 +32,6 @@ export default function ResidentTable({ residents: propResidents }) {
               paidAmount: 0,
               status: "Unpaid",
             },
-            {
-              residentName: "Default Laundry",
-              apartmentNo: "N/A",
-              monthlyPayment: 100,
-              paidAmount: 0,
-              status: "Unpaid",
-            },
           ]);
         }
       } catch (error) {
@@ -52,13 +45,6 @@ export default function ResidentTable({ residents: propResidents }) {
             paidAmount: 0,
             status: "Unpaid",
           },
-          {
-            residentName: "Default Laundry",
-            apartmentNo: "N/A",
-            monthlyPayment: 100,
-            paidAmount: 0,
-            status: "Unpaid",
-          },
         ]);
       }
     };
@@ -66,18 +52,16 @@ export default function ResidentTable({ residents: propResidents }) {
     fetchResidents();
   }, [propResidents]);
 
-  // Filter residents by search & status
+  // Filter logic
   const filteredResidents = residents.filter((r) => {
     const name = (r.residentName ?? "").toLowerCase();
     const unit = (r.apartmentNo ?? "").toLowerCase();
     const matchesSearch =
       name.includes(searchTerm.toLowerCase()) ||
       unit.includes(searchTerm.toLowerCase());
-
     const matchesStatus =
       statusFilter === "All" ||
       r.status?.toLowerCase() === statusFilter.toLowerCase();
-
     return matchesSearch && matchesStatus;
   });
 
@@ -105,36 +89,64 @@ export default function ResidentTable({ residents: propResidents }) {
 
       {/* Resident Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300">
+        <table className="w-full border-collapse border border-gray-300 text-sm md:text-base">
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-4 py-2">Name</th>
               <th className="border border-gray-300 px-4 py-2">Unit</th>
-              <th className="border border-gray-300 px-4 py-2">Amount Due</th>
+              <th className="border border-gray-300 px-4 py-2">Total Due (Rs.)</th>
+              <th className="border border-gray-300 px-4 py-2">Paid (Rs.)</th>
+              <th className="border border-gray-300 px-4 py-2">Need to Pay (Rs.)</th>
               <th className="border border-gray-300 px-4 py-2">Status</th>
             </tr>
           </thead>
           <tbody>
             {filteredResidents.length > 0 ? (
-              filteredResidents.map((r, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2">
-                    {r.residentName || "N/A"}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {r.apartmentNo || "N/A"}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {r.paidAmount ?? 0} / {r.monthlyPayment ?? 0}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {r.status || "N/A"}
-                  </td>
-                </tr>
-              ))
+              filteredResidents.map((r, idx) => {
+                const needToPay =
+                  (r.monthlyPayment ?? 0) - (r.paidAmount ?? 0);
+
+                return (
+                  <tr
+                    key={idx}
+                    className={`hover:bg-gray-50 ${
+                      r.status === "Paid" ? "bg-green-50" : ""
+                    }`}
+                  >
+                    <td className="border border-gray-300 px-4 py-2">
+                      {r.residentName || "N/A"}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {r.apartmentNo || "N/A"}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-right">
+                      {r.monthlyPayment?.toLocaleString() ?? 0}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-right">
+                      {r.paidAmount?.toLocaleString() ?? 0}
+                    </td>
+                    <td
+                      className={`border border-gray-300 px-4 py-2 text-right ${
+                        needToPay > 0 ? "text-red-500" : "text-green-600"
+                      }`}
+                    >
+                      {needToPay.toLocaleString()}
+                    </td>
+                    <td
+                      className={`border border-gray-300 px-4 py-2 font-semibold ${
+                        r.status === "Paid"
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {r.status || "N/A"}
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="4" className="text-center py-4 text-gray-500">
+                <td colSpan="6" className="text-center py-4 text-gray-500">
                   No residents found.
                 </td>
               </tr>

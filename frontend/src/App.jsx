@@ -47,7 +47,7 @@ import ChangePassword from "./pages/vd_changePassword.jsx";
 import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
 import KsScanner from "./pages/KsScanner.jsx";
 import KsAdminDeliveries from "./pages/KsAdminDeliveries.jsx";
-
+import KsSlots from "./pages/KsSlots.jsx";
 
 
 import HomePage from './pages/SDHomePage'
@@ -72,6 +72,9 @@ import SDContactUsPage from "./pages/SDContactUsPage.jsx";
 import SDLaundryEdit from "./pages/SDLaundryEdit.jsx";
 import SecurityPrivacy from "./pages/vd_securityAndPrivacy.jsx";
 import SDpurchasesList from "./pages/SDpurchasesList";
+import SDresidentpurchaseDetails from "./components/SDresidentpurchaseDetails.jsx";
+import LivoraLandingPage from "./pages/LivoraLandingPage.jsx";
+import LivoraDetailsPage from "./pages/LivoraDetailsPage.jsx";
 
 const App = () =>{
     return(
@@ -85,7 +88,7 @@ const App = () =>{
                     <Route path="/delete-service/:id" element={<GKDeleteService />} />
                     <Route path="/add-service" element={<GKRequestService />} />
                     <Route path="/admin/admin-view" element={<ProtectedRoute allowedRoles={["Admin"]}><GKAdminViewServices /></ProtectedRoute>} />
-                    <Route path="/send-announcements" element={<ProtectedRoute allowedRoles={["Admin"]}>< AdminAnnouncements/></ProtectedRoute>} />
+                    <Route path="/admin/send-announcements" element={<ProtectedRoute allowedRoles={["Admin"]}>< AdminAnnouncements/></ProtectedRoute>} />
                     
                     <Route path="/chekout" element={<Checkout/>} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -124,6 +127,7 @@ const App = () =>{
                     <Route path="/scanner" element={<KsScanner />} />
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
+                    <Route path="/slots" element={<KsSlots />} />
 
                     
 
@@ -133,6 +137,7 @@ const App = () =>{
                   <Route path="/admin/convention-hall-booking/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookingsDetails/></ProtectedRoute>}/>
                   <Route path="/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDpurchasesList/></ProtectedRoute>}/>
                   <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Admin"]}><SDLaundryStaffView/></ProtectedRoute>}/>
+                
 
 
                 </Route>
@@ -165,14 +170,16 @@ const App = () =>{
 
                 <Route path="/convention-hall-home" element={<SDConventionHallHomePage />} />
                <Route path="/convention-hall-bookings" element={<SDConventionHallBookingForm />} />
-                <Route path="/convention-hall-home/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} />
-                </Route>
+               <Route path="/convention-hall-booking/:id" element={<SDConventionHallBookingDetails />} /> {/* Updated route */} 
+               <Route path="/resident/purchase/:id" element={<SDresidentpurchaseDetails />} />
+                              </Route>
                 
                <Route path="/purchases/create" element={<SDcreatepurchase />} />
                
                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/laundry/request" element={<SDLaundryRequestForm />} />
                 <Route path="/laundry/details/:schedule_id" element={<SDLaundryDetails />} />
+                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
                 </Route>
                 <Route path="/" element={<SDLandingPage />} />
                 
@@ -180,8 +187,8 @@ const App = () =>{
                 <Route path="/apartments" element={<SDApartmentPage />} />
                 <Route path="/about" element={<SDAboutUsPage />} />
                 <Route path="/contact" element={<SDContactUsPage />} />
-                <Route path="/laundry/edit/:schedule_id" element={<SDLaundryEdit />} />
-
+                <Route path="/livora" element={<LivoraLandingPage/>} />
+                <Route path="/livora/details" element={<LivoraDetailsPage/>} />
 
  
                 <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
@@ -200,4 +207,4 @@ const App = () =>{
     );
 };
 
-export default App;
+export default App

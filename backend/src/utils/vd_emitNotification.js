@@ -1,4 +1,4 @@
-// src/helpers/emitNotification.js
+
 import { getIO } from "../socket.js";
 
 export const emitNotification = (event, data) => {

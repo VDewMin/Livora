@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
 import SN_PaymentDetail from "../components/SN_PaymentDetail";
+import SN_Res_ReceiptHistory from "../components/SN_Res_ReceiptHistory";
 
 const SN_ResidentBillingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -41,18 +42,22 @@ const SN_ResidentBillingDashboard = () => {
       const res = await axiosInstance.get(`/payments/resident/${userId}/charges`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      // Use exact values from backend
       setCharges({
-        rent: res.data.isPaid ? 0 : res.data.rent,
-        laundry: res.data.isPaid ? 0 : res.data.laundry,
-        others: res.data.isPaid ? 0 : res.data.others,
-        total: res.data.isPaid ? 0 : res.data.total,
+        rent: res.data.rent || 0,
+        laundry: res.data.laundry || 0,
+        others: res.data.others || 0,
+        total: res.data.total || 0,
       });
     } catch (err) {
       console.error("Error fetching charges:", err.response?.data || err);
+      toast.error(err.response?.data?.message || "Unable to fetch charges");
     } finally {
       setLoadingCharges(false);
     }
   };
+
 
   // Fetch payment history
   const fetchPaymentHistory = async () => {
@@ -153,11 +158,11 @@ const SN_ResidentBillingDashboard = () => {
 
   return (
     <div className="flex-1 h-screen overflow-y-scroll bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Sticky header */}
+      
       <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
         <div className="px-6 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Billing</h1>
+            {/*<h1 className="text-3xl font-bold text-gray-900">Monthly Payment</h1>*/}
             <p className="text-gray-600 mt-1">
               Apartment {user.apartmentNo} • {user.firstName} {user.lastName}
             </p>
@@ -336,32 +341,8 @@ const SN_ResidentBillingDashboard = () => {
             </div>
           </div>
         )}
-
         {/* Receipts */}
-        {activeTab === "receipts" && (
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 mb-8">
-            <div className="px-8 py-6 border-b border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900">Receipts</h2>
-              <p className="text-gray-600 mt-1">Download and manage your payment receipts</p>
-            </div>
-            <div className="p-8 text-center py-12">
-              <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
-                <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Receipts Coming Soon</h3>
-              <p className="text-gray-500 mb-4">
-                We're working on bringing you digital receipts for all your payments.
-              </p>
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <p className="text-blue-800 text-sm">
-                  💡 <strong>Tip:</strong> For now, you can access payment details in your payment history above.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === "receipts" && <SN_Res_ReceiptHistory />}
       </div>
     </div>
   );

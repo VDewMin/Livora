@@ -72,7 +72,7 @@ const SN_ExpenseDetail = ({ expenseId, goBack, onRemoveExpense, onUpdateExpense 
   };
 
 const handleVerify = async () => {
-  // ✅ Validation
+  
   if (!formData.description || !formData.amount) {
     return toast.error("Please fill all required fields");
   }
@@ -81,7 +81,7 @@ const handleVerify = async () => {
     return toast.error("Amount must be a positive number");
   }
 
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10);
   if (formData.date > today) {
     return toast.error("Date cannot be in the future");
   }
@@ -154,7 +154,6 @@ const handleVerify = async () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="Expense ID" value={expense.expenseId} readOnly />
             
-            {/* Category Dropdown */}
             {editMode ? (
               <SelectField
                 label="Category"
@@ -167,7 +166,6 @@ const handleVerify = async () => {
               <Field label="Category" value={formData.category} readOnly />
             )}
 
-            {/* Payment Method Dropdown */}
             {editMode ? (
               <SelectField
                 label="Payment Method"

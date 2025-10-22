@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'lucide-react'; // Assuming Link icon is not needed separately
+import { Link } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
@@ -10,6 +10,7 @@ import {
 import { formatCurrency, formatDate } from '../lib/utils.js';
 import axiosInstance from '../lib/axios.js';
 import html2pdf from 'html2pdf.js';
+import { useAuth } from "../context/vd_AuthContext";
 
 const SDpurchaseDetails = () => {
     const [purchase, setPurchase] = useState(null);
@@ -21,6 +22,31 @@ const SDpurchaseDetails = () => {
 
     const navigate = useNavigate();
     const { id } = useParams();
+    const { token, user: authUser } = useAuth();
+    const userId = sessionStorage.getItem("userId") || authUser?._id;
+
+    // Fetch user session info and store in sessionStorage if not present
+    useEffect(() => {
+        const fetchUserSession = async () => {
+            if (!userId || sessionStorage.getItem("userSession")) return;
+            try {
+                const res = await axiosInstance.get(`/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const userSession = {
+                    userId: res.data._id,
+                    name: `${res.data.firstName} ${res.data.lastName}`.trim(),
+                    apartmentNo: res.data.apartmentNo,
+                    email: res.data.email,
+                };
+                sessionStorage.setItem("userSession", JSON.stringify(userSession));
+            } catch (err) {
+                console.error("Error fetching user session:", err.response?.data || err);
+                toast.error("Unable to fetch user session");
+            }
+        };
+        fetchUserSession();
+    }, [userId, token]);
 
     const calculateLeaseMetrics = (purchase) => {
         if (!purchase || purchase.room_type !== 'rent' || !purchase.lease_start_date || !purchase.lease_end_date) {
@@ -81,21 +107,27 @@ const SDpurchaseDetails = () => {
             try {
                 const response = await axiosInstance.get(`/purchases/${id}`);
                 const fetchedPurchase = response.data;
-                // Assuming apartmentNo exists; if not, use room_id as fallback
                 setPurchase({ ...fetchedPurchase, apartmentNo: fetchedPurchase.apartmentNo || fetchedPurchase.room_id });
                 setIsEditable(['rent', 'lease'].includes(fetchedPurchase.room_type));
                 if (fetchedPurchase.room_type === 'rent') {
                     setLeaseStatus(calculateLeaseMetrics(fetchedPurchase));
                 }
             } catch (error) {
-                console.error("Error fetching purchase details: ", error);
-                toast.error("Failed to fetch purchase details");
+                console.error("Error fetching purchase details:", error);
+                // Check if the error is a 404 and provide a specific message
+                if (error.response?.status === 404) {
+                    toast.error(`Purchase with ID ${id} not found.`);
+                } else {
+                    toast.error("Failed to fetch purchase details due to an unexpected error.");
+                }
+                // Optionally redirect to a fallback page or list
+                navigate("/purchases");
             } finally {
                 setLoading(false);
             }
         };
-        fetchPurchase();
-    }, [id]);
+        if (id) fetchPurchase(); // Only fetch if id is present
+    }, [id, navigate]);
 
     const handleDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete purchase ${purchase?.purchase_id}?\n\nThis will ${purchase.room_type === 'rent' ? 'terminate the lease agreement' : 'cancel the ownership transfer'}.`)) 
@@ -109,7 +141,7 @@ const SDpurchaseDetails = () => {
             toast.success(deleteMessage);
             navigate("/purchases");
         } catch (error) {
-            console.error("Error deleting purchase: ", error);
+            console.error("Error deleting purchase:", error);
             toast.error("Failed to delete purchase");
         }
     };
@@ -141,10 +173,10 @@ const SDpurchaseDetails = () => {
         try {
             await axiosInstance.put(`/purchases/${id}`, {
                 buyer_Name: purchase.buyer_Name,
-                buyer_id: purchase.buyer_id,
+                userId: purchase.userId,
                 buyer_Email: purchase.buyer_Email,
                 buyer_Phone: purchase.buyer_Phone,
-                apartmentNo: purchase.apartmentNo, // Updated from room_id
+                apartmentNo: purchase.apartmentNo,
                 room_type: purchase.room_type,
                 price: priceNum,
                 purchase_date: purchase.purchase_date,
@@ -163,7 +195,7 @@ const SDpurchaseDetails = () => {
             toast.success(saveMessage);
             navigate("/purchases");
         } catch (error) {
-            console.error("Error updating purchase: ", error);
+            console.error("Error updating purchase:", error);
             if (error.response?.status === 403) {
                 toast.error(error.response.data.message || "Only rental agreements can be modified");
             } else {
@@ -179,31 +211,126 @@ const SDpurchaseDetails = () => {
         setPurchase(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleGenerateReceipt = () => {
-        if (!purchase || !detailsRef.current) {
-            console.error('❌ No purchase data or details ref available');
-            toast.error('No purchase data available');
-            return;
-        }
+   
+const handleGenerateReceipt = () => {
+    if (!purchase || !detailsRef.current) {
+        console.error('❌ No purchase data or details ref available');
+        toast.error('No purchase data available');
+        return;
+    }
 
-        html2pdf()
-            .from(detailsRef.current)
-            .set({
-                filename: `receipt_${purchase.purchase_id}.pdf`,
-                margin: [10, 10, 10, 10],
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            })
-            .save()
-            .then(() => {
-                console.log('✅ Receipt downloaded:', `receipt_${purchase.purchase_id}.pdf`);
-                toast.success('Receipt generated and downloaded!');
-            })
-            .catch((error) => {
-                console.error('❌ Receipt generation failed:', error);
-                toast.error('Failed to generate receipt');
-            });
+    const pdfDiv = document.createElement("div");
+    pdfDiv.className = "min-h-screen bg-slate-100 p-8";
+
+    pdfDiv.innerHTML = `
+      <div class="max-w-4xl mx-auto bg-white shadow-2xl">
+        <!-- Header -->
+        <div class="border-b-4 border-teal-600 p-8 bg-gradient-to-r from-teal-50 to-teal-100">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h1 class="text-4xl font-bold text-teal-700">Pearl Residencies</h1>
+              <p class="text-gray-600 text-lg">Premium Living Spaces</p>
+            </div>
+            <div class="text-right">
+              <h2 class="text-2xl font-bold text-gray-800">PURCHASE RECEIPT</h2>
+              <p class="text-gray-600 text-sm mt-1">Purchase Confirmation</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Purchase Info -->
+        <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">PURCHASE ID</p>
+              <p class="text-xl font-bold text-gray-800">${purchase.purchase_id}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">PURCHASE DATE</p>
+              <p class="text-xl font-bold text-gray-800">${new Date(purchase.purchase_date).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">BUYER INFORMATION</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Buyer Name</p>
+              <p class="text-gray-800 text-lg font-semibold">${purchase.buyer_Name}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Apartment No</p>
+              <p class="text-gray-800 text-lg font-semibold">${purchase.apartmentNo}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">PURCHASE DETAILS</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Room Type</p>
+              <p class="text-gray-800 text-base">${purchase.room_type}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-semibold">Status</p>
+              <p class="text-base font-semibold text-green-600">Completed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200 bg-teal-50">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-teal-500">AMOUNT BREAKDOWN</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <p class="text-gray-700 font-semibold">Purchase Price</p>
+              <p class="text-gray-800 font-semibold">LKR ${purchase.price?.toLocaleString() || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 border-b-2 border-gray-200 bg-gray-50">
+          <h3 class="font-bold text-gray-800 mb-3">NOTES</h3>
+          <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+            <li>This is a system-generated receipt. No signature required.</li>
+            <li>Please retain this receipt for your records.</li>
+            <li>For queries, contact customer support.</li>
+          </ul>
+        </div>
+
+        <div class="p-8 bg-gradient-to-r from-teal-50 to-teal-100 border-t-4 border-teal-600 text-center">
+          <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
+          <p class="text-gray-700">Premium Living Spaces</p>
+          <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
+          <p class="text-gray-700 text-sm">Website: www.pearlresidencies.com</p>
+          <div class="text-xs text-gray-600 mt-6 pt-4 border-t border-gray-300">
+            <p>This document is confidential and intended solely for the addressee.</p>
+            <p class="mt-1">Generated on: ${new Date().toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const opt = {
+        margin: 0.5,
+        filename: `receipt_${purchase.purchase_id}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
     };
+
+    html2pdf().set(opt).from(pdfDiv).save()
+        .then(() => {
+            console.log('✅ Receipt downloaded:', `receipt_${purchase.purchase_id}.pdf`);
+            toast.success('Receipt generated and downloaded!');
+        })
+        .catch((error) => {
+            console.error('❌ Receipt generation failed:', error);
+            toast.error('Failed to generate receipt');
+        });
+};
+
 
     if (loading) {
         return (
@@ -220,7 +347,7 @@ const SDpurchaseDetails = () => {
         return (
             <div className='min-h-screen flex items-center justify-center bg-gradient-to-r from-teal-100 to-indigo-200'>
                 <div className='alert alert-error max-w-md shadow-lg bg-white text-red-700 border border-red-200'>
-                    <span>Purchase not found</span>
+                    <span>Purchase with ID {id} not found</span>
                     <Link to="/purchases" className='btn btn-ghost text-teal-700 hover:bg-teal-100'>Back to Purchases</Link>
                 </div>
             </div>
@@ -230,18 +357,25 @@ const SDpurchaseDetails = () => {
     const isRental = purchase.room_type === 'rent';
     const currentRoomTypeConfig = {
         rent: { label: 'Rental Agreement', editable: true, icon: CalendarIcon },
-        sale: { label: 'Purchase Agreement', editable: false, icon: CheckCircleIcon },
+        Permanent: { label: 'Purchase Agreement', editable: false, icon: CheckCircleIcon },
         lease: { label: 'Lease Agreement', editable: true, icon: ClockIcon },
         mortgage: { label: 'Mortgage Agreement', editable: false, icon: LockIcon }
     }[purchase.room_type] || { label: 'Agreement', editable: false, icon: FileTextIcon };
+
+    const userSession = JSON.parse(sessionStorage.getItem("userSession")) || {};
 
     return (
         <div className='min-h-screen bg-gradient-to-r from-teal-100 to-indigo-200'>
             <div className='container mx-auto px-4 py-8'>
                 <div className='max-w-5xl mx-auto'>
-                    {/* Header Section */} 
+                    {/* Header Section with Session Info */}
                     <div className='flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-md'>
                         <div className='flex-1'>
+                            <div className='mb-2'>
+                                <p className='text-gray-600'>
+                                    Welcome, {userSession.name || 'Guest'} • Apartment {userSession.apartmentNo || 'N/A'}
+                                </p>
+                            </div>
                             <Link to="/purchases" className='btn btn-ghost mb-2 lg:mb-0 text-teal-700 hover:bg-teal-100 transition-all'>
                                 <ArrowLeftIcon className='h-5 w-5 mr-2'/>
                                 Back to Purchases
@@ -428,13 +562,13 @@ const SDpurchaseDetails = () => {
                                                     <input
                                                         type='text'
                                                         className='input input-bordered w-full border-teal-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all'
-                                                        value={purchase.buyer_id || ''}
-                                                        onChange={(e) => handleInputChange('buyer_id', e.target.value)}
+                                                        value={purchase.userId || ''}
+                                                        onChange={(e) => handleInputChange('User_id', e.target.value)}
                                                         disabled={saving}
                                                     />
                                                 ) : (
                                                     <div className='p-3 bg-teal-50 rounded-lg shadow-sm'>
-                                                        <span className='font-medium text-teal-800'>{purchase.buyer_id || 'N/A'}</span>
+                                                        <span className='font-medium text-teal-800'>{purchase.userId || 'N/A'}</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -488,7 +622,7 @@ const SDpurchaseDetails = () => {
                                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                             <div className='space-y-2'>
                                                 <label className='label text-teal-700'>
-                                                    <span className='label-text'>Apartment No</span> {/* Updated from Room ID */}
+                                                    <span className='label-text'>Apartment No</span>
                                                 </label>
                                                 {isEditable ? (
                                                     <input
@@ -500,7 +634,7 @@ const SDpurchaseDetails = () => {
                                                     />
                                                 ) : (
                                                     <div className='p-3 bg-teal-50 rounded-lg shadow-sm'>
-                                                        <span className='font-bold text-teal-800'>{purchase.apartmentNo || 'N/A'}</span> {/* Updated from room_id */}
+                                                        <span className='font-bold text-teal-800'>{purchase.apartmentNo || 'N/A'}</span>
                                                     </div>
                                                 )}
                                             </div>

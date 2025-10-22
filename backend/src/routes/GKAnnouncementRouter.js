@@ -4,9 +4,9 @@ import { createAnnouncement, getAnnouncements } from "../controllers/GKAnnouncem
 const router = express.Router();
 
 // Create announcement (admin)
-router.post("/", createAnnouncement);
+router.post("/send", createAnnouncement);
 
 // Get all announcements
-router.get("/", getAnnouncements);
+router.get("/recive", getAnnouncements);
 
 export default router;

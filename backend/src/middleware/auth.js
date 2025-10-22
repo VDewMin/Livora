@@ -1,5 +1,7 @@
 import User from "../models/vd_user.js";
 
+
+
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
@@ -35,3 +37,4 @@ export const authMiddleware = async(req, res, next) => {
         res.status(403).json({ message: "Invalid or expired token" });
     }
 };
+

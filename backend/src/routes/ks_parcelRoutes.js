@@ -10,7 +10,7 @@ import {
   getParcelsOverTime,
   getStatusDistribution,
   getParcelsPerApartment,
-   
+  getAllSlots 
 
 } from "../controllers/ks_parcelController.js";
 
@@ -23,6 +23,8 @@ router.get("/parcelCounts", getParcelCounts);
 router.get("/parcelsOverTime", getParcelsOverTime);
 router.get("/statusDistribution", getStatusDistribution);
 router.get("/parcelsPerApartment", getParcelsPerApartment);
+
+router.get("/slots", getAllSlots);
 
 router.get("/:id", getParcelById);
 router.post("/", createParcels);
