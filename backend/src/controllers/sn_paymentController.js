@@ -9,7 +9,8 @@ import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import Notification from "../models/vd_notification.js";
-import { emitNotification } from "../utils/vd_emitNotification.js"
+import { emitNotification } from "../utils/vd_emitNotification.js";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ const sendOTPEmail = async (email, otp) => {
     from: `"LIVORA" <${process.env.EMAIL_USER}`,
     to: email,
     subject: "Your OTP Code",
-    text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
+    text: `Your OTP code is: ${otp}. It will expire in 5 minutes.`,
   });
 };
 
@@ -99,12 +100,16 @@ export const createOnlinePaymentWithOTP = async (req, res) => {
 
     // OTP
     const otp = generateOTP();
+    const hashedOtp = await bcrypt.hash(otp, 10);
     const createdAt = Date.now();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
+    //await OTP.deleteOne({ email });
+    await OTP.deleteMany({});
+    
     await OTP.findOneAndUpdate(
       { email },
-      { otpCode: otp, createdAt, expiresAt },
+      { otpCode: hashedOtp, createdAt, expiresAt },
       { upsert: true, new: true }
     );
     await sendOTPEmail(email, otp);
@@ -171,7 +176,8 @@ export const validateOTPAndCompletePayment = async (req, res) => {
     const record = await OTP.findOne({ email });
     if (!record) return res.status(400).json({ message: "OTP not found" });
     if (record.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
-    if (record.otpCode !== otp) return res.status(400).json({ message: "Invalid OTP" });
+    const isMatch = await bcrypt.compare(otp, record.otpCode);
+    if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
 
     const parentPayment = await Payment.findOneAndUpdate(
       { paymentId },
@@ -238,10 +244,11 @@ export const resendOTP = async (req, res) => {
     if (!record) return res.status(404).json({ message: "No OTP record found for this email" });
 
     const newOtp = generateOTP();
+    const newhashedOtp = await bcrypt.hash(newOtp, 10);
     const createdAt = Date.now();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    record.otpCode = newOtp;
+    record.otpCode = newhashedOtp;
     record.createdAt = createdAt;
     record.expiresAt = expiresAt;
     await record.save();
@@ -498,23 +505,23 @@ export const getResidentMonthlyCharges = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 1️⃣ Fetch resident
+    //Fetch resident
     const resident = await User.findById(id);
     if (!resident) {
       return res.status(404).json({ message: "Resident not found" });
     }
 
-    // 2️⃣ Current month range
+    //Current month range
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // 3️⃣ Get monthly rent
+    //Get monthly rent
     let rent = 0;
     const purchase = await Purchase.findOne({ apartmentNo: resident.apartmentNo });
     if (purchase && purchase.monthly_rent) rent = purchase.monthly_rent;
 
-    // 4️⃣ Get pending laundry for current month
+    //Get pending laundry for current month
     let laundry = 0;
     const laundryAgg = await LaundryRequest.aggregate([
       {
@@ -528,7 +535,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
     ]);
     if (laundryAgg.length > 0) laundry = laundryAgg[0].total;
 
-    // 5️⃣ Check if any completed payment exists for this month
+    //Check if any completed payment exists for this month
     const payments = await Payment.find({
       residentId: id,
       status: "Completed",

@@ -19,7 +19,12 @@ const feedbackSchema = new mongoose.Schema({
   },
 
   message: { type: String, required: true },
-  reply: { type: String, default: "" },
+  reply: {
+    subject: { type: String },
+    message: { type: String },
+    date: { type: Date },
+  },
+
   status: {
     type: String,
     enum: ["Pending", "Reviewed", "Resolved"],

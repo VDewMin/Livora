@@ -76,7 +76,7 @@ export default function SDLandingPage() {
           <p className="mt-4 text-lg text-white/90">Discover thoughtfully designed apartments with premium amenities and a vibrant community.</p>
           <div className="mt-6 flex gap-4 justify-center">
             <Link to="/apartments" className="bg-white text-teal-600 px-6 py-3 rounded-md font-semibold shadow hover:bg-gray-100 transition">View Apartments</Link>
-            <Link to="#contact" className="text-white/90 underline hover:text-white transition">Schedule a Visit</Link>
+            <Link to="/create" className="text-white/90 underline hover:text-white transition">Schedule a Visit</Link>
           </div>
             </div>
           </div>

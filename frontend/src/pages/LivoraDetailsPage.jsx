@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import livoralogo from '../assets/livoralogo.png';
+import hapihapi from '../assets/hapihapi.jpeg';
 
 const LivoraDetailsPage = () => {
   return (
@@ -34,7 +35,9 @@ const LivoraDetailsPage = () => {
            
           </div>
           <div className="md:w-1/2 mt-6 md:mt-0">
-            <div className="w-full h-64 bg-gray-700 rounded-lg"></div>
+            <div className="w-full h-64 bg-gray-700 rounded-lg">
+              <img src={hapihapi} alt="Livora Living" className="w-full h-64 object-cover rounded-lg" />
+            </div>
           </div>
         </div>
       </section>

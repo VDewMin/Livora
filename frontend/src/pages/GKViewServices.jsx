@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaFilePdf, FaPlus } from "react-icons/fa";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import html2pdf from "html2pdf.js";
 
 function GKViewServices() {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const dropdownRef = useRef(null);
 
   const fetchAllServices = async () => {
     const token = localStorage.getItem("authToken");
@@ -34,17 +36,25 @@ function GKViewServices() {
 
   useEffect(() => {
     fetchAllServices();
+
+    // Close dropdown on outside click
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const getFileSrc = (fileUrl) => {
     if (!fileUrl || !fileUrl.data || !fileUrl.contentType) return null;
     try {
-      const base64String = btoa(
-        new Uint8Array(fileUrl.data.data).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ""
-        )
-      );
+      const uintArray = new Uint8Array(fileUrl.data.data);
+      let binary = "";
+      uintArray.forEach((byte) => (binary += String.fromCharCode(byte)));
+      const base64String = btoa(binary);
       return `data:${fileUrl.contentType};base64,${base64String}`;
     } catch (error) {
       console.error("File conversion error:", error);
@@ -52,48 +62,91 @@ function GKViewServices() {
     }
   };
 
-  // PDF export
-  const handleDownloadAllProcessingPDF = () => {
-    const processingServices = services.filter((s) => s.status === "Processing");
-    if (processingServices.length === 0) {
-      toast.error("No processing services to download.");
+  const handleDownloadAllPDF = (statusType) => {
+    const filtered = services.filter((service) => service.status === statusType);
+
+    if (filtered.length === 0) {
+      toast.error(`No ${statusType.toLowerCase()} services found.`);
       return;
     }
 
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Service Requests Report", 105, 15, { align: "center" });
+    const pdfDiv = document.createElement("div");
+    pdfDiv.className = "min-h-screen bg-slate-100 p-8";
 
-    const tableColumn = [
-      "Service ID",
-      "Apartment No",
-      "Contact No",
-      "Contact Email",
-      "Service Type",
-      "Description",
-      "Created At",
-    ];
+    const rows = filtered
+      .map(
+        (s, index) => `
+        <tr class="border-b">
+          <td class="p-3 border text-center">${index + 1}</td>
+          <td class="p-3 border">${s.serviceId}</td>
+          <td class="p-3 border">${s.aptNo}</td>
+          <td class="p-3 border">${s.contactNo}</td>
+          <td class="p-3 border">${s.contactEmail}</td>
+          <td class="p-3 border">${s.serviceType}</td>
+          <td class="p-3 border max-w-[15rem]">${s.description}</td>
+          <td class="p-3 border">${new Date(s.createdAt).toLocaleString()}</td>
+          <td class="p-3 border font-semibold ${
+            s.status === "Processing"
+              ? "text-emerald-600"
+              : s.status === "Pending"
+              ? "text-yellow-600"
+              : "text-green-800"
+          }">${s.status}</td>
+        </tr>
+      `
+      )
+      .join("");
 
-    const tableRows = processingServices.map((s) => [
-      s.serviceId,
-      s.aptNo,
-      s.contactNo,
-      s.contactEmail,
-      s.serviceType,
-      s.description,
-      s.createdAt ? new Date(s.createdAt).toLocaleString() : "N/A",
-    ]);
+    pdfDiv.innerHTML = `
+      <div class="max-w-6xl mx-auto bg-white shadow-2xl">
+        <div class="border-b-4 border-blue-600 p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h1 class="text-4xl font-bold text-blue-700">Pearl Residencies</h1>
+              <p class="text-gray-600 text-lg">Premium Living Spaces</p>
+            </div>
+            <div class="text-right">
+              <h2 class="text-2xl font-bold text-gray-800">${statusType.toUpperCase()} SERVICES</h2>
+              <p class="text-gray-600 text-sm mt-1">Generated on ${new Date().toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-8">
+          <table class="w-full border-collapse text-sm text-gray-800">
+            <thead class="bg-blue-100 text-blue-800">
+              <tr>
+                <th class="p-3 border">#</th>
+                <th class="p-3 border">Service ID</th>
+                <th class="p-3 border">Apartment No</th>
+                <th class="p-3 border">Contact No</th>
+                <th class="p-3 border">Email</th>
+                <th class="p-3 border">Service Type</th>
+                <th class="p-3 border">Description</th>
+                <th class="p-3 border">Created At</th>
+                <th class="p-3 border">Status</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="p-8 bg-gradient-to-r from-blue-50 to-blue-100 border-t-4 border-blue-600 text-center">
+          <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
+          <p class="text-gray-700">Premium Living Spaces</p>
+          <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
+          <p class="text-gray-700 text-sm">Website: www.pearlresidencies.com</p>
+        </div>
+      </div>
+    `;
 
-    doc.autoTable({
-      startY: 25,
-      head: [tableColumn],
-      body: tableRows,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [56, 189, 248], textColor: 255 },
-      theme: "striped",
-    });
+    const opt = {
+      margin: 0.5,
+      filename: `${statusType}_Services_${new Date().toISOString().slice(0, 10)}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a3", orientation: "landscape" },
+    };
 
-    doc.save("Services_Report.pdf");
+    html2pdf().set(opt).from(pdfDiv).save();
   };
 
   const filteredServices = services.filter((s) =>
@@ -101,14 +154,15 @@ function GKViewServices() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto bg-white p-8 rounded-2xl shadow-lg font-sens-serif border border-gray-100">
+    <div className="max-w-7xl mx-auto bg-white p-8 rounded-2xl shadow-lg font-sans border border-gray-100">
       <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl shadow-lg p-6 mb-6">
         <h1 className="text-3xl font-bold tracking-wide drop-shadow-md">
           My Service Requests
         </h1>
       </div>
+
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
-        <div className="flex items-center gap-2 max-w-md w-full ml-0">
+        <div className="flex items-center gap-2 max-w-md w-full">
           <input
             type="text"
             placeholder="Search by service type..."
@@ -118,13 +172,36 @@ function GKViewServices() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative" ref={dropdownRef}>
           <button
-            onClick={handleDownloadAllProcessingPDF}
+            onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md transition-all"
           >
             <FaFilePdf size={16} /> Download PDF
           </button>
+
+          {showDropdown && (
+            <div className="absolute right-90 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+              <button
+                onClick={() => {
+                  handleDownloadAllPDF("Pending");
+                  setShowDropdown(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-gray-800 rounded hover:bg-emerald-500"
+              >
+                Pending Services
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadAllPDF("Processing");
+                  setShowDropdown(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-gray-800  rounded hover:bg-emerald-500"
+              >
+                 Processing Services
+              </button>
+            </div>
+          )}
 
           <button
             onClick={() => navigate("/add-service")}
@@ -138,9 +215,7 @@ function GKViewServices() {
       {loading ? (
         <p className="text-center text-gray-600 py-10">Loading services...</p>
       ) : filteredServices.length === 0 ? (
-        <p className="text-center text-gray-600 py-10">
-          No service requests found.
-        </p>
+        <p className="text-center text-gray-600 py-10">No service requests found.</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full border-collapse text-sm">
@@ -160,19 +235,12 @@ function GKViewServices() {
               {filteredServices.map((s) => {
                 const fileSrc = getFileSrc(s.fileUrl);
                 return (
-                  <tr
-                    key={s._id}
-                    className="hover:bg-sky-50 transition-all border-b"
-                  >
+                  <tr key={s._id} className="hover:bg-sky-50 transition-all border-b">
                     <td className="p-3 border">{s.serviceId}</td>
                     <td className="p-3 border">{s.contactNo}</td>
                     <td className="p-3 border">{s.contactEmail}</td>
-                    <td className="p-3 border font-medium text-gray-800">
-                      {s.serviceType}
-                    </td>
-                    <td className="p-3 border max-w-[15rem] whitespace-normal break-words">
-                      {s.description}
-                    </td>
+                    <td className="p-3 border font-medium text-gray-800">{s.serviceType}</td>
+                    <td className="p-3 border max-w-[15rem] whitespace-normal break-words">{s.description}</td>
                     <td className="p-3 border">
                       {fileSrc ? (
                         <img
@@ -184,15 +252,13 @@ function GKViewServices() {
                         "No file"
                       )}
                     </td>
-                    <td
-                      className={`p-3 border ${
-                        s.status === "Pending"
-                          ? "text-yellow-600"
-                          : s.status === "Processing"
-                          ? "text-emerald-600"
-                          : "text-green-800"
-                      }`}
-                    >
+                    <td className={`p-3 border ${
+                      s.status === "Pending"
+                        ? "text-yellow-600"
+                        : s.status === "Processing"
+                        ? "text-emerald-600"
+                        : "text-green-800"
+                    }`}>
                       {s.status || "Pending"}
                     </td>
                     <td className="p-3 flex flex-col gap-2">
@@ -206,7 +272,6 @@ function GKViewServices() {
                       >
                         <FaEdit /> Edit
                       </button>
-
                       <button
                         onClick={() =>
                           s.status === "Pending"
