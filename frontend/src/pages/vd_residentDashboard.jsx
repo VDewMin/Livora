@@ -5,10 +5,6 @@ import axiosInstance from "../lib/axios.js";
 import axios from "axios";
 import { useAuth } from "../context/vd_AuthContext"; // Import useAuth context
 
-
-
-
-
 const ResidentDashboard = () => {
   const navigate = useNavigate();
   const { token, user: authUser } = useAuth(); // Access auth context
@@ -17,7 +13,7 @@ const ResidentDashboard = () => {
   const [stats, setStats] = useState({
     totalFeedbacks: 0,
     activeServices: 0,
-    pendingDeliveries: 0,
+    totalBookings: 0,
     unpaidBills: 0,
   });
 
@@ -27,26 +23,20 @@ const ResidentDashboard = () => {
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
   const [purchases, setPurchases] = useState([]);
 
-  const [recentActivity, setRecentActivity] = useState([
-    { id: 1, type: "booking", title: "Pool Booking", date: "2025-10-01", status: "Confirmed" },
-    { id: 2, type: "service", title: "Maintenance Request", date: "2025-09-30", status: "In Progress" },
-    { id: 3, type: "delivery", title: "Package Received", date: "2025-09-29", status: "Delivered" },
-    { id: 4, type: "bill", title: "Monthly Rent", date: "2025-09-28", status: "Paid" }
-  ]);
-
-  const [upcomingEvents, setUpcomingEvents] = useState([
-    { id: 1, title: "Community Meeting", date: "2025-10-05", time: "6:00 PM" },
-    { id: 2, title: "Pool Reservation", date: "2025-10-07", time: "3:00 PM" },
-    { id: 3, title: "Maintenance Schedule", date: "2025-10-10", time: "10:00 AM" }
-  ]);
-
   // Fetch dashboard stats
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await axiosInstance.get("/users/dashboard/stats");
-      setStats(response.data);
+      const data = response.data || {};
+      setStats({
+        totalFeedbacks: data.totalFeedbacks ?? 0,
+        activeServices: data.activeServices ?? 0,
+        totalBookings: data.totalBookings ?? 0,
+        unpaidBills: data.unpaidBills ?? 0,
+      });
+
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       setError('Failed to load dashboard data. Please try again.');
@@ -184,8 +174,8 @@ const ResidentDashboard = () => {
             color: "green",
           },
           {
-            title: "Pending Deliveries",
-            value: stats.pendingDeliveries,
+            title: "Total Bookings",
+            value: stats.totalBookings,
             color: "purple",
           },
           {

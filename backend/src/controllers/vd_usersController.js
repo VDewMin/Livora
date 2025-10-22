@@ -6,6 +6,8 @@ import { createTransporter } from "../utils/vd_email.js";
 import GKServiceRequest from "../models/GKServiceRequest.js";
 import Parcel from "../models/ks_Parcel.js";
 import Payment from "../models/sn_payment.js";
+import Feedback from "../models/vd_feedback.js";
+import ConventionHallBooking from "../models/SDConventionHallBooking.js";
 import Notification from "../models/vd_notification.js";
 import { emitNotification } from "../utils/vd_emitNotification.js";
 
@@ -518,6 +520,17 @@ export const resetPassword = async (req, res) => {
             console.warn("Failed sending confirmation email:", e);
         }
 
+        const notification = {
+          userId: user._id.toString(),
+          title: "Password Updated",
+          message: "Your account password was changed successfully.",
+          createdAt: new Date(),
+          isRead: false,
+        };
+
+        await Notification.create(notification);  // Save in DB
+        emitNotification(notification); 
+
         return res.status(200).json({ message: "Password reset successful" });
 
     } catch (err) {
@@ -758,38 +771,42 @@ export const deleteProfilePicture = async (req, res) => {
 // Get resident dashboard statistics
 export const getResidentDashboardStats = async (req, res) => {
   try {
-    const userId = req.user._id; // from auth middleware
-    
-    // Get total feedbacks (completed service requests by this resident)
-    const totalFeedbacks = await GKServiceRequest.countDocuments({
-      userId: userId,
-      status: "Completed"
-    });
-    
-    // Get active services (pending or processing service requests)
+    const userId = req.user._id; // Mongo ObjectId of logged-in user
+
+    // Load user for derived fields like apartmentNo and app-level userId
+    const user = await User.findById(userId).select("apartmentNo userId");
+
+    // 1) Total feedbacks created by this resident
+    const totalFeedbacks = await Feedback.countDocuments({ userId });
+
+    // 2) Active services (Pending or Processing) for this resident
     const activeServices = await GKServiceRequest.countDocuments({
-      userId: userId,
-      status: { $in: ["Pending", "Processing"] }
+      userId,
+      status: { $in: ["Pending", "Processing"] },
     });
-    
-    // Get pending deliveries (parcels with pending status for this resident's apartment)
-    const user = await User.findById(userId).select('apartmentNo');
-    const pendingDeliveries = user ? await Parcel.countDocuments({
-      apartment_number: user.apartmentNo,
-      status: "pending"
-    }) : 0;
-    
-    // Get unpaid bills (pending payments for this resident)
+
+    // 3) Total bookings made by this resident
+    const totalBookings = await ConventionHallBooking.countDocuments({
+      userId: userId.toString(),
+    });
+
+    // 5) Unpaid bills for this resident (support stored id as app userId or ObjectId string)
+    // Build an array of possible resident identifiers
+    const residentIdentifiers = [
+      user?.userId,           // e.g. "R001"
+      userId?.toString(),     // MongoDB ObjectId
+    ].filter(Boolean);
+
     const unpaidBills = await Payment.countDocuments({
-      residentId: user?.userId,
-      status: "Pending"
+      residentId: { $in: residentIdentifiers },
+      status: "Pending",
     });
-    
+
     res.status(200).json({
       totalFeedbacks,
       activeServices,
-      pendingDeliveries,
-      unpaidBills
+      totalBookings,
+      unpaidBills,
     });
   } catch (error) {
     console.error("Error in getResidentDashboardStats:", error);
