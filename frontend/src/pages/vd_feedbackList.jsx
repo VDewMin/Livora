@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
+import ReplyModal from "../components/vd_replyModal.jsx";
+import ConfirmDialog from "../components/vd_confirmDialog.jsx";
+
 
 const FeedbackList = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [filters, setFilters] = useState({ feedbackType: "", feedbackAbout: "", from: "", to: "" });
+  const [selectedFeedbackId, setSelectedFeedbackId] = useState(null);
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
 
   const fetchFeedbacks = async () => {
     try {
@@ -27,13 +39,21 @@ const FeedbackList = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axiosInstance.delete(`/feedback/${id}`);
-      toast.success("Feedback deleted!");
-      fetchFeedbacks();
-    } catch {
-      toast.error("Failed to delete feedback");
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Feedback',
+      message: 'Are you sure you want to delete this feedback?',
+      onConfirm: async () => {
+        try {
+          await axiosInstance.delete(`/feedback/${id}`);
+          toast.success("Feedback deleted!");
+          fetchFeedbacks();
+        } catch {
+          toast.error("Failed to delete feedback");
+        }
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
   useEffect(() => {
@@ -129,14 +149,13 @@ const FeedbackList = () => {
               <td className="border p-2">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      const reply = window.prompt("Enter reply:", f.reply || "");
-                      if (reply !== null) handleUpdate(f._id, f.status, reply);
-                    }}
-                    className="px-3 py-1 bg-blue-600 text-white rounded"
+                    onClick={() => setSelectedFeedbackId(f.feedbackId)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded"
                   >
                     Reply
                   </button>
+
+              
                   <button
                     onClick={() => handleDelete(f._id)}
                     className="px-3 py-1 bg-red-600 text-white rounded"
@@ -149,6 +168,20 @@ const FeedbackList = () => {
           ))}
         </tbody>
       </table>
+
+        <ReplyModal
+              open={!!selectedFeedbackId}
+              onClose={() => setSelectedFeedbackId(null)}
+              feedbackId={selectedFeedbackId}
+        />
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+        />
     </div>
   );
 };

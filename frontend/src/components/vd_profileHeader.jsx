@@ -220,7 +220,7 @@ const ProfileHeader = () => {
         if (user?.role === 'Admin') return '/admin/deliveries';
         if (user?.role === 'Staff' && user?.staffType === 'Security') return '/security/deliveries';
         return '/resident/deliveries';
-      case 'laundryRequests': return '/laundry';
+      case 'laundryRequests': return '/laundry/details';
       default: return '/';
     }
   };
