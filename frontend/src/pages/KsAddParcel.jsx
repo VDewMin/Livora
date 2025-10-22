@@ -11,12 +11,12 @@ import {
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import api from "../lib/axios.js";
-import Sidebar from "../components/vd_sidebar.jsx"; 
+import Sidebar from "../components/vd_sidebar.jsx";
 import { useAuth } from "../context/vd_AuthContext";
-import {getLocalDateTimeString} from "../lib/utils.js"
+import { getLocalDateTimeString } from "../lib/utils.js";
 
 const KsAddParcel = () => {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const [residentName, setResidentName] = useState("");
   const [apartmentNo, setApartmentNo] = useState("");
   const [parcelType, setParcelType] = useState("Normal");
@@ -33,6 +33,7 @@ const KsAddParcel = () => {
   const [collectedDateTime, setCollectedDateTime] = useState("");
   const [collectedByName, setCollectedByName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [slots, setSlots] = useState([]);
 
   const navigate = useNavigate();
 
@@ -42,47 +43,61 @@ const KsAddParcel = () => {
     } else if (user?.name) {
       setReceivedByStaff(user.name);
     }
+
+    const fetchSlots = async () => {
+      try {
+        const res = await api.get("/parcels/slots");
+        setSlots(res.data);
+      } catch (err) {
+        console.error("Error fetching slots:", err);
+      }
+    };
+    fetchSlots();
   }, [user]);
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-      if (!/^L([1-9]|[1-4][0-9]|50)$/.test(locId)) {
-        toast.error("Location ID must be between L1 and L50");
-        setLoading(false);
-        return;
-      }
+    if (!/^L([1-9]|[1-4][0-9]|50)$/.test(locId)) {
+      toast.error("Location ID must be between L1 and L50");
+      setLoading(false);
+      return;
+    }
 
-      try {
-        await api.post("/parcels", {
-          residentName,
-          //residentId,
-          apartmentNo,
-          parcelType,
-          parcelDescription,
-          courierService,
-          locId,
-          status,
-          receivedByStaff,
-          collectedDateTime,
-          collectedByName,
-        });
-        toast.success("Parcel added successfully!");
-        navigate("/viewParcels");
-      } catch (error) {
-        console.log("error adding parcel", error);
-        toast.error("Failed to add Parcel");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const slot = slots.find((s) => s.locId === locId);
+    if (slot?.status === "Occupied") {
+      toast.error(`Slot ${locId} already has a parcel!`);
+      setLoading(false);
+      return; // stop submission
+    }
+
+    try {
+      await api.post("/parcels", {
+        residentName,
+        //residentId,
+        apartmentNo,
+        parcelType,
+        parcelDescription,
+        courierService,
+        locId,
+        status,
+        receivedByStaff,
+        collectedDateTime,
+        collectedByName,
+      });
+      toast.success("Parcel added successfully!");
+      navigate("/viewParcels");
+    } catch (error) {
+      console.log("error adding parcel", error);
+      toast.error("Failed to add Parcel");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-screen">
-      
-      
-
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-blue-50 p-8">
         <div className="max-w-2xl mx-auto">
@@ -132,16 +147,18 @@ const KsAddParcel = () => {
                   <input
                     type="text"
                     value={apartmentNo}
-                     onChange={async (e) => {
+                    onChange={async (e) => {
                       const aptNo = e.target.value;
                       setApartmentNo(aptNo);
 
                       if (aptNo.trim() !== "") {
                         try {
-                          const response = await fetch(`http://localhost:5001/api/users/resident/${aptNo}`);
+                          const response = await fetch(
+                            `http://localhost:5001/api/users/resident/${aptNo}`
+                          );
                           if (response.ok) {
                             const data = await response.json();
-                            setResidentName(data.firstName || ""); 
+                            setResidentName(data.firstName || "");
                           } else {
                             setResidentName("");
                           }
@@ -165,7 +182,6 @@ const KsAddParcel = () => {
                     type="text"
                     value={residentName}
                     readOnly
-                 
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
                     required
                   />
@@ -252,7 +268,6 @@ const KsAddParcel = () => {
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
                     placeholder="eg: L1/L2/L3"
                     required
-                    
                   />
                 </div>
                 <div>
@@ -273,8 +288,8 @@ const KsAddParcel = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-400" /> Arrival Date &
-                    Time
+                    <Calendar className="w-4 h-4 text-gray-400" /> Arrival Date
+                    & Time
                   </label>
                   <input
                     type="datetime-local"
@@ -290,10 +305,10 @@ const KsAddParcel = () => {
                   <input
                     type="text"
                     value={receivedByStaff}
-                   // onChange={(e) => setReceivedByStaff(e.target.value)}
+                    // onChange={(e) => setReceivedByStaff(e.target.value)}
                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500"
-                   // placeholder="Staff member name"
-                   readOnly
+                    // placeholder="Staff member name"
+                    readOnly
                   />
                 </div>
               </div>

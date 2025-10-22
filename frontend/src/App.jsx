@@ -46,7 +46,7 @@ import ChangePassword from "./pages/vd_changePassword.jsx";
 import KsSecurityDashboard from "./pages/KsSecurityDashboard.jsx";
 import KsScanner from "./pages/KsScanner.jsx";
 import KsAdminDeliveries from "./pages/KsAdminDeliveries.jsx";
-
+import KsSlots from "./pages/KsSlots.jsx";
 
 
 import HomePage from './pages/SDHomePage'
@@ -125,6 +125,7 @@ const App = () =>{
                     <Route path="/scanner" element={<KsScanner />} />
                     <Route path="/securityDashboard" element={<ProtectedRoute><KsSecurityDashboard /></ProtectedRoute>} />
                     <Route path="/admin/deliveries" element={<KsAdminDeliveries />} />
+                    <Route path="/slots" element={<KsSlots />} />
 
                     
 
