@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import User from "../models/vd_user.js";
 import Notification from "../models/vd_notification.js";
 import { emitNotification } from "../utils/vd_emitNotification.js";
+import { getIO } from "../socket.js";
 
 export const getAllParcels = async (req, res) => {
   try {
@@ -18,10 +19,6 @@ export const getAllParcels = async (req, res) => {
   }
 };
 
-/* another way
-export function getAllParcels (req, res){
-    res.status(200).send("You just fetch the parcels")
-} */
 
 export const getParcelById = async (req, res) => {
   try {
@@ -49,6 +46,11 @@ export const createParcels = async (req, res) => {
       collectedByName,
     } = req.body;
 
+    const existingParcel = await Parcel.findOne({ locId, status: { $ne: "Collected" } });
+    if (existingParcel) {
+      return res.status(400).json({ message: "This slot is already occupied!" });
+    }
+
     const newParcel = new Parcel({
       residentName,
       apartmentNo,
@@ -63,6 +65,10 @@ export const createParcels = async (req, res) => {
     });
 
     const savedParcel = await newParcel.save();
+
+    const io = getIO();
+    io.emit("slotUpdated", { locId, status: "Occupied" });
+
     //generate a secure url with loc id and parcelId that the qr code  link to
     const { url: verifyUrl } = makeVerifyUrl(
       savedParcel.parcelId,
@@ -212,6 +218,7 @@ export const updateParcel = async (req, res) => {
       collectedDateTime,
       collectedByName,
     } = req.body;
+
     const updatedParcel = await Parcel.findByIdAndUpdate(
       req.params.id,
       { parcelDescription, locId, status, collectedByName, collectedDateTime },
@@ -220,6 +227,7 @@ export const updateParcel = async (req, res) => {
 
     if (!updatedParcel)
       return res.status(404).json({ message: "Parcel not found" });
+
 
     let residentUser = null;
 
@@ -261,6 +269,16 @@ export const updateParcel = async (req, res) => {
     } else {
       console.warn("Resident not found for updated parcel:", updatedParcel._id);
     }
+
+    // Emit slot update to front-end
+    const io = getIO();
+    if (["Collected", "Removed"].includes(updatedParcel.status)) {
+      io.emit("slotUpdated", {
+        locId: updatedParcel.locId,
+        status: "Available",
+      });
+    }
+
 
     res.status(200).json({ updatedParcel });
   } catch (error) {
@@ -360,5 +378,29 @@ export const getParcelsPerApartment = async (req, res) => {
   } catch (error) {
     console.error("Error in getParcelsPerApartment:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+export const getAllSlots = async (req, res) => {
+  try {
+    const parcels = await Parcel.find({ status: { $ne: "Collected" } });
+    console.log("Parcels fetched:", parcels); // <-- log
+
+    const occupied = parcels.map((p) => p.locId);
+    console.log("Occupied locIds:", occupied);
+
+    const slots = Array.from({ length: 50 }, (_, i) => {
+      const locId = `L${i + 1}`;
+      return {
+        locId,
+        status: occupied.includes(locId) ? "Occupied" : "Available",
+      };
+    });
+
+    res.json(slots);
+  } catch (error) {
+    console.error("Error fetching slots:", error);
+    res.status(500).json({ message: "Failed to load slots" });
   }
 };

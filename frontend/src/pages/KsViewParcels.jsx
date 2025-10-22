@@ -8,7 +8,7 @@ import Sidebar from "../components/vd_sidebar.jsx";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-
+import html2pdf from "html2pdf.js";
 
 const KsViewParcels = () => {
   const [parcels, setParcels] = useState([]);
@@ -50,12 +50,21 @@ const KsViewParcels = () => {
     setActiveItem(itemId);
 
     switch (itemId) {
-    case "parcel-logs": navigate("/viewParcels"); break;
-    case "dashboard": navigate(""); break;
-    case "parcel-pickup-verification": navigate(""); break;
-    case "account-information": navigate("/profile/:id"); break;
-    default: break;
-  }
+      case "parcel-logs":
+        navigate("/viewParcels");
+        break;
+      case "dashboard":
+        navigate("");
+        break;
+      case "parcel-pickup-verification":
+        navigate("");
+        break;
+      case "account-information":
+        navigate("/profile/:id");
+        break;
+      default:
+        break;
+    }
   };
 
   // Filter parcels
@@ -72,75 +81,147 @@ const KsViewParcels = () => {
   });
 
   const handleExportPDF = () => {
-   //toast.success("PDF export feature will be implemented");
-   if (filteredParcels.length === 0) {
-    toast.error("No parcels to export for this filter!");
-    return;
-  }
+    if (filteredParcels.length === 0) {
+      toast.error("No parcels to export for this filter!");
+      return;
+    }
 
-  // Pick current month and year (or let user choose via filter)
-  const now = new Date();
-  const currentMonth = now.getMonth(); // 0 = Jan
-  const currentYear = now.getFullYear();
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const monthName = now.toLocaleString("default", { month: "long" });
 
-  // Filter only parcels from current month
-  const monthlyParcels = filteredParcels.filter((p) => {
-    const parcelDate = new Date(p.arrivalDateTime);
-    return (
-      parcelDate.getMonth() === currentMonth &&
-      parcelDate.getFullYear() === currentYear
-    );
-  });
+    const monthlyParcels = filteredParcels.filter((p) => {
+      const parcelDate = new Date(p.arrivalDateTime);
+      return (
+        parcelDate.getMonth() === currentMonth &&
+        parcelDate.getFullYear() === currentYear
+      );
+    });
 
-  if (monthlyParcels.length === 0) {
-    toast.error("No parcels found for this month!");
-    return;
-  }
+    if (monthlyParcels.length === 0) {
+      toast.error("No parcels found for this month!");
+      return;
+    }
 
-  // Initialize PDF
-  const doc = new jsPDF();
-  const monthName = now.toLocaleString("default", { month: "long" });
+    const pdfDiv = document.createElement("div");
+    pdfDiv.className = "min-h-screen bg-slate-100 p-8";
 
-  // Title
-  doc.setFontSize(16);
-  doc.text(`Parcel Logs Report - ${monthName} ${currentYear}`, 14, 20);
+    pdfDiv.innerHTML = `
+    <div class="max-w-5xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden">
+      <!-- Header -->
+      <div class="border-b-4 border-blue-600 p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h1 class="text-4xl font-bold text-blue-700">Pearl Residencies</h1>
+            <p class="text-gray-600 text-lg">Premium Living Spaces</p>
+          </div>
+          <div class="text-right">
+            <h2 class="text-2xl font-bold text-gray-800">Parcel Log Report</h2>
+            <p class="text-gray-600 text-sm mt-1">${monthName} ${currentYear}</p>
+          </div>
+        </div>
+      </div>
 
-  doc.autoTable({
-  head: [
-    ["Parcel ID", "Resident", "Apartment", "Type", "Location", "Status", "Arrival", "Collected"],
-  ],
-  body: monthlyParcels.map((p) => [
-    p.parcelId,
-    p.residentName,
-    p.apartmentNo,
-    p.parcelType,
-    p.locId,
-    p.status,
-    new Date(p.arrivalDateTime).toLocaleDateString(),
-    p.collectedDateTime ? new Date(p.collectedDateTime).toLocaleDateString() : "-",
-  ]),
-  startY: 60,
-  styles: { fontSize: 9 },
-  headStyles: { fillColor: [79, 70, 229] },
-});
+      <!-- Table Section -->
+      <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">
+          Parcel Records
+        </h3>
+        <table class="w-full border-collapse text-sm">
+          <thead class="bg-blue-600 text-white text-left">
+            <tr>
+              <th class="p-3">Parcel ID</th>
+              <th class="p-3">Resident</th>
+              <th class="p-3">Apartment</th>
+              <th class="p-3">Type</th>
+              <th class="p-3">Location</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Arrival</th>
+              <th class="p-3">Collected</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${monthlyParcels
+              .map(
+                (p, idx) => `
+                <tr class="${idx % 2 === 0 ? "bg-white" : "bg-gray-100"}">
+                  <td class="p-3 border">${p.parcelId}</td>
+                  <td class="p-3 border">${p.residentName}</td>
+                  <td class="p-3 border">${p.apartmentNo}</td>
+                  <td class="p-3 border">${p.parcelType}</td>
+                  <td class="p-3 border">${p.locId}</td>
+                  <td class="p-3 border font-semibold ${
+                    p.status === "Collected"
+                      ? "text-green-600"
+                      : p.status === "Pending"
+                      ? "text-yellow-600"
+                      : "text-gray-600"
+                  }">${p.status}</td>
+                  <td class="p-3 border">${new Date(
+                    p.arrivalDateTime
+                  ).toLocaleDateString()}</td>
+                  <td class="p-3 border">${
+                    p.collectedDateTime
+                      ? new Date(p.collectedDateTime).toLocaleDateString()
+                      : "-"
+                  }</td>
+                </tr>
+              `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
 
-  // Footer
-  const pageHeight = doc.internal.pageSize.height;
-  doc.setFontSize(10);
-  doc.text(
-    `Generated on: ${new Date().toLocaleString()}`,
-    14,
-    pageHeight - 10
-  );
+      <!-- Summary -->
+      <div class="p-8 bg-blue-50 border-b-2 border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">
+          Summary
+        </h3>
+        <div class="flex justify-between text-gray-700">
+          <p>Total Parcels for ${monthName} ${currentYear}:</p>
+          <p class="font-bold text-blue-700">${monthlyParcels.length}</p>
+        </div>
+      </div>
 
-  // Save file
-  doc.save(`Parcel_Report_${monthName}_${currentYear}.pdf`);
+      <!-- Notes -->
+      <div class="p-8 bg-gray-50 border-b-2 border-gray-200">
+        <h3 class="font-bold text-gray-800 mb-3">Notes</h3>
+        <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+          <li>This is a system-generated monthly report. No signature required.</li>
+          <li>Please verify parcel details with the resident management system.</li>
+          <li>For discrepancies, contact the administration office.</li>
+        </ul>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-8 bg-gradient-to-r from-blue-50 to-blue-100 border-t-4 border-blue-600 text-center">
+        <p class="font-semibold text-gray-800 text-lg mb-2">Pearl Residencies</p>
+        <p class="text-gray-700">Premium Living Spaces</p>
+        <p class="text-gray-700 text-sm mt-2">Customer Support: +971 4 XXXX XXXX</p>
+        <p class="text-gray-700 text-sm">Website: www.pearlresidencies.com</p>
+        <div class="text-xs text-gray-600 mt-6 pt-4 border-t border-gray-300">
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+    const opt = {
+      margin: 0.5,
+      filename: `Parcel_Report_${monthName}_${currentYear}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    };
+
+    html2pdf().set(opt).from(pdfDiv).save();
   };
 
   if (loading) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-          
         <main className="flex-1 flex items-center justify-center h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
@@ -153,13 +234,13 @@ const KsViewParcels = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      
-
       {/* Main Content */}
       <main className="flex-1 p-8 flex flex-col overflow-hidden">
         {/* Topic Section */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Parcel Entries</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Parcel Entries
+          </h1>
           <p className="text-gray-600 text-lg">
             Track and manage all incoming parcels and delivery management
           </p>
@@ -219,28 +300,62 @@ const KsViewParcels = () => {
         <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
           <div className="overflow-x-auto flex-1">
             <div className="h-full overflow-y-auto">
-              <table id="parcelTable" className="w-full min-w-[800px] table-auto">
+              <table
+                id="parcelTable"
+                className="w-full min-w-[800px] table-auto"
+              >
                 <thead className="bg-gray-50 sticky top-0 z-10 border-b border-gray-200">
                   <tr>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Parcel ID</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Resident</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Apartment No</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Type</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Location</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Status</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Arrival</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Collected Date</th>
-                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">Actions</th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Parcel ID
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Resident
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Apartment No
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Type
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Location
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Status
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Arrival
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Collected Date
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-semibold text-gray-900">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredParcels.map((parcel) => (
-                    <tr key={parcel._id} className="hover:bg-gray-50/50 transition-colors duration-150">
-                      <td className="px-3 py-2 text-sm font-medium text-gray-900">{parcel.parcelId}</td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{parcel.residentName}</td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{parcel.apartmentNo}</td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{parcel.parcelType}</td>
-                      <td className="px-3 py-2 text-sm text-gray-700">{parcel.locId}</td>
+                    <tr
+                      key={parcel._id}
+                      className="hover:bg-gray-50/50 transition-colors duration-150"
+                    >
+                      <td className="px-3 py-2 text-sm font-medium text-gray-900">
+                        {parcel.parcelId}
+                      </td>
+                      <td className="px-3 py-2 text-sm text-gray-700">
+                        {parcel.residentName}
+                      </td>
+                      <td className="px-3 py-2 text-sm text-gray-700">
+                        {parcel.apartmentNo}
+                      </td>
+                      <td className="px-3 py-2 text-sm text-gray-700">
+                        {parcel.parcelType}
+                      </td>
+                      <td className="px-3 py-2 text-sm text-gray-700">
+                        {parcel.locId}
+                      </td>
                       <td className="px-3 py-2">
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -291,7 +406,9 @@ const KsViewParcels = () => {
                   <div className="text-gray-400 mb-4">
                     <Search size={48} className="mx-auto" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No parcels found</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No parcels found
+                  </h3>
                   <p className="text-gray-500">
                     {searchTerm || statusFilter !== "all"
                       ? "Try adjusting your search or filter criteria"
