@@ -14,7 +14,6 @@ const ResidentDashboard = () => {
     totalFeedbacks: 0,
     activeServices: 0,
     totalBookings: 0,
-    unpaidBills: 0,
   });
 
   const [loading, setLoading] = useState(true);
@@ -34,7 +33,6 @@ const ResidentDashboard = () => {
         totalFeedbacks: data.totalFeedbacks ?? 0,
         activeServices: data.activeServices ?? 0,
         totalBookings: data.totalBookings ?? 0,
-        unpaidBills: data.unpaidBills ?? 0,
       });
 
     } catch (error) {
@@ -117,11 +115,11 @@ const ResidentDashboard = () => {
       <div className="mb-6">
         <div className="mb-2">
           <p className="text-gray-600">
-            Welcome, {userSession.name || 'Guest'} • Apartment {userSession.apartmentNo || 'N/A'}
+            Welcome back, {userSession.name || 'Guest'} • Apartment {userSession.apartmentNo || 'N/A'}
           </p>
         </div>
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
+        <p className="text-gray-600 mt-1">Here's what's happening today.</p>
       </div>
 
       {error && (
@@ -146,7 +144,7 @@ const ResidentDashboard = () => {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {[
           {
             title: "Total Feedbacks",
@@ -172,16 +170,41 @@ const ResidentDashboard = () => {
             title: "Active Services",
             value: stats.activeServices,
             color: "green",
+            icon: (
+              <svg
+                className="w-8 h-8 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            ),
           },
           {
             title: "Total Bookings",
             value: stats.totalBookings,
             color: "purple",
-          },
-          {
-            title: "Unpaid Bills",
-            value: stats.unpaidBills,
-            color: "red",
+            icon: (
+              <svg
+                className="w-8 h-8 text-purple-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+            ),
           },
         ].map((item, i) => (
           <div
@@ -297,8 +320,8 @@ const ResidentDashboard = () => {
           </button>
 
           <button
-            className="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition flex flex-col items-center gap-2 text-purple-600"
-            onClick={() => navigate("/messages")}
+            className="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition flex flex-col items-center gap-2 text-teal-600"
+            onClick={() => navigate(`/purchases/68f51b6b20bee7bcb5565c12`)}
           >
             <svg
               className="w-8 h-8"
@@ -310,10 +333,10 @@ const ResidentDashboard = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               ></path>
             </svg>
-            <span className="font-medium">Messages</span>
+            <span className="font-medium">My Purchases</span>
           </button>
 
           <button
@@ -334,26 +357,6 @@ const ResidentDashboard = () => {
               ></path>
             </svg>
             <span className="font-medium">Pay Bills</span>
-          </button>
-
-          <button
-            className="p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition flex flex-col items-center gap-2 text-teal-600"
-            onClick={() => navigate(`/purchases/68f51b6b20bee7bcb5565c12`)}
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              ></path>
-            </svg>
-            <span className="font-medium">My Purchases</span>
           </button>
         </div>
       </div>

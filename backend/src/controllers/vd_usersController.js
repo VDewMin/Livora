@@ -787,26 +787,13 @@ export const getResidentDashboardStats = async (req, res) => {
 
     // 3) Total bookings made by this resident
     const totalBookings = await ConventionHallBooking.countDocuments({
-      userId: userId.toString(),
-    });
-
-    // 5) Unpaid bills for this resident (support stored id as app userId or ObjectId string)
-    // Build an array of possible resident identifiers
-    const residentIdentifiers = [
-      user?.userId,           // e.g. "R001"
-      userId?.toString(),     // MongoDB ObjectId
-    ].filter(Boolean);
-
-    const unpaidBills = await Payment.countDocuments({
-      residentId: { $in: residentIdentifiers },
-      status: "Pending",
+      userId: user.userId, // This is the app-level ID like "R001"
     });
 
     res.status(200).json({
       totalFeedbacks,
       activeServices,
       totalBookings,
-      unpaidBills,
     });
   } catch (error) {
     console.error("Error in getResidentDashboardStats:", error);
