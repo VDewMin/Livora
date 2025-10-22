@@ -65,7 +65,8 @@ const SN_Adm_ReceiptHistory = ({ selectedMonth, onViewReceipt }) => {
                 <td className="border px-3 py-2 text-center">
                   <button
                     onClick={() => onViewReceipt(r.paymentId)}
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    
                   >
                     View
                   </button>

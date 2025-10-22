@@ -5,6 +5,9 @@ import SN_ExpenseTab from "../components/SN_ExpenseManager";
 import SN_PaymentDetail from "../components/SN_PaymentDetail";
 import ResidentTable from "../components/SN_ResidentTable";
 import SN_Adm_ReceiptHistory from "../components/SN_Adm_ReceiptHistory";
+import html2pdf from "html2pdf.js";
+import toast from "react-hot-toast";
+
 
 import {
   BarChart,
@@ -23,10 +26,10 @@ import {
 const API_URL = "http://localhost:5001/api";
 
 const SN_AdminBillingDashboard = () => {
-  const [activeItem, setActiveItem] = useState("billing");
   const [activeTab, setActiveTab] = useState("overview");
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [reportType, setReportType] = useState("both");
 
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
@@ -137,6 +140,155 @@ const fetchResidentPayments = async () => {
     console.error("Error fetching resident payments:", err);
   }
 };
+
+const handleDownloadReport = () => {
+  if (transactions.length === 0) {
+    toast.error("No transactions available for this month.");
+    return;
+  }
+
+  const filteredTx =
+    reportType === "both"
+      ? transactions
+      : transactions.filter((t) => t.type === reportType);
+
+  if (filteredTx.length === 0) {
+    toast.error(`No ${reportType} records to include in the report.`);
+    return;
+  }
+
+  // Compute totals
+  const totalIncomeVal = filteredTx
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpenseVal = filteredTx
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const netBalanceVal = totalIncomeVal - totalExpenseVal;
+
+  const monthName = new Date(
+    `${selectedMonth.year}-${selectedMonth.month}-01`
+  ).toLocaleString("default", { month: "long" });
+
+  // build HTML
+  const pdfDiv = document.createElement("div");
+  pdfDiv.className = "min-h-screen bg-gray-50 p-8";
+
+  pdfDiv.innerHTML = `
+    <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-lg">
+      <!-- Header -->
+      <div class="border-b-4 border-[#007bff] p-6 bg-gradient-to-r from-blue-50 to-blue-100">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-[#007bff]">Pearl Residencies</h1>
+            <p class="text-gray-700 font-medium">Monthly Finance Report</p>
+          </div>
+          <div class="text-right">
+            <p class="text-lg font-semibold text-gray-800">Report Type:</p>
+            <p class="text-[#007bff] font-bold text-xl capitalize">${reportType}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="p-6 border-b-2 border-gray-200 bg-gray-50">
+        <p class="text-gray-800 text-lg font-semibold mb-2">
+          Report for: <span class="font-bold">${monthName} ${selectedMonth.year}</span>
+        </p>
+        <p class="text-gray-700">Generated on: ${new Date().toLocaleString()}</p>
+      </div>
+
+      <!-- Table -->
+      <div class="p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-[#007bff] pb-2">Transaction Details</h3>
+        <table class="w-full border border-gray-300 text-sm text-left">
+          <thead>
+            <tr class="bg-gray-100 text-gray-800">
+              <th class="border p-2">Transaction ID</th>
+              <th class="border p-2">Type</th>
+              <th class="border p-2">Date</th>
+              <th class="border p-2 text-right">Amount (Rs.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredTx
+              .map(
+                (t) => `
+              <tr>
+                <td class="border p-2">${t.id}</td>
+                <td class="border p-2 capitalize ${
+                  t.type === "income" ? "text-[#007bff]" : "text-[#007bff]"
+                }">${t.type}</td>
+                <td class="border p-2">${t.date.toLocaleString()}</td>
+                <td class="border p-2 text-right font-semibold ${
+                  t.type === "income" ? "text-[#007bff]" : "text-[#007bff]"
+                }">${t.type === "income" ? "+" : "-"} ${t.amount.toLocaleString()}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary Totals -->
+      <div class="p-8 bg-gray-50 border-t-2 border-gray-200">
+        ${
+          reportType === "income"
+            ? `
+              <div class="flex justify-between text-lg font-semibold">
+                <p>Total Income:</p>
+                <p class="text-[#007bff]">Rs. ${totalIncomeVal.toLocaleString()}</p>
+              </div>
+            `
+            : reportType === "expense"
+            ? `
+              <div class="flex justify-between text-lg font-semibold">
+                <p>Total Expenses:</p>
+                <p class="text-[#007bff]">Rs. ${totalExpenseVal.toLocaleString()}</p>
+              </div>
+            `
+            : `
+              <div class="flex justify-between text-lg font-semibold">
+                <p>Total Income:</p>
+                <p class="text-[#007bff]">Rs. ${totalIncomeVal.toLocaleString()}</p>
+              </div>
+              <div class="flex justify-between text-lg font-semibold">
+                <p>Total Expenses:</p>
+                <p class="text-[#007bff]">Rs. ${totalExpenseVal.toLocaleString()}</p>
+              </div>
+              <div class="flex justify-between text-xl font-bold mt-3 border-t-2 border-[#007bff] pt-3">
+                <p>Net Balance:</p>
+                <p class="text-[#007bff]">
+                  Rs. ${netBalanceVal.toLocaleString()}
+                </p>
+              </div>
+            `
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="p-6 text-center bg-gradient-to-r from-blue-50 to-blue-100 border-t-4 border-[#007bff]">
+        <p class="font-semibold text-gray-800 text-lg">Pearl Residencies</p>
+        <p class="text-gray-700 text-sm">Confidential Financial Report</p>
+      </div>
+    </div>
+  `;
+
+  const opt = {
+    margin: 0.5,
+    filename: `Finance_Report_${selectedMonth.year}_${selectedMonth.month}_${reportType}.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+  };
+
+  html2pdf().set(opt).from(pdfDiv).save();
+};
+
+
 
   const handleMonthChange = (e) => {
     const [year, month] = e.target.value.split("-");
@@ -357,9 +509,27 @@ const fetchResidentPayments = async () => {
 
         {activeTab === "transactions" && (
           <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Transactions
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">Transactions</h2>
+              <div className="flex items-center gap-3">
+                <select
+                  value={reportType}
+                  onChange={(e) => setReportType(e.target.value)}
+                  className="border rounded-lg px-3 py-1.5 text-sm"
+                >
+                  <option value="both">All (Income & Expenses)</option>
+                  <option value="income">Income Only</option>
+                  <option value="expense">Expenses Only</option>
+                </select>
+                <button
+                  onClick={handleDownloadReport}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  📄 Download Report
+                </button>
+              </div>
+            </div>
+
             <table className="min-w-full border text-sm">
               <thead>
                 <tr className="bg-gray-100">
@@ -374,15 +544,17 @@ const fetchResidentPayments = async () => {
                   transactions.map((t) => (
                     <tr key={`${t.type}-${t.id}-${t.date.getTime()}`}>
                       <td className="border px-4 py-2">{t.id}</td>
-                      <td className="border px-4 py-2 capitalize">{t.type}</td>
-                      <td className="border px-4 py-2">
-                        {t.date.toLocaleString()}
+                      <td
+                        className={`border px-4 py-2 capitalize ${
+                          t.type === "income" ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {t.type}
                       </td>
+                      <td className="border px-4 py-2">{t.date.toLocaleString()}</td>
                       <td
                         className={`border px-4 py-2 font-semibold ${
-                          t.type === "income"
-                            ? "text-green-600"
-                            : "text-red-600"
+                          t.type === "income" ? "text-green-600" : "text-red-600"
                         }`}
                       >
                         {t.type === "income" ? "+" : "-"} Rs.{" "}
@@ -392,10 +564,7 @@ const fetchResidentPayments = async () => {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={4}
-                      className="p-4 text-center text-gray-500"
-                    >
+                    <td colSpan={4} className="p-4 text-center text-gray-500">
                       No transactions available
                     </td>
                   </tr>
