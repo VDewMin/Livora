@@ -9,6 +9,7 @@ import parcelRoutes from "./routes/ks_parcelRoutes.js";
 import serviceRequestRouter from "./routes/GKServicceRequestRoutes.js";
 import announcementRoutes from "./routes/GKAnnouncementRouter.js";
 import { connectDB } from "./config/db.js";
+import { initializeRentCronJobs } from "./jobs/sn_monthlyReminder.js";
 import noteRoutes from "./routes/SDnotesRoutes.js";
 import purchaseRoutes from "./routes/SDpurchaseRoutes.js";
 import conventionHallBookingRoutes from "./routes/SDConventionHallBookingRoutes.js";
@@ -56,5 +57,6 @@ connectDB().then(() => {
     console.log("Server started on port:", PORT);
 
     initSocket(serverInstance);
+    initializeRentCronJobs();
   });
 });
