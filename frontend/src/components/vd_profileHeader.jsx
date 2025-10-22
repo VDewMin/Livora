@@ -42,6 +42,7 @@ const ProfileHeader = () => {
     "/resident/booking": "Booking",
     "/resident/billing": "Billing",
     "/resident/feedback": "Feedback",
+    "/add-service": "Add Services",
 
     "/securityDashboard": "Dashboard",
     "/security/deliveries": "Deliveries",
