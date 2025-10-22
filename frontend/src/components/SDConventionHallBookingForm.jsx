@@ -1,11 +1,15 @@
+
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, UsersIcon } from "lucide-react";
+import { useAuth } from "../context/vd_AuthContext";
 
 const SDConventionHallBookingForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user: authUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     phone_number: "",
@@ -31,7 +35,20 @@ const SDConventionHallBookingForm = () => {
       }
     };
     fetchBookings();
-  }, []);
+
+    // Auto-populate from navigation state or auth context
+    const state = location.state || {};
+    const user = state.user || authUser;
+    if (user && user._id && user.firstName && user.lastName && user.phoneNo && user.apartmentNo) {
+      setFormData((prev) => ({
+        ...prev,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        userId: user.userId,
+        phone_number: user.phoneNo,
+        apartmentNo: user.apartmentNo,
+      }));
+    }
+  }, [location.state, authUser]);
 
   useEffect(() => {
     const initializeCalendar = () => {
@@ -110,7 +127,7 @@ const SDConventionHallBookingForm = () => {
       document.head.appendChild(link);
 
       return () => {
-        document.head.removeChild(script); // Cleanup Error: Might fail if script not loaded
+        document.head.removeChild(script);
         document.head.removeChild(link);
       };
     };
@@ -158,7 +175,7 @@ const SDConventionHallBookingForm = () => {
     try {
       const response = await axiosInstance.post("/convention-hall-bookings", formData);
       toast.success("Booking created successfully");
-      navigate("/convention-hall-home", { state: { booking: response.data } }); // State Management Issue: Assumes response.data is a valid object
+      navigate("/convention-hall-home", { state: { booking: response.data } });
     } catch (error) {
       console.error("Error creating booking:", error.response?.data || error.message);
       toast.error(error.response?.data?.message || "Failed to create booking");
@@ -203,6 +220,7 @@ const SDConventionHallBookingForm = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={loading}
+                      readOnly
                     />
                     {errors.name && (
                       <label className="label">
@@ -224,6 +242,7 @@ const SDConventionHallBookingForm = () => {
                       value={formData.phone_number}
                       onChange={handleInputChange}
                       disabled={loading}
+                      readOnly
                     />
                     {errors.phone_number && (
                       <label className="label">
@@ -248,6 +267,7 @@ const SDConventionHallBookingForm = () => {
                       value={formData.apartmentNo}
                       onChange={handleInputChange}
                       disabled={loading}
+                      readOnly
                     />
                     {errors.apartmentNo && (
                       <label className="label">
@@ -269,6 +289,7 @@ const SDConventionHallBookingForm = () => {
                       value={formData.userId}
                       onChange={handleInputChange}
                       disabled={loading}
+                      readOnly
                     />
                     {errors.userId && (
                       <label className="label">

@@ -41,7 +41,7 @@ const roleRoutes = {
   },
   Resident: {
     dashboard: `/resident/dashboard/userId`,
-    deliveries: "/resident/deliveries",
+  
     services: "/resident/user-view",
     booking: "/convention-hall-home",
     billing: "/resident/billing",
@@ -60,7 +60,8 @@ const roleRoutes = {
   Laundry: {
     dashboard: "/laundry/dashboard",
     requests: "/laundry/requests",
-    help: "/help"
+    help: "/help",
+    requests: "/laundry/staff",
   },
 };
 
@@ -87,6 +88,7 @@ const menuItems = [
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
   { id: "billing", label: "Finance", icon: CreditCard, roles: ["Resident", "Admin"] },
+  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
   //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
   { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
@@ -97,7 +99,7 @@ const menuItems = [
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
   { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
-  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"] }
+  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"],route:"/laundry/staff" },
 
 
 ]

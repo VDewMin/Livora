@@ -318,7 +318,7 @@ const ResidentDashboard = () => {
 
           <button
             className="p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition flex flex-col items-center gap-2 text-orange-600"
-            onClick={() => navigate("/pay-bills")}
+            onClick={() => navigate("/resident/billing")}
           >
             <svg
               className="w-8 h-8"

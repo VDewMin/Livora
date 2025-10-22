@@ -35,7 +35,7 @@ export default function SN_IncomeTab({ selectedMonth }) {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">
-        Income (Completed Payments)
+        Monthly Income
       </h2>
       <table className="border w-full text-sm table-fixed">
         <thead>
