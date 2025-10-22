@@ -5,11 +5,23 @@ const GKServiceRequestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   aptNo: { type: String, required: true },
   serviceId: { type: String, unique: true },
-  contactNo: { type: String, required: true },
-  contactEmail: { type: String, required: true },
+  contactNo: { 
+    type: String, 
+    required: true,
+    match: [/^\d{10}$/, "Please enter a valid 10-digit phone number"]
+  },
+  contactEmail: { 
+    type: String, 
+    required: true,
+    match: [/.+@.+\..+/, "Please enter a valid email address"]
+  },
   serviceType: { type: String, required: true },
   description: { type: String },
-  fileUrl: { data: Buffer, contentType: String },
+  fileUrl: { 
+    data: Buffer, 
+    contentType: String
+    
+  },
   assignedAt: { type: Date },
   assignedTechnician: { type: String, default: "" },
   assignedDate: { type: Date },
