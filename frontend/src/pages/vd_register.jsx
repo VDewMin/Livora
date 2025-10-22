@@ -4,10 +4,10 @@ import axiosInstance from "../lib/axios";
 import { useNavigate } from "react-router-dom";
 import { Shield, User, Mail, Phone, Lock, Building, Briefcase, Calendar, AlertCircle, Users } from "lucide-react";
 
-const nameRegex = /^[A-Za-z\s]+$/;
+const nameRegex = /^[A-Z][a-z]*(?:\s[A-Z][a-z]*)*$/;
 const emailRegex = /^(?!.*\.\.)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const phoneRegex = /^\d{10}$/;
-const apartmentRegex = /^[PR](?:[1-8]0[1-6]|0[1-6])$/;
+const apartmentRegex = /^[PQ](?:[1-8]0[1-6]|0[1-6])$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 
@@ -102,6 +102,7 @@ const Register = () => {
       return;
     }
 
+    
     if (name === "apartmentNo") {
       const normalized = value.trim().toUpperCase();
       setFormData(prev => ({ ...prev, apartmentNo: normalized }));
@@ -110,7 +111,7 @@ const Register = () => {
         apartmentNo:
           normalized === "" || apartmentRegex.test(normalized)
             ? ""
-            : "Format: P/R + [1-8]01–06 (e.g., P201) or P/R + 01–06 (e.g., P06)."
+            : "Format: P/Q + [1-8]01–06 (e.g., P201) or P/R + 01–06 (e.g., P06)."
       }));
       return;
     }
@@ -154,6 +155,38 @@ const Register = () => {
       return;
     }
 
+    // ✅ Validate date of birth only before saving
+    if (formData.dateOfBirth) {
+      const dob = new Date(formData.dateOfBirth);
+      const today = new Date();
+
+      if (isNaN(dob.getTime())) {
+        toast.error("Please enter a valid date of birth.");
+        setLoading(false);
+        return;
+      }
+
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      const dayDiff = today.getDate() - dob.getDate();
+
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+
+      if (age < 18) {
+        toast.error("You must be at least 18 years old to register.");
+        setLoading(false);
+        return;
+      }
+
+      if (age > 100) {
+        toast.error("Age cannot be more than 100 years.");
+        setLoading(false);
+        return;
+      }
+    }
+
     if (!phoneRegex.test(formData.phoneNo)) {
       toast.error("Phone number must be exactly 10 digits.");
       setLoading(false);
@@ -180,7 +213,7 @@ const Register = () => {
 
     if (formData.role === "Resident") {
       if (!apartmentRegex.test(formData.apartmentNo)) {
-        toast.error("Apartment No must be like P201, P304");
+        toast.error("Apartment No must be like P201, Q304");
         setLoading(false);
         return;
       }
@@ -191,7 +224,6 @@ const Register = () => {
       setLoading(false);
       return;
     }
-
 
     try {
       const res = await axiosInstance.post(
@@ -554,7 +586,7 @@ const Register = () => {
                   <option value="">Select Staff Type</option>
                   <option value="Manager">Manager</option>
                   <option value="Security">Security</option>
-                  <option value="Cleaner">Cleaner</option>
+                  <option value="Laundry">Laundry</option>
                   <option value="Maintenance">Maintenance</option>
                 </select>
               </div>

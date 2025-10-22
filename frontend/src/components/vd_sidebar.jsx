@@ -16,6 +16,8 @@ import {
   Users,
   MessageSquareHeart,
   Grid3x3,
+  Shirt
+
 } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -52,6 +54,11 @@ const roleRoutes = {
     "add-parcel": "/addParcel",
     "parcel-slots": "/slots",
   },
+
+  Laundry: {
+    dashboard: "/laundry/dashboard",
+    requests: "/laundry/requests",
+  },
 };
 
 const Sidebar = ({ activeItem, onItemClick }) => {
@@ -71,95 +78,26 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   };
 
   const cancelLogout = () => setShowLogoutConfirm(false);
+const menuItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
+  { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
+  { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
+  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
+  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
+  //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+  { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
+  { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
+  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
+  { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
+  { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
+  { id: "parcel-slots", label: "Parcel Slots", icon: Grid3x3, roles: ["Security"],},
+  { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
+  { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
+  { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
+  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"] }
 
-  const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      roles: ["Admin", "Resident", "Staff", "Security"],
-    },
-    {
-      id: "services",
-      label: "Services",
-      icon: BrushCleaning,
-      roles: ["Resident", "Admin"],
-    },
-    {
-      id: "booking",
-      label: "Booking",
-      icon: Album,
-      roles: ["Resident", "Admin"],
-    },
-    {
-      id: "deliveries",
-      label: "Deliveries",
-      icon: Package,
-      roles: ["Resident", "Admin"],
-    },
-    {
-      id: "billing",
-      label: "Billing",
-      icon: CreditCard,
-      roles: ["Resident", "Admin"],
-    },
-    //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
-    {
-      id: "resident-management",
-      label: "Residents",
-      icon: Users,
-      roles: ["Admin"],
-    },
-    {
-      id: "staff-management",
-      label: "Employees",
-      icon: UserCog,
-      roles: ["Admin"],
-    },
-    {
-      id: "parcel-logs",
-      label: "Parcel Entries",
-      icon: Package,
-      roles: ["Security"],
-      route: "/viewParcels",
-    },
-    {
-      id: "add-parcel",
-      label: "Add Parcel",
-      icon: PackagePlus,
-      roles: ["Security"],
-    },
-    {
-      id: "parcel-pickup-verification",
-      label: "Qr Verification",
-      icon: ScanLine,
-      roles: ["Security"],
-    },
-    {
-      id: "parcel-slots",
-      label: "Parcel Slots",
-      icon: Grid3x3,
-      roles: ["Security"],
-    },
-    {
-      id: "apartments",
-      label: "Apartments",
-      icon: Building2,
-      roles: ["Admin"],
-    },
-    {
-      id: "announcements",
-      label: "Announcements",
-      icon: NotepadText,
-      roles: ["Admin"],
-    },
-    {
-      id: "feedback",
-      label: "Feedback",
-      icon: MessageSquareHeart,
-      roles: ["Resident", "Admin"],
-    },
-  ];
+
+]
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 

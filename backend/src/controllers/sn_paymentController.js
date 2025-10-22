@@ -8,8 +8,8 @@ import LaundryRequest from "../models/SDLaundryRequest.js";
 import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import dotenv from "dotenv";
-
-
+import Notification from "../models/vd_notification.js";
+import { emitNotification } from "../utils/vd_emitNotification.js"
 
 dotenv.config();
 
@@ -34,16 +34,6 @@ const sendOTPEmail = async (email, otp) => {
     text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
   });
 };
-
-/*//offline vertify email
-const sendOfflineVertifyEmail = async (email,res) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your Offline Payment is vertified",
-    text: "Payment is vertified by admin.Check your payment history",
-  });
-};*/
 
 
 // Online Payment with Stripe + OTP
@@ -139,7 +129,9 @@ export const validateOTPAndCompletePayment = async (req, res) => {
   try {
     const { email, otp, paymentId, forceFail } = req.body;
 
-    if (!email || !paymentId) return res.status(400).json({ message: "email, and paymentId are required" });
+    if (!email || !paymentId)
+      return res.status(400).json({ message: "email, and paymentId are required" });
+
     if (forceFail) {
       const parentPayment = await Payment.findOneAndUpdate(
         { paymentId },
@@ -152,6 +144,19 @@ export const validateOTPAndCompletePayment = async (req, res) => {
         { status: "Failed" },
         { new: true }
       );
+      
+      const residentId = parentPayment.residentId;
+
+      // Resident notification
+      const notificationFail = {
+        userId: residentId,
+        title: "Payment Failed",
+        message: `Your online payment attempt has failed.`,
+        createdAt: new Date(),
+        isRead: false,
+      };
+      await Notification.create(notificationFail);
+      emitNotification(notificationFail);
 
       return res.status(200).json({
         message: "Payment marked as Failed",
@@ -160,13 +165,14 @@ export const validateOTPAndCompletePayment = async (req, res) => {
       });
     }
 
-    if (!email || !otp || !paymentId) return res.status(400).json({ message: "email, otp, and paymentId are required" });
+    if (!email || !otp || !paymentId)
+      return res.status(400).json({ message: "email, otp, and paymentId are required" });
 
     const record = await OTP.findOne({ email });
     if (!record) return res.status(400).json({ message: "OTP not found" });
     if (record.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
     if (record.otpCode !== otp) return res.status(400).json({ message: "Invalid OTP" });
-    
+
     const parentPayment = await Payment.findOneAndUpdate(
       { paymentId },
       { status: "Completed" },
@@ -178,15 +184,37 @@ export const validateOTPAndCompletePayment = async (req, res) => {
       { status: "Completed" },
       { new: true }
     );
-
     await OTP.deleteOne({ email });
 
-    const resident = await User.findOne({ residentId: parentPayment.residentId });
+    const resident = await Payment.findOne({ residentId: parentPayment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      resident.lastPaidMonth = currentMonth;
-      await resident.save();
+
+      const residentId = parentPayment.residentId;
+      // Resident notification
+      const notificationResident = {
+        userId: residentId,
+        title: "Payment Completed",
+        message: `Your online payment of LKR ${parentPayment.totalAmount} is completed.`,
+        createdAt: new Date(),
+        isRead: false,
+      };
+      await Notification.create(notificationResident);
+      emitNotification(notificationResident);
     }
+      // Admin notification
+      const admins = await User.find({ role: "Admin" });
+      for (const admin of admins) {
+        const notificationAdmin = {
+          userId: admin._id.toString(),
+          title: "Resident Payment Completed",
+          message: `${resident.residentName} completed a payment of LKR ${parentPayment.totalAmount}.`,
+          createdAt: new Date(),
+          isRead: false,
+        };
+        await Notification.create(notificationAdmin);
+        emitNotification(notificationAdmin);
+      }
+    
 
     res.status(200).json({
       message: "OTP verified successfully. Payment completed.",
@@ -230,53 +258,76 @@ export const resendOTP = async (req, res) => {
 
 //master + offline
 export const createOfflinePayment = async (req , res) => {
-    try {
-        //master
-        const {residentId, amountRent, phoneNumber, amountLaundry, apartmentNo, residentName,} = req.body;
-        const slipFile = req.file;
+  try {
+    const {residentId, amountRent, phoneNumber, amountLaundry, apartmentNo, residentName,} = req.body;
+    const slipFile = req.file;
 
-        const paymentId = generatePaymentId();
-        const rent = Number(String(amountRent).replace(/[^0-9.-]+/g, "")) || 0;
-        const laundry = Number(String(amountLaundry).replace(/[^0-9.-]+/g, "")) || 0;
-        const totalAmount = rent + laundry;
+    const paymentId = generatePaymentId();
+    const rent = Number(String(amountRent).replace(/[^0-9.-]+/g, "")) || 0;
+    const laundry = Number(String(amountLaundry).replace(/[^0-9.-]+/g, "")) || 0;
+    const totalAmount = rent + laundry;
 
+    // Master payment
+    const newPayment = new Payment({
+      paymentId,
+      residentId,
+      apartmentNo,
+      residentName,
+      phoneNumber,
+      paymentType: "Offline",
+      totalAmount,
+      status: "Pending"
+    });
+    await newPayment.save();
 
-        const newPayment = new Payment({
-            paymentId,
-            residentId,
-            apartmentNo,
-            residentName,
-            phoneNumber,
-            paymentType: "Offline",
-            totalAmount,
-            status: "Pending"
-        });
-        await newPayment.save();
-
-        //offline
-        const newOfflinePayment = new OfflinePayment({
-        paymentId,
-        residentId,
-        apartmentNo,
-        residentName,
-        phoneNumber,
-        amountRent:rent,
-        amountLaundry:laundry,
-        totalAmount,   
-        paymentDate: new Date(),
-        slipFile: slipFile ? {data: slipFile.buffer , contentType: slipFile.mimetype} : null,
-        status: "Pending"
+    // Offline payment
+    const newOfflinePayment = new OfflinePayment({
+      paymentId,
+      residentId,
+      apartmentNo,
+      residentName,
+      phoneNumber,
+      amountRent: rent,
+      amountLaundry: laundry,
+      totalAmount,   
+      paymentDate: new Date(),
+      slipFile: slipFile ? {data: slipFile.buffer , contentType: slipFile.mimetype} : null,
+      status: "Pending"
     });
     await newOfflinePayment.save();
-    res.status(201).json({ master: newPayment, offline: newOfflinePayment});
-    } catch (error) {
-        console.error("Error in createOfflinePayment controller", error);
-        res.status(500).json({message:"Internel Server Error"});
+
+    // Resident notification
+    const notificationResident = {
+      userId: residentId.toString(),
+      title: "Payment Submitted",
+      message: "Your offline payment request has been submitted. Waiting for admin verification.",
+      createdAt: new Date(),
+      isRead: false,
+    };
+    await Notification.create(notificationResident);
+    emitNotification(notificationResident);
+
+    // Admin notifications
+    const admins = await User.find({ role: "Admin" });
+    for (const admin of admins) {
+      const notificationAdmin = {
+        userId: admin._id.toString(),
+        title: "New Offline Payment Request",
+        message: `Resident ${residentName} submitted an offline payment. Please verify.`,
+        createdAt: new Date(),
+        isRead: false,
+      };
+      await Notification.create(notificationAdmin);
+      emitNotification(notificationAdmin);
     }
-    
+
+    res.status(201).json({ master: newPayment, offline: newOfflinePayment});
+  } catch (error) {
+    console.error("Error in createOfflinePayment controller", error);
+    res.status(500).json({message:"Internel Server Error"});
+  }
 };
 
-// admin verify
 export const vertifyOfflinePayment = async (req, res) => {
   try {
     const { paymentId } = req.body;
@@ -295,14 +346,26 @@ export const vertifyOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    const resident = await Payment.findOne({ residentId: payment.residentId });
+    const resident = await Payment.findOne({ residentId: offlinePayment.residentId });
     if (resident) {
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      resident.lastPaidMonth = currentMonth;
-      await resident.save();
+
+    const ParentPayment = await Payment.findOne({ paymentId });
+      if (!ParentPayment) return res.status(404).json({ message: "Payment not found" });
+
+      const residentId = ParentPayment.residentId;
+
+      // Resident notification
+      const notificationResident = {
+        userId: residentId,
+        title: "Payment Completed",
+        message: "Your offline payment has been verified by admin.",
+        createdAt: new Date(),
+        isRead: false,
+      };
+      await Notification.create(notificationResident);
+      emitNotification(notificationResident);
     }
 
-    //pending->complete
     res.json({ paymentId, status: "Completed" });
   } catch (error) {
     console.error("Error in verifyOfflinePayment:", error);
@@ -310,7 +373,7 @@ export const vertifyOfflinePayment = async (req, res) => {
   }
 };
 
-// admin reject
+// Admin rejects offline payment
 export const rejectOfflinePayment = async (req, res) => {
   try {
     const { paymentId } = req.body;
@@ -329,7 +392,25 @@ export const rejectOfflinePayment = async (req, res) => {
       await payment.save();
     }
 
-    //pending->rejected
+    const resident = await Payment.findOne({ residentId: offlinePayment.residentId });
+    if (resident) {
+
+    const ParentPayment = await Payment.findOne({ paymentId });
+      if (!ParentPayment) return res.status(404).json({ message: "Payment not found" });
+
+      const residentId = ParentPayment.residentId;
+      // Resident notification
+      const notificationResident = {
+        userId: residentId,
+        title: "Payment Rejected",
+        message: "Your offline payment has been rejected by admin.",
+        createdAt: new Date(),
+        isRead: false,
+      };
+      await Notification.create(notificationResident);
+      emitNotification(notificationResident);
+    }
+
     res.json({ paymentId, status: "Rejected" });
   } catch (error) {
     console.error("Error in rejectOfflinePayment:", error);
@@ -439,7 +520,7 @@ export const getResidentMonthlyCharges = async (req, res) => {
       {
         $match: {
           resident_id: resident.userId,
-          status: "pending",
+          /*status: "pending",*/
           created_at: { $gte: startDate, $lte: endDate },
         },
       },
@@ -472,6 +553,9 @@ export const getResidentMonthlyCharges = async (req, res) => {
     const totalDue = rentDue + laundryDue;
     const isPaid = totalDue === 0;
 
+    console.log("rent: " + rentDue)
+    console.log("laundry: " + laundryDue)
+    console.log("total" + totalDue)
     return res.json({
       rent: rentDue,
       laundry: laundryDue,

@@ -9,6 +9,7 @@ const SDAdminBookingDetails = () => {
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -16,7 +17,7 @@ const SDAdminBookingDetails = () => {
         const response = await axiosInstance.get(`/convention-hall-bookings/${id}`);
         setBooking(response.data);
       } catch (error) {
-        console.error('Error fetching booking:', error);
+        console.error('Error fetching booking:', error.response?.data || error.message);
         toast.error('Failed to load booking details');
       } finally {
         setLoading(false);
@@ -26,14 +27,24 @@ const SDAdminBookingDetails = () => {
   }, [id]);
 
   const handleStatusUpdate = async (newStatus) => {
+    if (newStatus === 'rejected' && !rejectionReason.trim()) {
+      toast.error('Please provide a rejection reason');
+      return;
+    }
     if (!window.confirm(`Confirm ${newStatus} this booking?`)) return;
+
+    const payload = { status: newStatus };
+    if (newStatus === 'rejected') payload.rejection_reason = rejectionReason;
+
     try {
-      const response = await axiosInstance.put(`/convention-hall-bookings/${id}/status`, { status: newStatus });
+      console.log('Sending payload:', payload); // Log payload for debugging
+      const response = await axiosInstance.put(`/convention-hall-bookings/${id}/status`, payload);
       setBooking(response.data);
       toast.success(`Booking ${newStatus} successfully`);
+      setRejectionReason(''); // Clear reason after submission
     } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error(`Failed to ${newStatus} booking`);
+      console.error('Error updating status:', error.response?.data || error.message);
+      toast.error(`Failed to ${newStatus} booking. Check server logs for details.`);
     }
   };
 
@@ -64,7 +75,7 @@ const SDAdminBookingDetails = () => {
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-gray-700"><strong>Name:</strong> {booking.name}</p>
             <p className="text-gray-700"><strong>Phone:</strong> {booking.phone_number}</p>
-            <p className="text-gray-700"><strong>Room Number:</strong> {booking.apartment_room_number}</p>
+            <p className="text-gray-700"><strong>Room Number:</strong> {booking.apartmentNo}</p>
             <p className="text-gray-700"><strong>Guests:</strong> {booking.number_of_guests}</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -82,6 +93,9 @@ const SDAdminBookingDetails = () => {
               <span className={booking.status === 'rejected' ? 'text-red-600' : booking.status === 'pending' ? 'text-yellow-600' : 'text-green-600'}>
                 {booking.status}
               </span>
+              {booking.rejection_reason && (
+                <span className="ml-2 text-sm text-red-500">({booking.rejection_reason})</span>
+              )}
             </p>
             <p className="text-gray-700"><strong>Cost (LKR):</strong> {booking.total_cost?.toLocaleString()}</p>
           </div>
@@ -89,24 +103,38 @@ const SDAdminBookingDetails = () => {
         <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded-lg">
           <strong>Note:</strong> Approve or reject bookings based on availability and policy.
         </div>
-        <div className="mt-6 flex justify-end space-x-4">
-          <button
-            onClick={() => handleStatusUpdate('accepted')}
-            className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-            disabled={booking.status !== 'pending'}
-          >
-            <CheckCircleIcon className="mr-2" /> Approve
-          </button>
-          <button
-            onClick={() => handleStatusUpdate('rejected')}
-            className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            disabled={booking.status !== 'pending'}
-          >
-            <XCircleIcon className="mr-2" /> Reject
-          </button>
+        <div className="mt-6">
+          {booking.status === 'pending' && (
+            <>
+              <div className="mb-4">
+                <label className="block mb-2">Rejection Reason (if rejecting)</label>
+                <input
+                  type="text"
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  className="input input-bordered w-full"
+                  placeholder="Enter rejection reason"
+                />
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => handleStatusUpdate('accepted')}
+                  className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                >
+                  <CheckCircleIcon className="mr-2" /> Approve
+                </button>
+                <button
+                  onClick={() => handleStatusUpdate('rejected')}
+                  className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                >
+                  <XCircleIcon className="mr-2" /> Reject
+                </button>
+              </div>
+            </>
+          )}
           <button
             onClick={() => navigate('/admin/convention-hall-bookings')}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           >
             Back to List
           </button>
