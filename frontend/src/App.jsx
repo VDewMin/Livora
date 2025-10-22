@@ -133,7 +133,7 @@ const App = () =>{
                     <Route path="/admin/convention-hall-bookings" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookings/></ProtectedRoute>}/>
                   <Route path="/admin/convention-hall-booking/:id" element={<ProtectedRoute allowedRoles={["Admin"]}><SDAdminConventionHallBookingsDetails/></ProtectedRoute>}/>
                   <Route path="/purchases" element={<ProtectedRoute allowedRoles={["Admin"]}><SDpurchasesList/></ProtectedRoute>}/>
-                  <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Admin"]}><SDLaundryStaffView/></ProtectedRoute>}/>
+                  <Route path="/laundry/staff" element={<ProtectedRoute allowedRoles={["Staff"]}><SDLaundryStaffView/></ProtectedRoute>}/>
                 
 
 

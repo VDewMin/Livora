@@ -44,9 +44,12 @@ const SDLaundryDetails = () => {
   const handleDelete = async () => {
     if (!window.confirm(`Are you sure you want to delete request ${schedule_id}?`)) return;
     try {
-      console.log('axiosInstance base URL:', axiosInstance.defaults.baseURL); // Log base URL
-      console.log('Sending DELETE request to:', `/laundry/schedule/${schedule_id}`); 
-      await axiosInstance.delete(`/laundry/schedule/${schedule_id}`);
+      if (!request || !request._id) {
+        throw new Error('Request data or ID not available');
+      }
+      console.log('axiosInstance base URL:', axiosInstance.defaults.baseURL);
+      console.log('Sending DELETE request to:', `/laundry/${request._id}`);
+      await axiosInstance.delete(`/laundry/${request._id}`);
       toast.success('Request deleted successfully');
       navigate('/laundry/staff');
     } catch (error) {

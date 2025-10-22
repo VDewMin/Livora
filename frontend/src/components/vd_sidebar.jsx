@@ -38,7 +38,7 @@ const roleRoutes = {
   },
   Resident: {
     dashboard: `/resident/dashboard/userId`,
-    deliveries: "/resident/deliveries",
+  
     services: "/resident/user-view",
     booking: "/convention-hall-home",
     billing: "/resident/billing",
@@ -54,7 +54,7 @@ const roleRoutes = {
 
   Laundry: {
     dashboard: "/laundry/dashboard",
-    requests: "/laundry/requests",
+    requests: "/laundry/staff",
   },
 };
 
@@ -81,7 +81,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
-  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Resident", "Admin"] },
+  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
   { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
   //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
@@ -92,7 +92,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
   { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
-  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"] }
+  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"],route:"/laundry/staff" },
 
 
 ]
