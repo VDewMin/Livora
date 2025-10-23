@@ -21,6 +21,8 @@ import {
 import { useAuth } from "../context/vd_AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useState } from 'react';
+import livora from '../assets/livoralogo.png';
 
 const roleRoutes = {
   Admin: {
@@ -217,6 +219,9 @@ const Sidebar = ({ activeItem, onItemClick }) => {
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm"><img src="/src/assets/livoralogo.png" alt="Logo" /></span>
+            <span className="text-white font-bold text-sm">
+              <img src={livora} alt="Livora Logo" className="w-6 h-6 rounded-full" />
+            </span>
           </div>
           <span className="font-semibold text-gray-900">Livora</span>
         </div>
