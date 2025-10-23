@@ -23,7 +23,6 @@ const AdminDashboard = () => {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  // ✅ Fetch all data
   const fetchDashboardData = async () => {
     try {
       setLoading(true);

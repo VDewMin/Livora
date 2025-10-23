@@ -90,7 +90,6 @@ const ChangePassword = () => {
     setValidationErrors(errors);
   }, [newPassword, confirmPassword]);
 
-  // Check if form is valid
   const isFormValid = () => {
     return (
       currentPassword &&

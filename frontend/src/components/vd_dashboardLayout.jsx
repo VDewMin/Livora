@@ -23,18 +23,18 @@ const DashboardLayout = () => {
         <Sidebar activeItem={activeItem} onItemClick={handleItemClick} /> 
       </div>
 
-      {/* Main Content */}
+      
       <div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: isSidebarOpen ? '256px' : '0px' }}>
-        {/* Fixed Header */}
+        
         <div className="fixed top-0 right-0 z-20" style={{ left: isSidebarOpen ? "256px" : "0px" }}>
           <ProfileHeader />
         </div>
         
-        {/* Scrollable */}
+        
         <div 
           className="flex-1 bg-gray-50 overflow-y-auto"
           style={{ 
-            marginTop: '80px' // based on header height
+            marginTop: '80px' 
           }}
         >
           <div className="p-6">
@@ -43,7 +43,7 @@ const DashboardLayout = () => {
         </div>
       </div>
 
-      {/* Mobile */}
+      
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"

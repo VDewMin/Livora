@@ -2,15 +2,12 @@ import Feedback from "../models/vd_feedback.js";
 import Notification from "../models/vd_notification.js";
 import { emitNotification } from "../utils/vd_emitNotification.js";
 import User from "../models/vd_user.js";
-import { createTransporter } from "../utils/vd_email.js"; // your existing mail setup
+import { createTransporter } from "../utils/vd_email.js"; 
 
-
-// Resident: Create feedback
 export const createFeedback = async (req, res) => {
   try {
     const { feedbackType, feedbackAbout, message, feedbackDate } = req.body;
 
-    // ✅ Extract user info from req.user (set by authMiddleware)
     const userId = req.user._id;
     const residentId = req.user.userId; // custom app-level ID
 
@@ -24,7 +21,7 @@ export const createFeedback = async (req, res) => {
     });
     await newFeedback.save();
 
-    // ✅ Create notification
+    // Create notification
     const notification = {
       userId: userId.toString(),
       title: "Feedback Submitted",
@@ -45,7 +42,7 @@ export const createFeedback = async (req, res) => {
 };
 
 
-// 👤 Resident: View their feedbacks
+// View their feedbacks
 export const getUserFeedbacks = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -56,7 +53,7 @@ export const getUserFeedbacks = async (req, res) => {
   }
 };
 
-// 🛠️ Admin: View all feedbacks (with optional filters)
+// View all feedbacks
 export const getAllFeedbacks = async (req, res) => {
   try {
     const { feedbackType, feedbackAbout, from, to } = req.query;
@@ -80,7 +77,6 @@ export const getAllFeedbacks = async (req, res) => {
   }
 };
 
-// 🧩 Admin: Reply or update feedback
 export const updateFeedback = async (req, res) => {
   try {
     const { id } = req.params;
@@ -93,7 +89,6 @@ export const updateFeedback = async (req, res) => {
   }
 };
 
-// 🗑️ Admin: Delete feedback
 export const deleteFeedback = async (req, res) => {
   try {
     const { id } = req.params;
