@@ -148,7 +148,7 @@ const menuItems = [
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">L</span>
+            <span className="text-white font-bold text-sm"><img src="/src/assets/livoralogo.png" alt="Logo" /></span>
           </div>
           <span className="font-semibold text-gray-900">Livora</span>
         </div>
