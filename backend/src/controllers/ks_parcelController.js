@@ -46,7 +46,7 @@ export const createParcels = async (req, res) => {
       collectedByName,
     } = req.body;
 
-    const existingParcel = await Parcel.findOne({ locId, status: { $ne: "Collected" } });
+    const existingParcel = await Parcel.findOne({ locId, status: { $nin: ["Collected", "Removed"] } });
     if (existingParcel) {
       return res.status(400).json({ message: "This slot is already occupied!" });
     }
