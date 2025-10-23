@@ -54,12 +54,12 @@ const roleRoutes = {
     "parcel-logs": "/viewParcels",
     "parcel-pickup-verification": "/scanner",
     "add-parcel": "/addParcel",
+    "parcel-slots": "/slots",
     help: "/help"
   },
 
   Laundry: {
     dashboard: "/laundry/dashboard",
-    requests: "/laundry/requests",
     help: "/help",
     requests: "/laundry/staff",
   },
@@ -83,7 +83,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
   const cancelLogout = () => setShowLogoutConfirm(false);
 const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],  },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"]  },
   { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
   { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
   { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
@@ -95,7 +95,7 @@ const menuItems = [
   { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
   { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
   { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
-  { id: "parcel-slots", label: "Parcel Slots", icon: Grid3x3, roles: ["Security"],},
+  { id: "parcel-slots", label: "Parcel Slots", icon: Grid3x3, roles: ["Security"]},
   { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
   { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
   { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },

@@ -19,7 +19,7 @@ import notificationRoutes from "./routes/vd_notificaionRoutes.js";
 import { initSocket } from "./socket.js";
 import "./jobs/ks_ParcelRemaiderJob.js";
 import searchRoutes from "./routes/vd_searchRoutes.js";
-
+import { initializeParcelCronJobs } from "./jobs/ks_ParcelRemaiderJob.js";
 
 dotenv.config();
 
@@ -58,5 +58,6 @@ connectDB().then(() => {
 
     initSocket(serverInstance);
     initializeRentCronJobs();
+    initializeParcelCronJobs(); 
   });
 });

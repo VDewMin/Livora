@@ -215,7 +215,6 @@ const ProfileHeader = () => {
         if (user?.role === 'Admin') return '/admin/deliveries';
         if (user?.role === 'Staff' && user?.staffType === 'Security') return '/security/deliveries';
         return '/resident/deliveries';
-      case 'laundryRequests': return '/laundry/details';
       case 'laundryRequests': return `/laundry/details/${item.schedule_id}`;
       default: return '/';
     }
