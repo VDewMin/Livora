@@ -59,7 +59,6 @@ const roleRoutes = {
 
   Laundry: {
     dashboard: "/laundry/dashboard",
-    requests: "/laundry/requests",
     help: "/help",
     requests: "/laundry/staff",
   },
