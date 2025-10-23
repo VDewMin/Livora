@@ -21,7 +21,6 @@ import {
 import { useAuth } from "../context/vd_AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useState } from 'react';
 import livora from '../assets/livoralogo.png';
 
 const roleRoutes = {
@@ -223,7 +222,7 @@ const Sidebar = ({ activeItem, onItemClick }) => {
               <img src={livora} alt="Livora Logo" className="w-6 h-6 rounded-full" />
             </span>
           </div>
-          <span className="font-semibold text-gray-900">Livora</span>
+          {/* <span className="font-semibold text-gray-900">Livora</span> */}
         </div>
       </div>
 
