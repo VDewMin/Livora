@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Search, Bell, Mail, User, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
+import React, { useEffect, useState, useRef, useCallback, use } from "react";
+import { Search, Bell, Megaphone , User, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -299,10 +299,11 @@ const ProfileHeader = () => {
   };
 
   const handleMarkAnnouncementsRead = async () => {
+    if(!user?._id) return;  
     try {
-      await axiosInstance.patch(`/announcements/mark-read`);
+      await axiosInstance.put(`/announcements/${user._id}/mark-read`);
       await fetchAnnouncements();
-      setUnreadAnnouncements((prev) => Math.max(prev - 1, 0));
+      setUnreadAnnouncements(0);
     } catch (err) {
       console.error("Failed to mark announcements as read:", err);
     }
@@ -390,7 +391,7 @@ const ProfileHeader = () => {
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleMailClick}
             >
-              <Mail className="h-5 w-5" />
+              <Megaphone  className="h-5 w-5 text-blue-500" />
               {unreadAnnouncements > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadAnnouncements > 5 ? "5+" : unreadAnnouncements}
