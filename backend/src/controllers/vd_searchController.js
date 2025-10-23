@@ -28,9 +28,9 @@ export const globalSearch = async (req, res) => {
     let results = {};
 
     switch (user.role) {
-      // 🔹 ADMIN SEARCH: Users, Feedback, Notifications, Announcements
+      // ADMIN SEARCH: Users, Feedback, Notifications, Announcements
       case "Admin":
-        // Check if query looks like an ObjectId (24 hex characters)
+        
         const isObjectId = /^[0-9a-fA-F]{24}$/.test(q);
         
         results = {
@@ -52,7 +52,7 @@ export const globalSearch = async (req, res) => {
               { feedbackType: { $regex: q, $options: "i" } },
               { feedbackAbout: { $regex: q, $options: "i" } },
               { status: { $regex: q, $options: "i" } },
-              { feedbackId: { $regex: q, $options: "i" } }, // Human-readable ID: FB001, FB002, etc.
+              { feedbackId: { $regex: q, $options: "i" } }, 
               ...(isObjectId ? [{ _id: q }] : []),
             ],
           }).limit(5),
@@ -79,9 +79,9 @@ export const globalSearch = async (req, res) => {
         };
         break;
 
-      // 🔹 RESIDENT SEARCH: Services, Billing, Booking, Feedback, Notifications
+      // RESIDENT SEARCH: Services, Billing, Booking, Feedback, Notifications
       case "Resident":
-        // Check if query looks like an ObjectId (24 hex characters)
+        
         const isObjectIdResident = /^[0-9a-fA-F]{24}$/.test(q);
         
         results = {
@@ -91,7 +91,7 @@ export const globalSearch = async (req, res) => {
               { description: { $regex: q, $options: "i" } },
               { aptNo: { $regex: q, $options: "i" } },
               { status: { $regex: q, $options: "i" } },
-              { serviceId: { $regex: q, $options: "i" } }, // Human-readable ID: S001, S002, etc.
+              { serviceId: { $regex: q, $options: "i" } }, 
               ...(isObjectIdResident ? [{ _id: q }] : []),
             ],
           }).limit(5),
@@ -110,7 +110,7 @@ export const globalSearch = async (req, res) => {
             $or: [
               { paymentType: { $regex: q, $options: "i" } },
               { description: { $regex: q, $options: "i" } },
-              { paymentId: { $regex: q, $options: "i" } }, // Human-readable payment ID
+              { paymentId: { $regex: q, $options: "i" } }, 
               { transactionId: { $regex: q, $options: "i" } },
               { status: { $regex: q, $options: "i" } },
               ...(isObjectIdResident ? [{ _id: q }] : []),
@@ -124,7 +124,7 @@ export const globalSearch = async (req, res) => {
               { feedbackAbout: { $regex: q, $options: "i" } },
               { feedbackType: { $regex: q, $options: "i" } },
               { status: { $regex: q, $options: "i" } },
-              { feedbackId: { $regex: q, $options: "i" } }, // Human-readable ID: FB001, FB002, etc.
+              { feedbackId: { $regex: q, $options: "i" } }, 
               ...(isObjectIdResident ? [{ _id: q }] : []),
             ],
           }).limit(5),
@@ -142,20 +142,20 @@ export const globalSearch = async (req, res) => {
         };
         break;
 
-      // 🔹 SECURITY SEARCH: Deliveries / Parcels, Notifications
+      //  SECURITY SEARCH
       case "Staff":
-        // Check if query looks like an ObjectId (24 hex characters)
+        
         const isObjectIdStaff = /^[0-9a-fA-F]{24}$/.test(q);
         
         if (user.staffType === "Security") {
           results = {
             deliveries: await Parcel.find({
               $or: [
-                { parcelId: { $regex: q, $options: "i" } }, // Human-readable ID: P001, P002, etc.
+                { parcelId: { $regex: q, $options: "i" } }, 
                 { recipientName: { $regex: q, $options: "i" } },
                 { apartmentNo: { $regex: q, $options: "i" } },
                 { status: { $regex: q, $options: "i" } },
-                { locId: { $regex: q, $options: "i" } }, // Location ID: L1, L2, etc.
+                { locId: { $regex: q, $options: "i" } }, 
                 ...(isObjectIdStaff ? [{ _id: q }] : []),
               ],
             }).limit(5),
@@ -173,7 +173,7 @@ export const globalSearch = async (req, res) => {
           };
         }
 
-        // 🔹 LAUNDRY SEARCH: Laundry Requests, Notifications
+        // LAUNDRY SEARCH
         else if (user.staffType === "Laundry") {
           results = {
             laundryRequests: await LaundryRequest.find({
@@ -182,7 +182,7 @@ export const globalSearch = async (req, res) => {
                 { status: { $regex: q, $options: "i" } },
                 { service_type: { $regex: q, $options: "i" } },
                 { resident_id: { $regex: q, $options: "i" } },
-                { schedule_id: { $regex: q, $options: "i" } }, // Human-readable ID: LAUN...
+                { schedule_id: { $regex: q, $options: "i" } }, 
                 ...(isObjectIdStaff ? [{ _id: q }] : []),
               ],
             }).limit(5),
@@ -209,7 +209,7 @@ export const globalSearch = async (req, res) => {
     const totalResults = Object.values(results).flat().length;
     console.log("🟩 Returning search results:", totalResults);
     
-    // Debug: Log each category's result count
+    
     Object.entries(results).forEach(([category, items]) => {
       if (items.length > 0) {
         console.log(`  📋 ${category}: ${items.length} results`);

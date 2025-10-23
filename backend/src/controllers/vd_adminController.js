@@ -10,23 +10,22 @@ export const getAdminStats = async (req, res) => {
     // Get total counts
     const totalResidents = await User.countDocuments({ role: "Resident" });
     const totalStaff = await User.countDocuments({ role: "Staff" });
-    const totalLivoraUsers = await User.countDocuments(); // All users including Admin, Resident, Staff
+    const totalLivoraUsers = await User.countDocuments();
     
-    // Get total apartments from purchases (assuming each purchase represents an apartment)
+    
     const totalApartments = await Purchase.countDocuments();
     
-    // Get active bookings (accepted bookings for future dates)
+    
     const activeBookings = await ConventionHallBooking.countDocuments({
       status: "accepted",
       date: { $gte: new Date() }
     });
     
-    // Get pending requests (service requests with pending status)
+    
     const pendingRequests = await GKServiceRequest.countDocuments({
       status: "Pending"
     });
-    
-    // Calculate monthly revenue (current month completed payments)
+  
     const currentMonth = new Date();
     const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -93,7 +92,6 @@ export const getAdminStats = async (req, res) => {
   }
 };
 
-// Get booking trends for charts (last 6 months)
 export const getBookingTrends = async (req, res) => {
   try {
     const bookingData = [];
@@ -123,7 +121,6 @@ export const getBookingTrends = async (req, res) => {
   }
 };
 
-// Get revenue data for charts (last 6 months)
 export const getRevenueData = async (req, res) => {
   try {
     const revenueData = [];
@@ -164,7 +161,7 @@ export const getRevenueData = async (req, res) => {
   }
 };
 
-// Get service distribution data for pie chart
+//  service data for pie chart
 export const getServiceDistribution = async (req, res) => {
   try {
     const serviceTypes = await GKServiceRequest.aggregate([
@@ -205,8 +202,6 @@ export const getServiceDistribution = async (req, res) => {
 export const getRecentActivities = async (req, res) => {
   try {
     const activities = [];
-    
-    // Get recent user registrations
     const recentUsers = await User.find({ role: "Resident" })
       .sort({ createdAt: -1 })
       .limit(3)
@@ -222,7 +217,6 @@ export const getRecentActivities = async (req, res) => {
       });
     });
     
-    // Get recent service requests
     const recentServices = await GKServiceRequest.find()
       .sort({ createdAt: -1 })
       .limit(3)
@@ -238,7 +232,6 @@ export const getRecentActivities = async (req, res) => {
       });
     });
     
-    // Get recent payments
     const recentPayments = await Payment.find({ status: "Completed" })
       .sort({ paymentDate: -1 })
       .limit(2)
@@ -254,7 +247,6 @@ export const getRecentActivities = async (req, res) => {
       });
     });
     
-    // Get recent bookings
     const recentBookings = await ConventionHallBooking.find()
       .sort({ createdAt: -1 })
       .limit(2)
@@ -271,9 +263,9 @@ export const getRecentActivities = async (req, res) => {
       });
     });
     
-    // Sort all activities by time and limit to 5
+    
     activities.sort((a, b) => {
-      // Convert time ago to comparable values (this is a simplified approach)
+      
       const timeToMinutes = (timeStr) => {
         if (timeStr.includes('min')) return parseInt(timeStr);
         if (timeStr.includes('hour')) return parseInt(timeStr) * 60;
@@ -290,7 +282,7 @@ export const getRecentActivities = async (req, res) => {
   }
 };
 
-// Helper function to get time ago string
+
 const getTimeAgo = (date) => {
   const now = new Date();
   const diffInMinutes = Math.floor((now - new Date(date)) / (1000 * 60));

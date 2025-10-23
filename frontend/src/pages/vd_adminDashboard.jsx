@@ -111,7 +111,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Manual refresh function
+  
   const handleRefresh = () => {
     fetchDashboardData();
   };
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
 
         {/* Revenue Chart */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Revenue Overview</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Income Overview</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
 
       {/*Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Service Distribution */}
+        
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Service Distribution</h2>
           <ResponsiveContainer width="100%" height={300}>
