@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Search, Bell, Mail, User, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
+import { Search, Bell, User, Megaphone, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -43,6 +43,8 @@ const ProfileHeader = () => {
     "/resident/billing": "Billing",
     "/resident/feedback": "Feedback",
     "/add-service": "Add Services",
+    "/update-service/:id": "Update Service",
+    "/delete-service/:id": "Delete Service",
 
     "/securityDashboard": "Dashboard",
     "/security/deliveries": "Deliveries",
@@ -61,7 +63,7 @@ const ProfileHeader = () => {
   if (!currentTitle && normalizedPath.startsWith("/resident/dashboard/")) currentTitle = "Dashboard";
   if (!currentTitle) currentTitle = "Account Information";
 
-  // 🔔 Fetch Notifications
+  //  Fetch Notifications
   const fetchNotifications = async () => {
     if (!user?._id) return;
     try {
@@ -73,7 +75,7 @@ const ProfileHeader = () => {
     }
   };
 
-  // 📧 Fetch Announcements
+  // Fetch Announcements
   const fetchAnnouncements = async () => {
     try {
       const res = await axiosInstance.get(`/announcements/recive`);
@@ -89,7 +91,7 @@ const ProfileHeader = () => {
     fetchAnnouncements();
   }, [user?._id]);
 
-  // 🔔 Notification Handlers
+  // Notification Handlers
   const handleBellClick = async () => {
     setShowDropdown(!showDropdown);
     setShowMailDropdown(false);
@@ -187,7 +189,7 @@ const ProfileHeader = () => {
       case 'users': return <User className="h-4 w-4" />;
       case 'feedback': return <MessageSquare className="h-4 w-4" />;
       case 'notifications': return <Bell className="h-4 w-4" />;
-      case 'announcements': return <MessageSquare className="h-4 w-4" />;
+      case 'announcements': return <Megaphone className="h-4 w-4" />;
       case 'services': return <Package className="h-4 w-4" />;
       case 'bookings': return <Calendar className="h-4 w-4" />;
       case 'billing': return <CreditCard className="h-4 w-4" />;
@@ -236,7 +238,7 @@ const ProfileHeader = () => {
     }
   };
 
-  // Handle search result click
+
   const handleResultClick = (item) => {
     setShowResults(false);
     setSearchQuery("");
@@ -244,7 +246,7 @@ const ProfileHeader = () => {
     navigate(getNavigationPath(item));
   };
 
-  // Handle keyboard navigation
+  
   const handleKeyDown = (e) => {
     if (!showResults || searchResults.length === 0) return;
 
@@ -291,7 +293,7 @@ const ProfileHeader = () => {
   }, []);
 
 
-  // 📧 Mail (Announcements) Handlers
+  // Announcements Handlers
   const handleMailClick = async () => {
     setShowMailDropdown(!showMailDropdown);
     setShowDropdown(false);
@@ -299,10 +301,11 @@ const ProfileHeader = () => {
   };
 
   const handleMarkAnnouncementsRead = async () => {
+    if(!user?._id) return;  
     try {
-      await axiosInstance.patch(`/announcements/mark-read`);
+      await axiosInstance.put(`/announcements/${user._id}/mark-read`);
       await fetchAnnouncements();
-      setUnreadAnnouncements((prev) => Math.max(prev - 1, 0));
+      setUnreadAnnouncements(0);
     } catch (err) {
       console.error("Failed to mark announcements as read:", err);
     }
@@ -316,13 +319,13 @@ const ProfileHeader = () => {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 relative z-30">
       <div className="flex items-center justify-between">
-        {/* Page Title */}
+        
         <h1 className="text-2xl font-semibold text-gray-900">{currentTitle}</h1>
 
-        {/* Right Side */}
+        
         <div className="flex items-center space-x-4 relative">
 
-          {/* 🔍 Search */}
+          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -334,7 +337,7 @@ const ProfileHeader = () => {
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
             />
 
-            {/* Search Results Dropdown */}
+            {/* Search Results */}
             {showResults && (
               <div className="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
                 {isSearching ? (
@@ -384,13 +387,13 @@ const ProfileHeader = () => {
             )}
           </div>
 
-          {/* 📧 Mail Icon (Announcements) */}
+          {/* Mail Icon (Announcements) */}
           <div className="relative">
             <button
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleMailClick}
             >
-              <Mail className="h-5 w-5" />
+              <Megaphone  className="h-5 w-5 text-blue-500" />
               {unreadAnnouncements > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadAnnouncements > 5 ? "5+" : unreadAnnouncements}
@@ -448,13 +451,13 @@ const ProfileHeader = () => {
             )}
           </div>
 
-          {/* 🔔 Notification Bell */}
+          {/* Notification Bell */}
           <div className="relative">
             <button
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleBellClick}
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-5 w-5 text-blue-600" />
               {unreadCount > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadCount > 5 ? "5+" : unreadCount}
@@ -513,7 +516,7 @@ const ProfileHeader = () => {
             )}
           </div>
 
-          {/* 👤 User Profile */}
+          {/* User Profile */}
           <div className="flex items-center space-x-3">
             <div className="text-right">
               <div className="text-sm font-medium text-gray-900">

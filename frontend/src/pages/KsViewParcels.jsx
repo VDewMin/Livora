@@ -36,14 +36,14 @@ const KsViewParcels = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this parcel?")) return;
 
-    try {
-      await api.delete(`/parcels/${id}`);
-      setParcels((prev) => prev.filter((p) => p._id !== id));
-      toast.success("Parcel deleted successfuly!");
-    } catch (error) {
-      console.log("error in handleDelete", error);
-      toast.error("Failed to delete Parcel");
-    }
+      try {
+        await api.delete(`/parcels/${id}`);
+        setParcels((prev) => prev.filter((p) => p._id !== id));
+        toast.success("Parcel deleted successfuly!");
+      } catch (error) {
+        console.log("error in handleDelete", error);
+        toast.error("Failed to delete Parcel");
+      }
   };
 
   const handleItemClick = (itemId) => {
@@ -213,7 +213,7 @@ const KsViewParcels = () => {
       filename: `Parcel_Report_${monthName}_${currentYear}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
     };
 
     html2pdf().set(opt).from(pdfDiv).save();

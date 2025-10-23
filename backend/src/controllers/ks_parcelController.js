@@ -384,7 +384,7 @@ export const getParcelsPerApartment = async (req, res) => {
 
 export const getAllSlots = async (req, res) => {
   try {
-    const parcels = await Parcel.find({ status: { $ne: "Collected" } });
+    const parcels = await Parcel.find({ status: { $nin: ["Collected", "Removed"] } }); 
     console.log("Parcels fetched:", parcels); // <-- log
 
     const occupied = parcels.map((p) => p.locId);

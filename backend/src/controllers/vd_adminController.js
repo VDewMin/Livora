@@ -2,7 +2,6 @@ import User from "../models/vd_user.js";
 import Payment from "../models/sn_payment.js";
 import ConventionHallBooking from "../models/SDConventionHallBooking.js";
 import GKServiceRequest from "../models/GKServiceRequest.js";
-import LaundryRequest from "../models/SDLaundryRequest.js";
 import Purchase from "../models/SDpurchase.js";
 
 // Get admin dashboard statistics

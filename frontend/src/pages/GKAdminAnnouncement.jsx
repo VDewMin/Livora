@@ -79,6 +79,7 @@ function AdminAnnouncements() {
               placeholder="Enter date"
               value={form.date}
               onChange={handleChange}
+              min={new Date().toISOString().split("T")[0]}
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
