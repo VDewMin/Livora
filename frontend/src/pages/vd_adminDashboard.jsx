@@ -23,7 +23,6 @@ const AdminDashboard = () => {
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  // ✅ Fetch all data
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -212,14 +211,14 @@ const AdminDashboard = () => {
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl shadow-lg text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-sm font-medium">Monthly Revenue</p>
+              <p className="text-orange-100 text-sm font-medium">Monthly Income</p>
               <h3 className="text-3xl font-bold mt-1">
                 ${stats.monthlyRevenue >= 1000 
                   ? `${(stats.monthlyRevenue / 1000).toFixed(0)}K` 
                   : stats.monthlyRevenue}
               </h3>
               <p className="text-orange-100 text-xs mt-2">
-                {stats.revenueGrowth >= 0 ? '↑' : '↓'} {Math.abs(stats.revenueGrowth)}% from last month
+                Total Income
               </p>
             </div>
             <div className="bg-white bg-opacity-20 p-3 rounded-full">
@@ -348,21 +347,8 @@ const AdminDashboard = () => {
             </svg>
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Revenue Growth</p>
-              <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                {stats.revenueGrowth >= 0 ? '+' : ''}{stats.revenueGrowth}%
-              </h3>
-            </div>
-            <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-            </svg>
-          </div>
-        </div>
       </div>
+
     </div>
   );
 };
