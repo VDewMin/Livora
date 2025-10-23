@@ -52,7 +52,7 @@ export const sendParcelReminders = async () => {
           type: "4day",
         });
         if (!alreadySent) {
-          const message = `Your parcel received on ${created.toDateString()} is still in the lobby. Please collect it at your earliest convenience. The QR code you received will remain valid until its expiry.`;
+          const message = `Your parcel received on is still in the lobby. Please collect it at your earliest convenience. The QR code you received will remain valid until its expiry.`;
           const notification = {
             userId: resident._id,
             title: "Parcel awaiting collection",
@@ -82,7 +82,7 @@ export const sendParcelReminders = async () => {
           type: "10day",
         });
         if (!alreadySent) {
-          const message = `Your parcel (received on ${created.toDateString()}) has been in the lobby for 10 days. Please collect it within the next 4 days. After 14 days, it will be removed from storage.`;
+          const message = `Your parcel has been in the lobby for 10 days. Please collect it within the next 4 days. After 14 days, it will be removed from storage.`;
           const notification = {
             userId: resident._id,
             title: "Parcel Final Reminder",

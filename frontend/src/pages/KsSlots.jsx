@@ -10,7 +10,6 @@ const KsSlots = () => {
   const [slots, setSlots] = useState([]);
 
   useEffect(() => {
-    // Load all slots from backend
     const loadSlots = async () => {
       try {
         const res = await api.get("/parcels/slots");
@@ -22,23 +21,18 @@ const KsSlots = () => {
 
     loadSlots();
 
-    // Listen for real-time updates from backend
     socket.on("slotUpdated", (update) => {
       setSlots((prev) =>
         prev.map((s) => {
           if (s.locId !== update.locId) return s;
 
-          // 🧠 Explicit mapping logic
-          // - Pending or Removed → Occupied
-          // - Collected → Available
-          // - Unknown → keep previous
           let newStatus;
           if (update.status === "Pending" ) {
             newStatus = "Occupied";
           } else if (update.status === "Collected" || update.status === "Removed") {
             newStatus = "Available";
           } else {
-            newStatus = s.status; // unchanged for unknown statuses
+            newStatus = s.status; 
           }
 
           return { ...s, status: newStatus };
@@ -46,7 +40,7 @@ const KsSlots = () => {
       );
     });
 
-    // Clean up listener when component unmounts
+    
     return () => {
       socket.off("slotUpdated");
     };
