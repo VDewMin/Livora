@@ -187,8 +187,7 @@ function GKViewServices() {
                   handleDownloadAllPDF("Pending");
                   setShowDropdown(false);
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-800 rounded hover:bg-emerald-500"
-              >
+                className="block w-full text-left px-4 py-2 text-gray-800 rounded hover:bg-emerald-500">
                 Pending Services
               </button>
               <button
@@ -205,8 +204,7 @@ function GKViewServices() {
 
           <button
             onClick={() => navigate("/add-service")}
-            className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg shadow-md transition-all"
-          >
+            className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg shadow-md transition-all">
             <FaPlus size={16} /> New Service
           </button>
         </div>
