@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Search, Bell, Mail, User, Megaphone, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
+import { Search, Bell, User, Megaphone, MessageSquare, Calendar, CreditCard, Package, Shirt } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import axiosInstance from "../lib/axios";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -43,6 +43,8 @@ const ProfileHeader = () => {
     "/resident/billing": "Billing",
     "/resident/feedback": "Feedback",
     "/add-service": "Add Services",
+    "/update-service/:id": "Update Service",
+    "/delete-service/:id": "Delete Service",
 
     "/securityDashboard": "Dashboard",
     "/security/deliveries": "Deliveries",
@@ -299,10 +301,11 @@ const ProfileHeader = () => {
   };
 
   const handleMarkAnnouncementsRead = async () => {
+    if(!user?._id) return;  
     try {
-      await axiosInstance.patch(`/announcements/mark-read`);
+      await axiosInstance.put(`/announcements/${user._id}/mark-read`);
       await fetchAnnouncements();
-      setUnreadAnnouncements((prev) => Math.max(prev - 1, 0));
+      setUnreadAnnouncements(0);
     } catch (err) {
       console.error("Failed to mark announcements as read:", err);
     }
@@ -390,7 +393,7 @@ const ProfileHeader = () => {
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleMailClick}
             >
-              <Megaphone className="h-5 w-5 text-blue-500" />
+              <Megaphone  className="h-5 w-5 text-blue-500" />
               {unreadAnnouncements > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadAnnouncements > 5 ? "5+" : unreadAnnouncements}
@@ -454,7 +457,7 @@ const ProfileHeader = () => {
               className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors"
               onClick={handleBellClick}
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-5 w-5 text-blue-600" />
               {unreadCount > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 rounded-full min-w-[18px] text-center">
                   {unreadCount > 5 ? "5+" : unreadCount}

@@ -16,8 +16,7 @@ import {
   Users,
   MessageSquareHeart,
   Grid3x3,
-  Shirt
-
+  Shirt,
 } from "lucide-react";
 import { useAuth } from "../context/vd_AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -37,16 +36,16 @@ const roleRoutes = {
 
     //"resident-management": "admin/residentlist",
     apartments: "/purchases",
-    help: "/help"
+    help: "/help",
   },
   Resident: {
     dashboard: `/resident/dashboard/userId`,
-  
+
     services: "/resident/user-view",
     booking: "/convention-hall-home",
     billing: "/resident/billing",
     feedback: "/resident/feedback",
-    help: "/help"
+    help: "/help",
   },
   Security: {
     dashboard: "/securityDashboard",
@@ -55,7 +54,7 @@ const roleRoutes = {
     "parcel-pickup-verification": "/scanner",
     "add-parcel": "/addParcel",
     "parcel-slots": "/slots",
-    help: "/help"
+    help: "/help",
   },
 
   Laundry: {
@@ -82,27 +81,96 @@ const Sidebar = ({ activeItem, onItemClick }) => {
   };
 
   const cancelLogout = () => setShowLogoutConfirm(false);
-const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["Admin", "Resident", "Staff", "Security", "Laundry"]  },
-  { id: "services", label: "Services", icon: BrushCleaning, roles: ["Resident", "Admin"] },
-  { id: "booking", label: "Booking", icon: Album, roles: ["Resident", "Admin"] },
-  { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
-  { id: "billing", label: "Finance", icon: CreditCard, roles: ["Resident", "Admin"] },
-  { id: "billing", label: "Billing", icon: CreditCard, roles: ["Resident", "Admin"] },
-  //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
-  { id: "resident-management", label: "Residents", icon: Users, roles:["Admin"]},
-  { id: "staff-management", label: "Employees", icon: UserCog, roles: ["Admin"] },
-  { id: "parcel-logs", label: "Parcel Entries", icon: Package, roles: ["Security"] , route: "/viewParcels"},
-  { id: "add-parcel", label: "Add Parcel", icon: PackagePlus, roles: ["Security"]},
-  { id: "parcel-pickup-verification", label: "Qr Verification", icon: ScanLine, roles:["Security"]},
-  { id: "parcel-slots", label: "Parcel Slots", icon: Grid3x3, roles: ["Security"]},
-  { id: "apartments", label: "Apartments", icon: Building2, roles: ["Admin"]},
-  { id: "announcements", label: "Announcements", icon: NotepadText, roles: ["Admin"] },
-  { id: "feedback", label: "Feedback", icon: MessageSquareHeart, roles: ["Resident", "Admin"] },
-  { id: "requests", label: "Laundry Requests", icon: Shirt, roles: ["Laundry"],route:"/laundry/staff" },
-
-
-]
+  const menuItems = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      roles: ["Admin", "Resident", "Staff", "Security", "Laundry"],
+    },
+    {
+      id: "services",
+      label: "Services",
+      icon: BrushCleaning,
+      roles: ["Resident", "Admin"],
+    },
+    {
+      id: "booking",
+      label: "Booking",
+      icon: Album,
+      roles: ["Resident", "Admin"],
+    },
+    { id: "deliveries", label: "Deliveries", icon: Package, roles: ["Admin"] },
+    {
+      id: "billing",
+      label: "Finance",
+      icon: CreditCard,
+      roles: ["Resident", "Admin"],
+    },
+    //{ id: "analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+    {
+      id: "resident-management",
+      label: "Residents",
+      icon: Users,
+      roles: ["Admin"],
+    },
+    {
+      id: "staff-management",
+      label: "Employees",
+      icon: UserCog,
+      roles: ["Admin"],
+    },
+    {
+      id: "parcel-logs",
+      label: "Parcel Entries",
+      icon: Package,
+      roles: ["Security"],
+      route: "/viewParcels",
+    },
+    {
+      id: "add-parcel",
+      label: "Add Parcel",
+      icon: PackagePlus,
+      roles: ["Security"],
+    },
+    {
+      id: "parcel-pickup-verification",
+      label: "Qr Verification",
+      icon: ScanLine,
+      roles: ["Security"],
+    },
+    {
+      id: "parcel-slots",
+      label: "Parcel Slots",
+      icon: Grid3x3,
+      roles: ["Security"],
+    },
+    {
+      id: "apartments",
+      label: "Apartments",
+      icon: Building2,
+      roles: ["Admin"],
+    },
+    {
+      id: "announcements",
+      label: "Announcements",
+      icon: NotepadText,
+      roles: ["Admin"],
+    },
+    {
+      id: "feedback",
+      label: "Feedback",
+      icon: MessageSquareHeart,
+      roles: ["Resident", "Admin"],
+    },
+    {
+      id: "requests",
+      label: "Laundry Requests",
+      icon: Shirt,
+      roles: ["Laundry"],
+      route: "/laundry/staff",
+    },
+  ];
   const effectiveRole =
     user?.role === "Staff" && user?.staffType ? user.staffType : user?.role;
 
@@ -148,7 +216,7 @@ const menuItems = [
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">L</span>
+            <span className="text-white font-bold text-sm"><img src="/src/assets/livoralogo.png" alt="Logo" /></span>
           </div>
           <span className="font-semibold text-gray-900">Livora</span>
         </div>
