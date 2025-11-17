@@ -136,7 +136,7 @@ const SDConventionHallHomePage = () => {
               <CalendarIcon className="mr-2 text-green-500" /> New Booking Details
             </h2>
             <p className="text-gray-600"><strong>Name:</strong> {newBooking.name}</p>
-            <p className="text-gray-600"><strong>Apartment #:</strong> {newBooking.apartmentNo}</p>
+            <p className="text-gray-600"><strong>Apartment No:</strong> {newBooking.apartmentNo}</p>
             <p className="text-gray-600"><strong>User ID:</strong> {newBooking.userId}</p>
             <p className="text-gray-600 flex items-center">
               <ClockIcon className="mr-2 text-green-500" />
