@@ -56,7 +56,7 @@ const KsSecurityDashboard = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Security Parcel Management
+                    Secure Parcel Management
                   </h1>
                   <p className="text-gray-600 text-sm mt-1">
                     Secure package handling & monitoring
